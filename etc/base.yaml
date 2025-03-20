@@ -124,13 +124,13 @@ confluent_cloud:
   enabled: false
 
 cp_zookeeper:
-  _install: true
+  _install: false
   _chart_version: 0.3.5
   _extra_timeout: 510
   servers: 3
 
 cp_kafka:
-  _install: true
+  _install: false
   _chart_version: 0.3.6
   _extra_timeout: 510
   customEnv:
@@ -144,10 +144,15 @@ cp_kafka:
     size: 10Gi
 
 cp_schema_registry:
-  _install: true
+  _install: false
   _chart_version: 0.3.3
   _extra_timeout: 90
   replicaCount: 1
+
+radar_kafka_stack:
+  _install: true
+  _chart_version: 0.0.2
+  _extra_timeout: 0
 
 catalog_server:
   _install: true
@@ -155,8 +160,6 @@ catalog_server:
   _extra_timeout: 90
   replicaCount: 1
   # -- remove this when upgrading to Strimzi Connectors
-  kafka: cp-kafka:9092
-  schema_registry: http://cp-schema-registry:8081
   kafkaProperties:
     security_protocol: PLAINTEXT
   secret:
@@ -303,8 +306,6 @@ radar_fitbit_connector:
       value: PLAINTEXT
     - name: CONNECT_PRODUCER_SECURITY_PROTOCOL
       value: PLAINTEXT
-  kafka: PLAINTEXT://cp-kafka-headless:9092
-  schema_registry: http://cp-schema-registry:8081
   secret:
     jaas:
       name: null
@@ -325,8 +326,6 @@ radar_oura_connector:
       value: PLAINTEXT
     - name: CONNECT_PRODUCER_SECURITY_PROTOCOL
       value: PLAINTEXT
-  kafka: PLAINTEXT://cp-kafka-headless:9092
-  schema_registry: http://cp-schema-registry:8081
   secret:
     jaas:
       name: null
@@ -451,8 +450,6 @@ radar_jdbc_connector_grafana:
           size: 8Gi
   # -- remove this when upgrading to Strimzi Connectors
   # remove this when upgrading to Strimzi Connectors
-  kafka: PLAINTEXT://cp-kafka:9092
-  schema_registry: http://cp-schema-registry:8081
   secret:
     jaas:
       name: null
@@ -481,8 +478,6 @@ radar_jdbc_connector_data_dashboard_backend:
           size: 8Gi
   # -- remove this when upgrading to Strimzi Connectors
   # remove this when upgrading to Strimzi Connectors
-  kafka: PLAINTEXT://cp-kafka:9092
-  schema_registry: http://cp-schema-registry:8081
   secret:
     jaas:
       name: null
@@ -511,8 +506,6 @@ radar_jdbc_connector_realtime_dashboard:
           size: 8Gi
   # -- remove this when upgrading to Strimzi Connectors
   # remove this when upgrading to Strimzi Connectors
-  kafka: PLAINTEXT://cp-kafka:9092
-  schema_registry: http://cp-schema-registry:8081
   secret:
     jaas:
       name: null
@@ -544,8 +537,6 @@ radar_gateway:
   _extra_timeout: 0
   replicaCount: 1
   # -- remove this when upgrading to Strimzi Connectors
-  bootstrapServers: cp-kafka-headless:9092
-  schema_registry: http://cp-schema-registry:8081
   secret:
     admin:
       jaas:
@@ -611,7 +602,6 @@ radar_s3_connector:
   s3Endpoint: http://minio:9000/
   # -- remove this when upgrading to Strimzi Connectors
   kafka:
-    url: PLAINTEXT://cp-kafka-headless:9092
     security:
       env:
         - name: CONNECT_SECURITY_PROTOCOL
@@ -623,8 +613,6 @@ radar_s3_connector:
           value: PLAINTEXT
       jaasSecret:
         name: null
-  schemaRegistry:
-    url: http://cp-schema-registry:8081
   # --
 
 s3_proxy:
@@ -689,8 +677,6 @@ radar_upload_source_connector:
   replicaCount: 1
   s3Endpoint: http://minio:9000/
   # -- remove this when upgrading to Strimzi Connectors
-  kafka: PLAINTEXT://cp-kafka-headless:9092
-  schema_registry: http://cp-schema-registry:8081
   extraEnvVars:
     - name: CONNECT_SECURITY_PROTOCOL
       value: PLAINTEXT
@@ -719,8 +705,6 @@ radar_push_endpoint:
   garmin:
     enabled: true
   # -- remove this when upgrading to Strimzi Connectors
-  schemaRegistry: http://cp-schema-registry:8081
-  bootstrapServers: cp-kafka-headless:9092
   adminProperties:
     security.protocol: PLAINTEXT
   producerProperties:
