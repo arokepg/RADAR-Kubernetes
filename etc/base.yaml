@@ -245,12 +245,12 @@ radar_kratos:
           from_address: radar@thehyve.nl
 
 radar_self_enrolment_ui:
-  _install: false
+  _install: true
   _chart_version: 0.3.1
   _extra_timeout: 0
 
 radar_hydra:
-  _install: false
+  _install: true
   _chart_version: 0.2.2
   _extra_timeout: 0
 
