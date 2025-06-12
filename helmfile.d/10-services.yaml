@@ -265,7 +265,8 @@ releases:
         value: {{ .Values.s3_secret_key }}
 
   - name: management-portal
-    chart: radar/management-portal
+#    chart: radar/management-portal
+    chart: ../../radar-helm-charts/charts/management-portal
     version: {{ .Values.management_portal._chart_version }}
     installed: {{ .Values.management_portal._install }}
     timeout: {{ add .Values.base_timeout .Values.management_portal._extra_timeout }}
@@ -312,7 +313,7 @@ releases:
           - "https://dashboard.{{ .Values.server_name }}/login/generic_oauth"
 
   - name: app-config
-    chart: radar/app-config
+    chart: ../../radar-helm-charts/charts/app-config
     version: {{ .Values.app_config._chart_version }}
     installed: {{ .Values.app_config._install }}
     timeout: {{ add .Values.base_timeout .Values.app_config._extra_timeout }}
@@ -331,7 +332,7 @@ releases:
         value: {{ .Values.management_portal.oauth_clients.radar_appconfig.client_secret }}
 
   - name: app-config-frontend
-    chart: radar/app-config-frontend
+    chart: ../../radar-helm-charts/charts/app-config-frontend
     version: {{ .Values.app_config_frontend._chart_version }}
     installed: {{ .Values.app_config_frontend._install }}
     timeout: {{ add .Values.base_timeout .Values.app_config_frontend._extra_timeout }}
@@ -345,7 +346,8 @@ releases:
         value: {{ .Values.server_name }}
 
   - name: radar-kratos
-    chart: radar/radar-kratos
+#    chart: radar/radar-kratos
+    chart: ../../radar-helm-charts/charts/radar-kratos
     version: {{ .Values.radar_kratos._chart_version }}
     installed: {{ .Values.radar_kratos._install }}
     timeout: {{ add .Values.base_timeout .Values.radar_kratos._extra_timeout }}
@@ -365,7 +367,8 @@ releases:
         value: smtp://{{ .Values.management_portal.smtp.username }}:{{ replace "/" "%2F" .Values.management_portal.smtp.password }}@{{ .Values.management_portal.smtp.host }}:{{ .Values | get "management_portal.smtp.port" 587 }}
 
   - name: radar-hydra
-    chart: radar/radar-hydra
+#    chart: radar/radar-hydra
+    chart: ../../radar-helm-charts/charts/radar-hydra
     version: {{ .Values.radar_hydra._chart_version }}
     installed: {{ .Values.radar_hydra._install }}
     timeout: {{ add .Values.base_timeout .Values.radar_hydra._extra_timeout }}
@@ -386,7 +389,7 @@ releases:
         value: {{ .Values.radar_hydra.secrets.cookie }}
 
   - name: radar-self-enrolment-ui
-    chart: radar/radar-self-enrolment-ui
+    chart: ../../radar-helm-charts/charts/radar-self-enrolment-ui
     version: {{ .Values.radar_self_enrolment_ui._chart_version }}
     installed: {{ .Values.radar_self_enrolment_ui._install }}
     timeout: {{ add .Values.base_timeout .Values.radar_self_enrolment_ui._extra_timeout }}
