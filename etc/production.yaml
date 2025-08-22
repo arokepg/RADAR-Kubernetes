@@ -187,7 +187,7 @@ management_portal:
   image:
     registry: docker.io
     repository: ewelina/management-portal
-    tag: auth-fixes-improvements_v8
+    tag: auth-fixes-improvements_v9
   managementportal:
     catalogue_server_enable_auto_import: true
     common_privacy_policy_url: http://info.thehyve.nl/radar-cns-privacy-policy
@@ -438,6 +438,10 @@ ksql_server:
 
 radar_gateway:
   _install: true
+  image:
+    registry: docker.io
+    repository: ewelina/radar-gateway
+    tag: auth-fixes_v2
   _extra_timeout: 0
   replicaCount: 1
 

@@ -715,7 +715,7 @@ releases:
         value: {{ dig "radar_oura_connector" "client_secret" "" .Values.management_portal.oauth_clients }}
 
   - name: radar-gateway
-    chart: radar/radar-gateway
+    chart: ../../radar-helm-charts/charts/radar-gateway
     version: {{ .Values.radar_gateway._chart_version }}
     installed: {{ .Values.radar_gateway._install }}
     timeout: {{ add .Values.base_timeout .Values.radar_gateway._extra_timeout }}
