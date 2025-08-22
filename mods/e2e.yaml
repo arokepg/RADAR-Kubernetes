@@ -370,3 +370,19 @@ radar_mockserver:
               offset: 0
               previous: ""
               sort: asc
+radar_hydra:
+  _install: true
+  oauth_clients:
+    ManagementPortalapp:
+      enable: true
+      grantTypes:
+        - authorization_code
+        - refresh_token
+        - client_credentials
+      tokenEndpointAuthMethod: client_secret_basic
+    aRMT:
+      enable: true
+      grantTypes:
+        - refresh_token
+        - authorization_code
+        - client_credentials

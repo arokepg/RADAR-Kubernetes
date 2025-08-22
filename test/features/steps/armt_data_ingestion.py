@@ -1,7 +1,7 @@
 from behave import *
 
 from base import create_armt_source_type, create_organization, create_project, create_subject, \
-    create_armt_project_source, get_armt_meta_token, get_armt_refresh_token, get_armt_access_token, \
+    create_armt_project_source, get_armt_access_token, \
     check_armt_source_type_exists, check_organization_exists, check_project_exists, check_subject_exists, \
     check_armt_project_source_exists, get_current_s3_object_state, wait_s3_object_counts_state_changed, \
     push_questionnaire_response_data
@@ -34,8 +34,6 @@ def step_impl(context, source):
 
 @given('the aRMT application has retrieved an access token')
 def step_impl(context):
-    get_armt_meta_token(context)
-    get_armt_refresh_token(context)
     get_armt_access_token(context)
 
 @given('the state of objects in the s3 storage')
