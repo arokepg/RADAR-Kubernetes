@@ -167,7 +167,7 @@ radar_home:
 # DEPRECATED: Use cloudnative_postgresql instead
 postgresql:
   _install: false
-  _chart_version: 0.1.2
+  _chart_version: 0.1.4
   _extra_timeout: 0
   postgresql:
     replication:

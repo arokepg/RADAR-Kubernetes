@@ -1,3 +1,18 @@
+image:
+  repository: bitnamilegacy/mongodb
+tls:
+  image:
+    repository: bitnamilegacy/nginx
+externalAccess:
+  image:
+    repository: bitnamilegacy/kubectl
+  dnsCheck:
+    image:
+      repository: bitnamilegacy/os-shell
+volumePermissions:
+  image:
+    repository: bitnamilegacy/os-shell
+
 ## MongoDB(&reg;) Authentication parameters
 ##
 auth:
@@ -15,9 +30,9 @@ auth:
   ## @param auth.passwords List of passwords for the custom users set at `auth.usernames`
   ## @param auth.databases List of custom databases to be created during the initialization
   ##
-  usernames: [graylog]
-  passwords: []
-  databases: [graylog]
+  usernames: [ graylog ]
+  passwords: [ ]
+  databases: [ graylog ]
 ## MongoDB(&reg;) containers' resource requests and limits.
 ## ref: https://kubernetes.io/docs/user-guide/compute-resources/
 ## We usually recommend not to specify default resources and to leave this as a conscious
@@ -49,3 +64,5 @@ metrics:
   ## @param metrics.enabled Enable using a sidecar Prometheus exporter
   ##
   enabled: true
+  image:
+    repository: bitnamilegacy/mongodb-exporter
