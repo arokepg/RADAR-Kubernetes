@@ -1,3 +1,14 @@
+image:
+  repository: bitnamilegacy/redis
+sentinel:
+  image:
+    repository: bitnamilegacy/redis-sentinel
+volumePermissions:
+  image:
+    repository: bitnamilegacy/os-shell
+kubectl:
+  image:
+    repository: bitnamilegacy/kubectl
 ## @section Redis&trade; common configuration parameters
 ## https://github.com/bitnami/bitnami-docker-redis#configuration
 ##
@@ -40,6 +51,8 @@ metrics:
   ## ref: https://github.com/coreos/prometheus-operator
   ##      https://github.com/coreos/prometheus-operator/blob/master/Documentation/api.md#endpoint
   ##
+  image:
+    repository: bitnamilegacy/redis-exporter
   serviceMonitor:
     ## @param metrics.serviceMonitor.enabled Create ServiceMonitor resource(s) for scraping metrics using PrometheusOperator
     ##
@@ -54,6 +67,8 @@ sysctl:
   enabled: true
   ## @param sysctl.command override default init-sysctl container command (useful when using custom images)
   ##
+  image:
+    repository: bitnamilegacy/os-shell
   command:
     - /bin/sh
     - -c
