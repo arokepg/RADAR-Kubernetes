@@ -10,7 +10,11 @@ graylog:
   _install: false
 fluent_bit:
   _install: false
-
+cloudnative_postgresql:
+  cluster:
+    cluster:
+      monitoring:
+        enabled: false
 cert_manager:
   prometheus:
     servicemonitor:

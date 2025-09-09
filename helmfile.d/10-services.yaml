@@ -229,7 +229,7 @@ releases:
     timeout: {{ add .Values.base_timeout .Values.kube_prometheus_stack._extra_timeout }}
     needs:
       - cloudnativepg-operator
-    <<: *logFailedReleasePrometheus
+    <<: *logFailedRelease
     values:
       - {{ .Values.cloudnative_postgresql | toYaml | indent 8 | trim }}
 
@@ -321,6 +321,11 @@ releases:
     <<: *logFailedRelease
     values:
       - {{ .Values.radar_kratos | toYaml | indent 8 | trim }}
+    {{ if or .Values.postgresql._install .Values.cloudnative_postgresql._install }}
+    needs:
+    {{ if .Values.postgresql._install }}- postgresql{{ end }}
+    {{ if .Values.cloudnative_postgresql._install }}- radar-cloudnative-postgresql{{ end }}
+    {{ end }}
     set:
       - name: kratos.server_name
         value: {{ .Values.server_name }}
