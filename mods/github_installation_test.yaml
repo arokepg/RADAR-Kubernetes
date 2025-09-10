@@ -30,9 +30,3 @@ grafana_metrics_timescaledb:
 
 data_dashboard_timescaledb:
   _install: false
-
-radar_backend_monitor:
-  _install: false
-
-radar_backend_stream:
-  _install: false
