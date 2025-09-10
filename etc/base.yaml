@@ -10,6 +10,8 @@ server_name: example.com
 maintainer_email: MAINTAINER_EMAIL@example.com
 # Number of Kafka pods that will be installed
 kafka_num_brokers: 3
+# Minimum number of Kafka brokers that should be in sync
+kafka_num_in_sync_brokers: 2
 # Number of replicas for Kafka topics. Should be min 2, max 4, and is normally 3, but can not be larger than kafka_num_brokers.
 # Ref: https://learn.conduktor.io/kafka/kafka-topics-choosing-the-replication-factor-and-partitions-count/
 kafka_num_topic_replicas: 3

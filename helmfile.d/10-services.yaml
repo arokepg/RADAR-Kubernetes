@@ -150,6 +150,8 @@ releases:
     set:
       - name: kafka.replicas
         value: {{ .Values.kafka_num_brokers }}
+      - name: kafka.insyncReplicas
+        value: {{ .Values.kafka_num_in_sync_brokers }}
       - name: kafka.replicationFactor
         value: {{ .Values.kafka_num_topic_replicas }}
       - name: kafka.partitions
