@@ -229,7 +229,7 @@ releases:
     timeout: {{ add .Values.base_timeout .Values.kube_prometheus_stack._extra_timeout }}
     needs:
       - cloudnativepg-operator
-    <<: *logFailedReleasePrometheus
+    <<: *logFailedRelease
     values:
       - {{ .Values.cloudnative_postgresql | toYaml | indent 8 | trim }}
 
@@ -321,6 +321,11 @@ releases:
     <<: *logFailedRelease
     values:
       - {{ .Values.radar_kratos | toYaml | indent 8 | trim }}
+    {{ if or .Values.postgresql._install .Values.cloudnative_postgresql._install }}
+    needs:
+    {{ if .Values.postgresql._install }}- postgresql{{ end }}
+    {{ if .Values.cloudnative_postgresql._install }}- radar-cloudnative-postgresql{{ end }}
+    {{ end }}
     set:
       - name: kratos.server_name
         value: {{ .Values.server_name }}
@@ -662,37 +667,6 @@ releases:
       - name: bootstrapServers
         value: {{ .Values.confluent_cloud.cc.bootstrapServerurl }}
       {{ end }}
-
-  - name: radar-backend-monitor
-    chart: radar/radar-backend
-    version: {{ .Values.radar_backend_monitor._chart_version }}
-    installed: {{ .Values.radar_backend_monitor._install }}
-    timeout: {{ add .Values.base_timeout .Values.radar_backend_monitor._extra_timeout }}
-    needs:
-      - catalog-server
-    <<: *logFailedRelease
-    values:
-      - "../etc/radar-backend-monitor/values.yaml"
-      - {{ .Values.radar_backend_monitor | toYaml | indent 8 | trim }}
-    set:
-      - name: kafka_num_brokers
-        value: {{ .Values.kafka_num_brokers }}
-
-  - name: radar-backend-stream
-    chart: radar/radar-backend
-    version: {{ .Values.radar_backend_monitor._chart_version }}
-    installed: {{ .Values.radar_backend_stream._install }}
-    timeout: {{ add .Values.base_timeout .Values.radar_backend_stream._extra_timeout }}
-    needs:
-      # When catalog server is 'ready', kafka can be used.
-      - catalog-server
-    <<: *logFailedRelease
-    values:
-      - "../etc/radar-backend-stream/values.yaml"
-      - {{ .Values.radar_backend_stream | toYaml | indent 8 | trim }}
-    set:
-      - name: kafka_num_brokers
-        value: {{ .Values.kafka_num_brokers }}
 
   - name: radar-integration
     chart: radar/radar-integration
