@@ -666,7 +666,7 @@ radar_output:
 # --------------------------------------------------------- 20-upload.yaml ---------------------------------------------------------
 
 radar_upload_postgresql:
-  _install: true
+  _install: false
   _chart_version: 0.1.4
   _extra_timeout: 0
   postgresql:
