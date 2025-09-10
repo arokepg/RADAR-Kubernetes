@@ -316,6 +316,9 @@ radar_oura_connector:
   _extra_timeout: 0
   replicaCount: 1
   oauthClientId: radar_oura_connector
+  # -- remove this when Pauline has applied a fix to the helm chart
+  user_repository_class: OuraServiceUserRepository
+  # --
   # -- remove this when upgrading to Strimzi Connectors
   extraEnvVars:
     - name: CONNECT_SECURITY_PROTOCOL
