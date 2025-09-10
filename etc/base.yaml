@@ -305,6 +305,9 @@ radar_fitbit_connector:
       value: PLAINTEXT
   kafka: PLAINTEXT://cp-kafka-headless:9092
   schema_registry: http://cp-schema-registry:8081
+  secret:
+    jaas:
+      name: null
   # --
 
 radar_oura_connector:
@@ -321,6 +324,9 @@ radar_oura_connector:
       value: PLAINTEXT
   kafka: PLAINTEXT://cp-kafka-headless:9092
   schema_registry: http://cp-schema-registry:8081
+  secret:
+    jaas:
+      name: null
   # --
 
 radar_rest_sources_authorizer:
@@ -680,13 +686,16 @@ radar_upload_source_connector:
   replicaCount: 1
   s3Endpoint: http://minio:9000/
   # -- remove this when upgrading to Strimzi Connectors
-  kafka: PLAINTEXT://cp-kafka-bootstrap:9092
+  kafka: PLAINTEXT://cp-kafka-headless:9092
   schema_registry: http://cp-schema-registry:8081
   extraEnvVars:
     - name: CONNECT_SECURITY_PROTOCOL
       value: PLAINTEXT
-    - name: CONNECT_CONSUMER_SECURITY_PROTOCOL
+    - name: CONNECT_PRODUCER_SECURITY_PROTOCOL
       value: PLAINTEXT
+  secret:
+    jaas:
+      name: null
   # --
 
 # --------------------------------------------------------- 30-cp-cloud.yaml ---------------------------------------------------------
@@ -713,6 +722,13 @@ radar_push_endpoint:
     security.protocol: PLAINTEXT
   producerProperties:
     security.protocol: PLAINTEXT
+  secret:
+    admin:
+      jaas:
+        name: null
+    producer:
+      jaas:
+        name: null
   # --
 
 # --------------------------------------------------------- 99-velero.yaml ---------------------------------------------------------
