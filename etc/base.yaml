@@ -331,7 +331,7 @@ radar_rest_sources_authorizer:
 
 radar_rest_sources_backend:
   _install: false
-  _chart_version: 1.5.1
+  _chart_version: 1.5.2
   _extra_timeout: 0
   replicaCount: 1
   restSourceClients:
