@@ -503,7 +503,7 @@ releases:
         value: {{ .Values.management_portal.oauth_clients.radar_data_dashboard_backend.client_secret }}
 
   - name: ksql-server
-    chart: cp-radar/cp-ksql-server
+    chart: radar/radar-cp-ksql-server
     installed: {{ .Values.ksql_server._install }}
     version: {{ .Values.ksql_server._chart_version }}
     timeout: {{ add .Values.base_timeout .Values.ksql_server._extra_timeout }}
@@ -512,8 +512,14 @@ releases:
       - catalog-server
     <<: *logFailedRelease
     values:
-      - "../etc/cp-ksql-server/values.yaml"
       - {{ .Values.ksql_server | toYaml | indent 8 | trim }}
+    set:
+      - name: ksql.configurationOverrides.ksql\.sink\.replicas
+        value: {{ .Values.kafka_num_in_sync_brokers }}
+      - name: ksql.configurationOverrides.ksql\.streams\.replication\.factor
+        value: {{ .Values.kafka_num_in_sync_brokers }}
+      - name: ksql.configurationOverrides.ksql\.internal\.topic\.replicas
+        value: {{ .Values.kafka_num_in_sync_brokers }}
 
   - name: radar-jdbc-connector-grafana
     chart: radar/radar-jdbc-connector
