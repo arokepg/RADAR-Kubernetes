@@ -304,13 +304,10 @@ radar_fitbit_connector:
 
 radar_oura_connector:
   _install: false
-  _chart_version: 0.5.0
+  _chart_version: 0.5.1
   _extra_timeout: 0
   replicaCount: 1
   oauthClientId: radar_oura_connector
-  # -- remove this when Pauline has applied a fix to the helm chart
-  user_repository_class: OuraServiceUserRepository
-  # --
 
 radar_rest_sources_authorizer:
   _install: false
@@ -622,6 +619,7 @@ radar_push_endpoint:
   _chart_version: 0.6.0
   _extra_timeout: 180
   replicaCount: 1
+  adminProperties: {}
   garmin:
     enabled: true
 
