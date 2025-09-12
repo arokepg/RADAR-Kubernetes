@@ -15,6 +15,7 @@ CREATE STREAM observations (
     VALUE_TEXTUAL VARCHAR
 ) WITH (
     kafka_topic = 'ksql_observations',
-    partitions = 3,
+    -- Keep identical to the value of 'kafka_num_topic_partitions'
+    partitions = 12,
     format = 'avro'
 );

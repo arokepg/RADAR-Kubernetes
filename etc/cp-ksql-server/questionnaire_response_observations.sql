@@ -10,7 +10,8 @@ CREATE STREAM questionnaire_response (
     answers ARRAY<STRUCT<questionId VARCHAR, value STRUCT<int INT, string VARCHAR, double DOUBLE>, startTime DOUBLE, endTime DOUBLE>>
 ) WITH (
     kafka_topic = 'questionnaire_response',
-    partitions = 3,
+    -- Keep identical to the value of 'kafka_num_topic_partitions'
+    partitions = 12,
     format = 'avro'
 );
 

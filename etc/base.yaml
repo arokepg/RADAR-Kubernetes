@@ -17,7 +17,7 @@ kafka_num_in_sync_brokers: 2
 kafka_num_topic_replicas: 3
 # Number of partitions for Kafka topics. Rule of thumb: 3 times the number of brokers. Headroom is used for future upscale
 # of brokers. Ref: https://learn.conduktor.io/kafka/kafka-topics-choosing-the-replication-factor-and-partitions-count/
-kafka_num_topic_partitions: 9
+kafka_num_topic_partitions: 12
 # Enable logging and monitoring
 enable_logging_monitoring: false
 # Enable TLS redirection and retrieval of Let's Encrypt certificates.
