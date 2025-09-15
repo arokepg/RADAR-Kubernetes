@@ -519,7 +519,7 @@ releases:
       - name: ksql.configurationOverrides.ksql\.streams\.replication\.factor
         value: {{ .Values.kafka_num_in_sync_brokers }}
       - name: ksql.configurationOverrides.ksql\.internal\.topic\.replicas
-        value: {{ .Values.kafka_num_in_sync_brokers }}
+        value: {{ .Values.kafka_num_topic_replicas }}
 
   - name: radar-jdbc-connector-grafana
     chart: radar/radar-jdbc-connector
