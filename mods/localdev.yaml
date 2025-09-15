@@ -54,11 +54,15 @@ radar_jdbc_connector_data_dashboard_backend:
       cluster:
         monitoring:
           enabled: false
+      backups:
+        enabled: false
 radar_jdbc_connector_grafana:
   timescaledb:
     cluster:
       cluster:
         monitoring:
+          enabled: false
+        backups:
           enabled: false
 radar_jdbc_connector_realtime_dashboard:
   timescaledb:
@@ -66,9 +70,16 @@ radar_jdbc_connector_realtime_dashboard:
       cluster:
         monitoring:
           enabled: false
+        backups:
+          enabled: false
 
 radar_grafana:
   grafana:
     advertised_protocol: http
 radar_self_enrolment_ui:
   advertised_protocol: http
+
+cloudnative_postgresql:
+  cluster:
+    backups:
+      enabled: false
