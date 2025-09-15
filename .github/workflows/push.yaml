@@ -121,6 +121,15 @@ jobs:
           kubectl get pods --all-namespaces --context k3d-${{ matrix.KUBECTL_VERSION }}
           helmfile sync
 
+      # FIXME: somehow we still need to manually restart Fitbit connector after
+      # registration of the first user for user changes to be picked up.
+      - name: Run single test and restart Fitbit connector
+        run: |
+          cd test/features
+          behave -D secrets_file=$GITHUB_WORKSPACE/etc/secrets.yaml -D url=http://localhost:80 || true
+          sleep 30
+          kubectl rollout restart deployment radar-fitbit-connector
+
       - name: Run end-to-end tests
         uses: nick-fields/retry@v3
         with:
