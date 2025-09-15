@@ -37,13 +37,9 @@ radar_fitbit_connector:
   user_cache_refresh_interval_ms: 5000
 ksql_server:
   _install: true
-data_dashboard_timescaledb:
-  _install: true
 data_dashboard_backend:
   _install: true
 radar_jdbc_connector_data_dashboard_backend:
-  _install: true
-grafana_metrics_timescaledb:
   _install: true
 radar_jdbc_connector_grafana:
   _install: true

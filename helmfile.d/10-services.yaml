@@ -139,15 +139,37 @@ releases:
       - name: ingress.tls[0].hosts
         values: ["{{ .Values.server_name }}"]
 
+  - name: radar-kafka
+    chart: radar/radar-kafka
+    version: {{ .Values.radar_kafka_stack._chart_version }}
+    installed: {{ .Values.radar_kafka_stack._install }}
+    timeout: {{ add .Values.base_timeout .Values.radar_kafka_stack._extra_timeout }}
+    <<: *logFailedRelease
+    values:
+      - {{ .Values.radar_kafka_stack | toYaml | indent 8 | trim }}
+    set:
+      - name: kafka.replicas
+        value: {{ .Values.kafka_num_brokers }}
+      - name: kafka.insyncReplicas
+        value: {{ .Values.kafka_num_in_sync_brokers }}
+      - name: kafka.replicationFactor
+        value: {{ .Values.kafka_num_topic_replicas }}
+      - name: kafka.partitions
+        value: {{ .Values.kafka_num_topic_partitions }}
+      - name: schema-registry.topic.replicationFactor
+        value: {{ .Values.kafka_num_topic_replicas }}
+      - name: dev_deployment
+        value: {{ .Values.dev_deployment | default false }}
+
   - name: catalog-server
     chart: radar/catalog-server
     version: {{ .Values.catalog_server._chart_version }}
     installed: {{ .Values.catalog_server._install }}
     timeout: {{ add .Values.base_timeout .Values.catalog_server._extra_timeout }}
-    {{ if .Values.cp_kafka._install }}
+    {{ if or .Values.radar_kafka_stack._install .Values.cp_schema_registry._install }}
     needs:
-      - cp-kafka
-      - cp-schema-registry
+      {{ if .Values.radar_kafka_stack._install }}- radar-kafka{{ end }}
+      {{ if .Values.cp_schema_registry._install }}- cp-schema-registry{{ end }}
     {{ end }}
     <<: *logFailedRelease
     values:
@@ -156,6 +178,10 @@ releases:
     set:
       - name: kafka_num_brokers
         value: {{ .Values.kafka_num_brokers }}
+      - name: kafka_num_replication
+        value: {{ .Values.kafka_num_topic_replicas }}
+      - name: kafka_num_partitions
+        value: {{ .Values.kafka_num_topic_partitions }}
       - name: cc.enabled
         value: {{ .Values.confluent_cloud.enabled }}
       {{- if .Values.confluent_cloud.enabled }}
@@ -477,7 +503,7 @@ releases:
         value: {{ .Values.management_portal.oauth_clients.radar_data_dashboard_backend.client_secret }}
 
   - name: ksql-server
-    chart: cp-radar/cp-ksql-server
+    chart: radar/radar-cp-ksql-server
     installed: {{ .Values.ksql_server._install }}
     version: {{ .Values.ksql_server._chart_version }}
     timeout: {{ add .Values.base_timeout .Values.ksql_server._extra_timeout }}
@@ -486,17 +512,26 @@ releases:
       - catalog-server
     <<: *logFailedRelease
     values:
-      - "../etc/cp-ksql-server/values.yaml"
       - {{ .Values.ksql_server | toYaml | indent 8 | trim }}
+    set:
+      - name: ksql.configurationOverrides.ksql\.sink\.replicas
+        value: {{ .Values.kafka_num_in_sync_brokers }}
+      - name: ksql.configurationOverrides.ksql\.streams\.replication\.factor
+        value: {{ .Values.kafka_num_in_sync_brokers }}
+      - name: ksql.configurationOverrides.ksql\.internal\.topic\.replicas
+        value: {{ .Values.kafka_num_topic_replicas }}
 
   - name: radar-jdbc-connector-grafana
     chart: radar/radar-jdbc-connector
     version: {{ .Values.radar_jdbc_connector_grafana._chart_version }}
     installed: {{ .Values.radar_jdbc_connector_grafana._install }}
     timeout: {{ add .Values.base_timeout .Values.radar_jdbc_connector_grafana._extra_timeout }}
+    {{- if or .Values.radar_kafka_stack._install .Values.cp_schema_registry._install .Values.radar_jdbc_connector_grafana.timescaledb.enabled }}
     needs:
-      - cp-kafka
-      {{ if index .Values "radar_jdbc_connector_grafana" "timescaledb" "enabled" }}- cloudnativepg-operator{{ end }}
+      {{ if .Values.radar_kafka_stack._install }}- radar-kafka{{ end }}
+      {{ if .Values.cp_schema_registry._install }}- cp-schema-registry{{ end }}
+      {{ if .Values.radar_jdbc_connector_grafana.timescaledb.enabled }}- cloudnativepg-operator{{ end }}
+    {{- end }}
     <<: *logFailedRelease
     values:
       - {{ .Values.radar_jdbc_connector_grafana | toYaml | indent 8 | trim }}
@@ -511,9 +546,12 @@ releases:
     version: {{ .Values.radar_jdbc_connector_data_dashboard_backend._chart_version }}
     installed: {{ .Values.radar_jdbc_connector_data_dashboard_backend._install }}
     timeout: {{ add .Values.base_timeout .Values.radar_jdbc_connector_data_dashboard_backend._extra_timeout }}
+    {{- if or .Values.radar_kafka_stack._install .Values.cp_schema_registry._install .Values.radar_jdbc_connector_data_dashboard_backend.timescaledb.enabled }}
     needs:
-      - cp-kafka
-      {{ if index .Values "radar_jdbc_connector_data_dashboard_backend" "timescaledb" "enabled" }}- cloudnativepg-operator{{ end }}
+      {{ if .Values.radar_kafka_stack._install }}- radar-kafka{{ end }}
+      {{ if .Values.cp_schema_registry._install }}- cp-schema-registry{{ end }}
+      {{ if .Values.radar_jdbc_connector_data_dashboard_backend.timescaledb.enabled }}- cloudnativepg-operator{{ end }}
+    {{- end }}
     <<: *logFailedRelease
     values:
       - "../etc/radar-jdbc-connector-data-dashboard/values.yaml"
@@ -529,9 +567,12 @@ releases:
     version: {{ .Values.radar_jdbc_connector_realtime_dashboard._chart_version }}
     installed: {{ .Values.radar_jdbc_connector_realtime_dashboard._install }}
     timeout: {{ add .Values.base_timeout .Values.radar_jdbc_connector_realtime_dashboard._extra_timeout }}
+    {{- if or .Values.radar_kafka_stack._install .Values.cp_schema_registry._install .Values.radar_jdbc_connector_realtime_dashboard.timescaledb.enabled }}
     needs:
-      - cp-kafka
-      {{ if index .Values "radar_jdbc_connector_realtime_dashboard" "timescaledb" "enabled" }}- cloudnativepg-operator{{ end }}
+      {{ if .Values.radar_kafka_stack._install }}- radar-kafka{{ end }}
+      {{ if .Values.cp_schema_registry._install }}- cp-schema-registry{{ end }}
+      {{ if .Values.radar_jdbc_connector_realtime_dashboard.timescaledb.enabled }}- cloudnativepg-operator{{ end }}
+    {{- end }}
     <<: *logFailedRelease
     values:
       - "../etc/radar-jdbc-connector-realtime-dashboard/values.yaml"
@@ -548,7 +589,8 @@ releases:
     installed: {{ .Values.radar_fitbit_connector._install }}
     timeout: {{ add .Values.base_timeout .Values.radar_fitbit_connector._extra_timeout }}
     needs:
-      - cp-kafka
+      {{ if .Values.radar_kafka_stack._install }}- radar-kafka{{ end }}
+      - catalog-server
       - radar-rest-sources-backend
       - management-portal
     <<: *logFailedRelease
@@ -649,7 +691,11 @@ releases:
     version: {{ .Values.radar_gateway._chart_version }}
     installed: {{ .Values.radar_gateway._install }}
     timeout: {{ add .Values.base_timeout .Values.radar_gateway._extra_timeout }}
-    {{ if .Values.cp_schema_registry._install }}needs: [cp-schema-registry]{{ end }}
+    {{ if or .Values.cp_schema_registry._install .Values.radar_kafka_stack._install }}
+    needs:
+      {{ if .Values.cp_schema_registry._install }}- cp-schema-registry{{ end }}
+      {{ if .Values.radar_kafka_stack._install }}- radar-kafka{{ end }}
+    {{ end }}
     <<: *logFailedRelease
     values:
       - {{ .Values.radar_gateway | toYaml | indent 8 | trim }}
@@ -827,6 +873,7 @@ releases:
       - management-portal
       - radar-upload-connect-backend
       {{ if .Values.cp_schema_registry._install }}- cp-schema-registry{{ end }}
+      {{ if .Values.radar_kafka_stack._install }}- radar-kafka{{ end }}
     values:
       - {{ .Values.radar_upload_source_connector | toYaml | indent 8 | trim }}
     set:

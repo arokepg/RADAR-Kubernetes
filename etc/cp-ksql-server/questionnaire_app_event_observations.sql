@@ -8,7 +8,8 @@ CREATE STREAM questionnaire_app_event (
     metadata MAP<VARCHAR, VARCHAR>
 ) WITH (
     kafka_topic = 'questionnaire_app_event',
-    partitions = 3,
+    -- Keep identical to the value of 'kafka_num_topic_partitions'
+    partitions = 12,
     format = 'avro'
 );
 

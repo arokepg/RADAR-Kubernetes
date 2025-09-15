@@ -10,6 +10,14 @@ server_name: example.com
 maintainer_email: MAINTAINER_EMAIL@example.com
 # Number of Kafka pods that will be installed
 kafka_num_brokers: 3
+# Minimum number of Kafka brokers that should be in sync
+kafka_num_in_sync_brokers: 2
+# Number of replicas for Kafka topics. Should be min 2, max 4, and is normally 3, but can not be larger than kafka_num_brokers.
+# Ref: https://learn.conduktor.io/kafka/kafka-topics-choosing-the-replication-factor-and-partitions-count/
+kafka_num_topic_replicas: 3
+# Number of partitions for Kafka topics. Rule of thumb: 3 times the number of brokers. Headroom is used for future upscale
+# of brokers. Ref: https://learn.conduktor.io/kafka/kafka-topics-choosing-the-replication-factor-and-partitions-count/
+kafka_num_topic_partitions: 12
 # Enable logging and monitoring
 enable_logging_monitoring: false
 # Enable TLS redirection and retrieval of Let's Encrypt certificates.
@@ -124,13 +132,13 @@ confluent_cloud:
   enabled: false
 
 cp_zookeeper:
-  _install: true
+  _install: false
   _chart_version: 0.3.5
   _extra_timeout: 510
   servers: 3
 
 cp_kafka:
-  _install: true
+  _install: false
   _chart_version: 0.3.6
   _extra_timeout: 510
   customEnv:
@@ -144,25 +152,21 @@ cp_kafka:
     size: 10Gi
 
 cp_schema_registry:
-  _install: true
+  _install: false
   _chart_version: 0.3.3
   _extra_timeout: 90
   replicaCount: 1
+
+radar_kafka_stack:
+  _install: true
+  _chart_version: 0.0.3
+  _extra_timeout: 0
 
 catalog_server:
   _install: true
   _chart_version: 0.9.1
   _extra_timeout: 90
   replicaCount: 1
-  # -- remove this when upgrading to Strimzi Connectors
-  kafka: cp-kafka:9092
-  schema_registry: http://cp-schema-registry:8081
-  kafkaProperties:
-    security_protocol: PLAINTEXT
-  secret:
-    jaas:
-      name: null
-  # --
 
 radar_home:
   _install: true
@@ -293,44 +297,17 @@ radar_appserver:
 # The charts in 20-fitbit.yaml only need to be installed if you will use a Fitbit, Garmin, or Oura API integration.
 radar_fitbit_connector:
   _install: false
-  _chart_version: 0.10.1
+  _chart_version: 0.10.2
   _extra_timeout: 0
   replicaCount: 1
   oauthClientId: radar_fitbit_connector
-  # -- remove this when upgrading to Strimzi Connectors
-  extraEnvVars:
-    - name: CONNECT_SECURITY_PROTOCOL
-      value: PLAINTEXT
-    - name: CONNECT_PRODUCER_SECURITY_PROTOCOL
-      value: PLAINTEXT
-  kafka: PLAINTEXT://cp-kafka-headless:9092
-  schema_registry: http://cp-schema-registry:8081
-  secret:
-    jaas:
-      name: null
-  # --
 
 radar_oura_connector:
   _install: false
-  _chart_version: 0.5.0
+  _chart_version: 0.5.1
   _extra_timeout: 0
   replicaCount: 1
   oauthClientId: radar_oura_connector
-  # -- remove this when Pauline has applied a fix to the helm chart
-  user_repository_class: OuraServiceUserRepository
-  # --
-  # -- remove this when upgrading to Strimzi Connectors
-  extraEnvVars:
-    - name: CONNECT_SECURITY_PROTOCOL
-      value: PLAINTEXT
-    - name: CONNECT_PRODUCER_SECURITY_PROTOCOL
-      value: PLAINTEXT
-  kafka: PLAINTEXT://cp-kafka-headless:9092
-  schema_registry: http://cp-schema-registry:8081
-  secret:
-    jaas:
-      name: null
-  # --
 
 radar_rest_sources_authorizer:
   _install: false
@@ -340,9 +317,17 @@ radar_rest_sources_authorizer:
 
 radar_rest_sources_backend:
   _install: false
-  _chart_version: 1.5.2
+  # -- Beware: we are stuck with the 1.4.0 version of the the chart
+  #    Reason is that newer versions at the moment require ory kratos/hydra.
+  _chart_version: 1.4.0
   _extra_timeout: 0
   replicaCount: 1
+  # -- Remove when chart can handle non-ory setups
+  image:
+    registry: ghcr.io
+    repository: radar-base/radar-rest-source-auth/radar-rest-source-auth-backend
+    tag: 4.4.11
+  # --
   restSourceClients:
     fitbit:
       enable: "false"
@@ -449,19 +434,6 @@ radar_jdbc_connector_grafana:
           owner: grafana
         storage:
           size: 8Gi
-  # -- remove this when upgrading to Strimzi Connectors
-  # remove this when upgrading to Strimzi Connectors
-  kafka: PLAINTEXT://cp-kafka:9092
-  schema_registry: http://cp-schema-registry:8081
-  secret:
-    jaas:
-      name: null
-  extraEnvVars:
-    - name: CONNECT_SECURITY_PROTOCOL
-      value: PLAINTEXT
-    - name: CONNECT_CONSUMER_SECURITY_PROTOCOL
-      value: PLAINTEXT
-  # --
 
 # Install when data_dashboard_backend._install is 'true'.
 radar_jdbc_connector_data_dashboard_backend:
@@ -479,19 +451,6 @@ radar_jdbc_connector_data_dashboard_backend:
           owner: data-dashboard
         storage:
           size: 8Gi
-  # -- remove this when upgrading to Strimzi Connectors
-  # remove this when upgrading to Strimzi Connectors
-  kafka: PLAINTEXT://cp-kafka:9092
-  schema_registry: http://cp-schema-registry:8081
-  secret:
-    jaas:
-      name: null
-  extraEnvVars:
-    - name: CONNECT_SECURITY_PROTOCOL
-      value: PLAINTEXT
-    - name: CONNECT_CONSUMER_SECURITY_PROTOCOL
-      value: PLAINTEXT
-  # --
 
 # Install when using realtime analysis
 radar_jdbc_connector_realtime_dashboard:
@@ -509,19 +468,6 @@ radar_jdbc_connector_realtime_dashboard:
           owner: realtime-dashboard
         storage:
           size: 8Gi
-  # -- remove this when upgrading to Strimzi Connectors
-  # remove this when upgrading to Strimzi Connectors
-  kafka: PLAINTEXT://cp-kafka:9092
-  schema_registry: http://cp-schema-registry:8081
-  secret:
-    jaas:
-      name: null
-  extraEnvVars:
-    - name: CONNECT_SECURITY_PROTOCOL
-      value: PLAINTEXT
-    - name: CONNECT_CONSUMER_SECURITY_PROTOCOL
-      value: PLAINTEXT
-  # --
 
 # Install when:
 #- radar_grafana._install is 'true'
@@ -529,11 +475,12 @@ radar_jdbc_connector_realtime_dashboard:
 #- using realtime analysis
 ksql_server:
   _install: false
-  _chart_version: 0.4.1
+  _chart_version: 0.0.1
   _extra_timeout: 0
   # -- Uncomment when using real-time analysis
   # ksql:
-  #   headless: false
+  #   ksql:
+  #     headless: false
   # --
 
 # --------------------------------------------------------- 20-ingestion.yaml ---------------------------------------------------------
@@ -543,21 +490,6 @@ radar_gateway:
   _chart_version: 1.7.1
   _extra_timeout: 0
   replicaCount: 1
-  # -- remove this when upgrading to Strimzi Connectors
-  bootstrapServers: cp-kafka-headless:9092
-  schema_registry: http://cp-schema-registry:8081
-  secret:
-    admin:
-      jaas:
-        name: null
-    producer:
-      jaas:
-        name: null
-  producerProperties:
-    security.protocol: PLAINTEXT
-  adminProperties:
-    security.protocol: PLAINTEXT
-  # --
 
 # --------------------------------------------------------- 20-redcap.yaml ---------------------------------------------------------
 
@@ -609,23 +541,6 @@ radar_s3_connector:
   # The bucket name where intermediate data for cold storage should be written to.
   bucketName: radar-intermediate-storage
   s3Endpoint: http://minio:9000/
-  # -- remove this when upgrading to Strimzi Connectors
-  kafka:
-    url: PLAINTEXT://cp-kafka-headless:9092
-    security:
-      env:
-        - name: CONNECT_SECURITY_PROTOCOL
-          value: PLAINTEXT
-        - name: CONNECT_PRODUCER_SECURITY_PROTOCOL
-          value: PLAINTEXT
-        # -- Protocol used to communicate with brokers. Valid values are: PLAINTEXT, SSL, SASL_PLAINTEXT, SASL_SSL.
-        - name: CONNECT_CONSUMER_SECURITY_PROTOCOL
-          value: PLAINTEXT
-      jaasSecret:
-        name: null
-  schemaRegistry:
-    url: http://cp-schema-registry:8081
-  # --
 
 s3_proxy:
   _install: false
@@ -688,18 +603,6 @@ radar_upload_source_connector:
   _extra_timeout: 60
   replicaCount: 1
   s3Endpoint: http://minio:9000/
-  # -- remove this when upgrading to Strimzi Connectors
-  kafka: PLAINTEXT://cp-kafka-headless:9092
-  schema_registry: http://cp-schema-registry:8081
-  extraEnvVars:
-    - name: CONNECT_SECURITY_PROTOCOL
-      value: PLAINTEXT
-    - name: CONNECT_PRODUCER_SECURITY_PROTOCOL
-      value: PLAINTEXT
-  secret:
-    jaas:
-      name: null
-  # --
 
 # --------------------------------------------------------- 30-cp-cloud.yaml ---------------------------------------------------------
 
@@ -716,23 +619,9 @@ radar_push_endpoint:
   _chart_version: 0.6.0
   _extra_timeout: 180
   replicaCount: 1
+  adminProperties: {}
   garmin:
     enabled: true
-  # -- remove this when upgrading to Strimzi Connectors
-  schemaRegistry: http://cp-schema-registry:8081
-  bootstrapServers: cp-kafka-headless:9092
-  adminProperties:
-    security.protocol: PLAINTEXT
-  producerProperties:
-    security.protocol: PLAINTEXT
-  secret:
-    admin:
-      jaas:
-        name: null
-    producer:
-      jaas:
-        name: null
-  # --
 
 # --------------------------------------------------------- 99-velero.yaml ---------------------------------------------------------
 
