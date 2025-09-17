@@ -259,13 +259,13 @@ releases:
     values:
       - {{ .Values.cloudnative_postgresql | toYaml | indent 8 | trim }}
     set:
-      - name: backups.s3.accessKey
+      - name: cluster.backups.s3.accessKey
         value: {{ .Values.s3_access_key }}
-      - name: backups.s3.secretKey
+      - name: cluster.backups.s3.secretKey
         value: {{ .Values.s3_secret_key }}
-      - name: recovery.s3.accessKey
+      - name: cluster.recovery.s3.accessKey
         value: {{ .Values.s3_access_key }}
-      - name: recovery.s3.secretKey
+      - name: cluster.recovery.s3.secretKey
         value: {{ .Values.s3_secret_key }}
 
   - name: management-portal
