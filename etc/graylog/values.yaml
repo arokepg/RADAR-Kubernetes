@@ -25,9 +25,9 @@ graylog:
     ## Graylog server Ingress annotations
     ##
     annotations:
-      kubernetes.io/ingress.class: nginx
       cert-manager.io/cluster-issuer: letsencrypt-prod
       nginx.ingress.kubernetes.io/enable-access-log: "false"
+    ingressClassName: nginx
 
 
   ## Configure resource requests and limits
