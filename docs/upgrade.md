@@ -57,14 +57,7 @@ from the `databases:` list that is not needed. For instance:
 
 1. Remove any line beginning with `_chart_version:`.
 
-2. Add values for the number of Postgresql and Timescaledb replicas. Change the number of replicas if desired:
-
-```yaml
-# Number of Postgres pods that will be installed
-postgres_num_replicates: 2
-```
-
-3. If desired, add a section that changes the default storage size of the Postgresql cluster to be created:
+2. If desired, add a section that changes the default storage size of the Postgresql cluster to be created:
 
 ```yaml
 cloudnative_postgresql:
@@ -74,8 +67,8 @@ cloudnative_postgresql:
         size: 10Gi
 ```
 
-4. Set legacy versions for Timescaledb in jdbc-connector sections. If desired, change the storage size of the
-   respective databases:
+3. If using a TimescaleDB database, set legacy versions for Timescaledb in jdbc-connector sections. If desired, change the storage size of the
+   respective database(s) that is in use:
 
 Note: major version upgrades performed by the CloudNativePG operator are currently under development. When v1.26 is
 released, the Timescaledb databases can be upgraded to the a newer version.
@@ -220,38 +213,25 @@ kubectl exec postgresql-0 -it -- sh -c 'PGPASSWORD=<password> psql -U <user> --p
 Create database users and set ownership of the databases (remove any database that is not needed):
 
 ```sql
-CREATE
-USER managementportal;
-CREATE
-USER restsourceauthorizer;
-CREATE
-USER appconfig;
-CREATE
-USER kratos;
-CREATE
-USER appserver;
-CREATE
-USER uploadconnector;
-ALTER
-DATABASE managementportal OWNER to managementportal;
-ALTER
-DATABASE restsourceauthorizer OWNER to restsourceauthorizer;
-ALTER
-DATABASE appconfig OWNER to appconfig;
-ALTER
-DATABASE kratos OWNER to kratos;
-ALTER
-DATABASE appserver OWNER to appserver;
-ALTER
-DATABASE uploadconnector OWNER to uploadconnector;
+CREATE USER managementportal;
+CREATE USER restsourceauthorizer;
+CREATE USER appconfig;
+CREATE USER kratos;
+CREATE USER appserver;
+CREATE USER uploadconnector;
+ALTER DATABASE managementportal OWNER to managementportal;
+ALTER DATABASE restsourceauthorizer OWNER to restsourceauthorizer;
+ALTER DATABASE appconfig OWNER to appconfig;
+ALTER DATABASE kratos OWNER to kratos;
+ALTER DATABASE appserver OWNER to appserver;
+ALTER DATABASE uploadconnector OWNER to uploadconnector;
 ```
 
 Transfer ownership of all tables in respective databases to the new users. Ignore sections of the command for any
 database that is not used.
 
 ```sql
-\c
-managementportal
+\c managementportal
 CREATE
 OR REPLACE FUNCTION exec(text) returns text language plpgsql volatile
   AS
@@ -268,8 +248,7 @@ SELECT exec ( 'ALTER SEQUENCE ' || sequence_name || ' OWNER TO ' || sequence_cat
 FROM information_schema.sequences
 WHERE sequence_schema = 'public';
 
-\c
-restsourceauthorizer
+\c restsourceauthorizer
 CREATE
 OR REPLACE FUNCTION exec(text) returns void language plpgsql volatile
   AS
@@ -285,8 +264,7 @@ SELECT exec ( 'ALTER SEQUENCE ' || sequence_name || ' OWNER TO ' || sequence_cat
 FROM information_schema.sequences
 WHERE sequence_schema = 'public';
 
-\c
-appconfig
+\c appconfig
 CREATE
 OR REPLACE FUNCTION exec(text) returns text language plpgsql volatile
   AS
@@ -303,8 +281,7 @@ SELECT exec ( 'ALTER SEQUENCE ' || sequence_name || ' OWNER TO ' || sequence_cat
 FROM information_schema.sequences
 WHERE sequence_schema = 'public';
 
-\c
-kratos
+\c kratos
 CREATE
 OR REPLACE FUNCTION exec(text) returns text language plpgsql volatile
   AS
@@ -321,8 +298,7 @@ SELECT exec ( 'ALTER SEQUENCE ' || sequence_name || ' OWNER TO ' || sequence_cat
 FROM information_schema.sequences
 WHERE sequence_schema = 'public';
 
-\c
-appserver
+\c appserver
 CREATE
 OR REPLACE FUNCTION exec(text) returns text language plpgsql volatile
   AS
@@ -339,8 +315,7 @@ SELECT exec ( 'ALTER SEQUENCE ' || sequence_name || ' OWNER TO ' || sequence_cat
 FROM information_schema.sequences
 WHERE sequence_schema = 'public';
 
-\c
-uploadconnector
+\c uploadconnector
 CREATE
 OR REPLACE FUNCTION exec(text) returns text language plpgsql volatile
   AS
