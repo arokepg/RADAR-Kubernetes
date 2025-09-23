@@ -31,7 +31,7 @@
 
 Run the following instructions to upgrade an existing RADAR-Kubernetes cluster.
 
-## Upgrade to RADAR-Kubernetes version 1.3.0
+## Upgrade to RADAR-Kubernetes version 2.0.0
 
 This version introduces postgresql and Timescaledb clusters managed by the CloudNativePG operator.
 
