@@ -148,6 +148,8 @@ releases:
     values:
       - {{ .Values.radar_kafka_stack | toYaml | indent 8 | trim }}
     set:
+      - name: server_name
+        value: {{ .Values.server_name }}
       - name: kafka.replicas
         value: {{ .Values.kafka_num_brokers }}
       - name: kafka.insyncReplicas
