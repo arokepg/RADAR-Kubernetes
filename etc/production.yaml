@@ -187,7 +187,7 @@ management_portal:
   image:
     registry: docker.io
     repository: ewelina/management-portal
-    tag: auth-fixes-improvements_v9
+    tag: auth-fixes-improvements_v12
   managementportal:
     catalogue_server_enable_auto_import: true
     common_privacy_policy_url: http://info.thehyve.nl/radar-cns-privacy-policy
@@ -217,7 +217,8 @@ radar_self_enrolment_ui:
   image:
     registry: docker.io
     repository: ewelina/radar-self-enrolment-ui
-    tag: auth-flows_v3
+    tag: paprka_updated_v2
+#    tag: auth_flows_v6
   _install: true
   _extra_timeout: 0
 
