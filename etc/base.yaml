@@ -220,6 +220,8 @@ radar_kratos:
   _extra_timeout: 0
   kratos:
     kratos:
+      automigration:
+        type: initContainer
       config:
         courier:
           smtp:
