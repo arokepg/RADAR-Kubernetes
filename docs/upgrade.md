@@ -2,8 +2,8 @@
 
 <!-- TOC -->
 * [Upgrade instructions](#upgrade-instructions)
-  * [Upgrade to RADAR-Kubernetes version 1.3.0](#upgrade-to-radar-kubernetes-version-130)
-    * [Update `mods/migration/1.3.0.yaml` mods file](#update-modsmigration130yaml-mods-file)
+  * [Upgrade to RADAR-Kubernetes version 2.0.0](#upgrade-to-radar-kubernetes-version-200)
+    * [Update `mods/migration/2.0.0.yaml` mods file](#update-modsmigration130yaml-mods-file)
     * [Update `production.yaml` file](#update-productionyaml-file)
     * [Update `production.yaml.gotmpl` file](#update-productionyamlgotmpl-file)
     * [Update `secrets.yaml` file](#update-secretsyaml-file)
@@ -35,7 +35,7 @@ Run the following instructions to upgrade an existing RADAR-Kubernetes cluster.
 
 This version introduces postgresql and Timescaledb clusters managed by the CloudNativePG operator.
 
-### Update `mods/migration/1.3.0.yaml` mods file
+### Update `mods/migration/2.0.0.yaml` mods file
 
 This file provides configuration for database migration. In the `cloudnative_postgresql:` section, remove any database
 from the `databases:` list that is not needed. For instance:
@@ -161,7 +161,7 @@ radar_hydra:
 
 ### Database migration
 
-Important: before database migration the steps in the sections above must have been completed successfully.
+Important: before database migration, the steps in the sections above must have been completed successfully.
 
 Notes:
 
@@ -337,7 +337,7 @@ WHERE sequence_schema = 'public';
 
 ##### Update `environments.yaml` file
 
-Add the _mods/migration/1.3.0.yaml_ file to the `values:` section, like so:
+Add the _mods/migration/2.0.0.yaml_ file to the `values:` section, like so:
 
 ```yaml
 environments:
@@ -347,14 +347,15 @@ environments:
       - ../etc/production.yaml
       - ../etc/production.yaml.gotmpl
       - ../etc/secrets.yaml
-      - ../mods/migration/1.3.0.yaml
+      - ../mods/migration/2.0.0.yaml
 ```
 
 Start the database migration of _management_portal_ and Timescaledb databases by using the auto-migration feature of
-the CloudNativePG operator. Run the _helmfile_ command once with the `mods/migration/1.3.0.yaml` modification file.
+the CloudNativePG operator. Run the _helmfile sync_ command once with the `mods/migration/2.0.0.yaml` modification file.
+Omit any service that is not in use from the command below:
 
 ```shell
-helmfile sync 
+helmfile sync -lname=cloudnative-postgresql -lname=radar-jdbc-connector-grafana -lname=radar-jdbc-connector-data-dashboard -lname=radar-jdbc-connector-realtime-dashboard 
 ```
 
 Confirm that all database services initialize successfully.
@@ -399,6 +400,76 @@ psql -d realtime-dashboard -t -c 'SELECT Timescaledb_post_restore();'
 #### 5. Re-enable services that write to the databases
 
 Re-enable all services that were disabled in the _Disable services that write to databases_ section above (see [Disable database changes](#disable-data-ingestion)).
+
+### Kafka migration
+
+RADAR-Kubernetes replaces ConfluentInc Kafka with Strimzi Kafka. The update involves the following steps:
+
+#### 1. Set desired PVC size
+
+In `production.yaml` set values for the desired PVC size of Strimzi Kafka. For instance:
+
+```yaml
+radar_kafka_stack:
+  kafka:
+    storage:
+      size: 200Gi
+```
+
+#### 2. Installation of Strimzi Kafka
+
+Strimzi Kafka will be installed in parallel to ConfluentInc Kafka. For this run:
+
+```shell
+helmfile sync -lname=radar-kafka
+```
+
+To initialize Kafka schemas in Strimzi Kafka, deploy the updated version of catalog-server:
+
+```shell
+helmfile sync -lname=catalog-server
+```
+
+#### 3. Route radar-gateway traffic to Strimzi Kafka
+
+To route incoming data to Strimzi Kafka, deploy the updated version of radar-gateway:
+
+```shell
+helmfile sync -lname=radar-gateway
+```
+
+Confirm that data is being ingested correctly by inspecting the logs of radar-gateway.
+
+#### 4. Spool messages in ConfluentInc Kafka to S3 intermediate storage
+
+Reconfigure radar-s3-connector to process messages in Kafka at an accelerated rate. For this edit the ConfigMap of s3-connector
+like so:
+
+```shell
+    ...
+    flush.size=10000
+    rotate.schedule.interval.ms=5000
+    ...
+```
+
+Redeploy the s3-connector pods and wait until data transfer stops. Then set the flushsize to `1`:
+
+```shell
+    ...
+    flush.size=1
+    rotate.schedule.interval.ms=5000
+    ...
+```
+
+Redeploy the s3-connector pods and wait until data transfer stops.
+
+#### 5. Connect radar-s3-connector to Strimzi Kafka
+
+To route data from Strimzi Kafka to intermediate S3 storage, deploy the updated version of radar-s3-connector:
+
+```shell
+helmfile sync -lname=radar-s3-connector
+```
 
 ### Post-migration cleanup
 
@@ -454,7 +525,7 @@ grafana_metrics_timescaledb:
         size: 8Gi
 ```
 
-3. Remove the _mods/migration/1.3.0.yaml_ file reference from the `environments.yaml` file.
+3. Remove the _mods/migration/2.0.0.yaml_ file reference from the `environments.yaml` file.
 
 4. Update the deployment:
 
