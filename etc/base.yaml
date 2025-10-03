@@ -224,7 +224,7 @@ management_portal:
 
 radar_kratos:
   _install: false
-  _chart_version: 0.1.1
+  _chart_version: 0.1.2
   _extra_timeout: 0
   kratos:
     kratos:
