@@ -6,7 +6,7 @@ cd "$(dirname "${BASH_SOURCE[0]}")/.."
 yes | ./bin/init
 sed -i '/_install: /s/false/true/' etc/production.yaml
 
-helmfile template | grep -E "helm.sh/chart:|image:|containers:|initContainers:" | uniq | sed -r "s/\s+//g" | sed "s/\"//g" | sed -r "s/^-//g" > /tmp/helmfile.txt
+helmfile_0.167.0 template | grep -E "helm.sh/chart:|image:|containers:|initContainers:" | uniq | sed -r "s/\s+//g" | sed "s/\"//g" | sed -r "s/^-//g" > /tmp/helmfile.txt
 
 declare -A container
 declare -A init
@@ -20,6 +20,7 @@ for line in $(cat /tmp/helmfile.txt); do
     containerType=init
   elif [[ $line == *"image:"* ]]; then
     image=$(echo $line | sed "s/image://g")
+    image=${image:-not_specified}
     if [ $containerType == "container" ]; then
       if [ -z "${container[$image]}" ]; then
         container[$image]=$chart
