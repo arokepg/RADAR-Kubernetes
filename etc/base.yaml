@@ -503,11 +503,34 @@ radar_integration:
 # --------------------------------------------------------- 20-s3-connector.yaml ---------------------------------------------------------
 
 redis:
-  _install: true
+  _install: false
   _chart_version: 19.1.6
   _extra_timeout: 0
   metrics:
     enabled: true
+
+redis_operator:
+  _install: true
+  _chart_version: 0.1.0
+  _extra_timeout: 0
+
+radar_redis:
+  _install: true
+  _chart_version: 0.0.1
+  _extra_timeout: 0
+  redis-cluster:
+    redisCluster:
+      clusterSize: 3
+      leader:
+        replicas: 1
+      follower:
+        replicas: 1
+    storageSpec:
+      volumeClaimTemplate:
+        spec:
+          resources:
+            requests:
+              storage: 1Gi
 
 minio:
   _install: true

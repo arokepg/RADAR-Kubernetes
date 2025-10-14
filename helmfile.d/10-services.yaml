@@ -742,6 +742,26 @@ releases:
       - "../etc/redis/values.yaml"
       - {{ .Values.redis | toYaml | indent 8 | trim }}
 
+  - name: redis-operator
+    chart: radar/redis-operator
+    version: {{ .Values.redis_operator._chart_version }}
+    installed: {{ .Values.redis_operator._install }}
+    timeout: {{ .Values.redis_operator._extra_timeout }}
+    <<: *logFailedRelease
+    values:
+      - {{ .Values.redis_operator | toYaml | indent 8 | trim }}
+
+  - name: radar-redis
+    chart: radar/radar-redis
+    version: {{ .Values.radar_redis._chart_version }}
+    installed: {{ .Values.radar_redis._install }}
+    timeout: {{ .Values.radar_redis._extra_timeout }}
+    <<: *logFailedRelease
+    needs:
+      - redis-operator
+    values:
+      - {{ .Values.radar_redis | toYaml | indent 8 | trim }}
+
   - name: minio
     chart: radar/minio
     version: {{ .Values.minio._chart_version }}
