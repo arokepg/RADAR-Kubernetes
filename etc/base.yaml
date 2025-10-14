@@ -159,7 +159,7 @@ cp_schema_registry:
 
 radar_kafka_stack:
   _install: true
-  _chart_version: 0.1.3
+  _chart_version: 0.1.4
   _extra_timeout: 0
 
 catalog_server:
@@ -418,7 +418,7 @@ data_dashboard_backend:
 # Install when radar_grafana._install is 'true'
 radar_jdbc_connector_grafana:
   _install: false
-  _chart_version: 0.10.1
+  _chart_version: 0.10.3
   _extra_timeout: 0
   replicaCount: 1
   sink:
@@ -438,7 +438,7 @@ radar_jdbc_connector_grafana:
 # Install when data_dashboard_backend._install is 'true'.
 radar_jdbc_connector_data_dashboard_backend:
   _install: false
-  _chart_version: 0.10.1
+  _chart_version: 0.10.3
   _extra_timeout: 0
   replicaCount: 1
   timescaledb:
@@ -455,7 +455,7 @@ radar_jdbc_connector_data_dashboard_backend:
 # Install when using realtime analysis
 radar_jdbc_connector_realtime_dashboard:
   _install: false
-  _chart_version: 0.10.1
+  _chart_version: 0.10.3
   _extra_timeout: 0
   replicaCount: 1
   timescaledb:
