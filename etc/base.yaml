@@ -170,7 +170,7 @@ catalog_server:
 
 radar_home:
   _install: true
-  _chart_version: 0.5.1
+  _chart_version: 0.5.2
   _extra_timeout: 0
 
 # --------------------------------------------------------- 10-managementportal.yaml ---------------------------------------------------------
@@ -200,7 +200,7 @@ cloudnativepg_operator:
 
 cloudnative_postgresql:
   _install: true
-  _chart_version: 0.3.0
+  _chart_version: 0.3.2
   _extra_timeout: 0
   cluster:
     cluster:
@@ -210,7 +210,7 @@ cloudnative_postgresql:
 
 management_portal:
   _install: true
-  _chart_version: 1.6.1
+  _chart_version: 1.6.2
   _extra_timeout: 210
   replicaCount: 1  # should be 1
   managementportal:
@@ -238,7 +238,7 @@ radar_kratos:
 
 radar_self_enrolment_ui:
   _install: false
-  _chart_version: 0.3.0
+  _chart_version: 0.3.1
   _extra_timeout: 0
 
 radar_hydra:
@@ -319,7 +319,7 @@ radar_rest_sources_backend:
   _install: false
   # -- Beware: we are stuck with the 1.4.0 version of the the chart
   #    Reason is that newer versions at the moment require ory kratos/hydra.
-  _chart_version: 1.4.0
+  _chart_version: 1.5.4
   _extra_timeout: 0
   replicaCount: 1
   # -- Remove when chart can handle non-ory setups
@@ -418,7 +418,7 @@ data_dashboard_backend:
 # Install when radar_grafana._install is 'true'
 radar_jdbc_connector_grafana:
   _install: false
-  _chart_version: 0.10.3
+  _chart_version: 0.10.4
   _extra_timeout: 0
   replicaCount: 1
   sink:
@@ -438,7 +438,7 @@ radar_jdbc_connector_grafana:
 # Install when data_dashboard_backend._install is 'true'.
 radar_jdbc_connector_data_dashboard_backend:
   _install: false
-  _chart_version: 0.10.3
+  _chart_version: 0.10.4
   _extra_timeout: 0
   replicaCount: 1
   timescaledb:
@@ -455,7 +455,7 @@ radar_jdbc_connector_data_dashboard_backend:
 # Install when using realtime analysis
 radar_jdbc_connector_realtime_dashboard:
   _install: false
-  _chart_version: 0.10.3
+  _chart_version: 0.10.4
   _extra_timeout: 0
   replicaCount: 1
   timescaledb:
@@ -575,7 +575,7 @@ s3_proxy:
 
 radar_output:
   _install: true
-  _chart_version: 1.2.3
+  _chart_version: 1.2.4
   _extra_timeout: 0
   replicaCount: 1
   source:
@@ -639,7 +639,7 @@ ccSchemaRegistryProxy:
 
 radar_push_endpoint:
   _install: false
-  _chart_version: 0.6.0
+  _chart_version: 0.6.1
   _extra_timeout: 180
   replicaCount: 1
   adminProperties: {}
