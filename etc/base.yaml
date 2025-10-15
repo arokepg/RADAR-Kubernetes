@@ -588,7 +588,7 @@ radar_output:
       bucket: radar-output-storage
 
   redis:
-    uri: redis://redis-master:6379
+    uri: redis://radar-redis-follower-headless:6379
 
 # --------------------------------------------------------- 20-upload.yaml ---------------------------------------------------------
 

@@ -831,6 +831,7 @@ releases:
     needs:
       - radar-s3-connector
       {{ if .Values.redis._install }}- redis{{ end }}
+      {{ if .Values.radar_redis._install }}- radar-redis{{ end }}
       {{ if .Values.minio._install }}- minio{{ end }}
     values:
       - {{ .Values.radar_output | toYaml | indent 8 | trim }}
