@@ -470,6 +470,53 @@ To route data from Strimzi Kafka to intermediate S3 storage, deploy the updated 
 ```shell
 helmfile sync -lname=radar-s3-connector
 ```
+### Redis migration
+
+This migration replaces Redis standalone with an instance of Redis cluster (radar-redis). 
+
+In `production.yaml` set values for the desired PVC size of radar-redis. For instance:
+
+```yaml
+radar_redis:
+  redis-cluster:
+    redisCluster:
+      clusterSize: 3
+      leader:
+        replicas: 1
+      follower:
+        replicas: 1
+    storageSpec:
+      volumeClaimTemplate:
+        spec:
+          resources:
+            requests:
+              storage: 1Gi
+```
+
+#### 2. Installation of Redis cluster
+
+Once the correct values have been set, radar-redis can be installed in parallel together with redis-operator. For this run:
+
+```shell
+helmfile sync -lname=radar-redis name=redis-operator
+```
+
+#### 3. Migration of Redis standalone data to cluster
+
+The migration of the redis data to radar-redis is performed by running the following command in the shell of radar-redis-leader:
+
+```shell
+redis-cli --cluster import radar-redis-leader-headless:6379 --cluster-from redis-master:6379
+```
+
+#### 4. Uninstall standalone Redis
+
+Once you have confirmed a successful migration of the redis data to radar-redis, 
+as well as the functionality of radar-redis you can safely uninstall redis.
+
+```shell
+helm uninstall redis
+```
 
 ### Post-migration cleanup
 
