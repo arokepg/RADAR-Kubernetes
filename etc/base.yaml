@@ -588,9 +588,6 @@ radar_output:
       endpoint: http://minio:9000/
       bucket: radar-output-storage
 
-  redis:
-    uri: redis://radar-redis-follower-headless:6379
-
 # --------------------------------------------------------- 20-upload.yaml ---------------------------------------------------------
 
 radar_upload_postgresql:
