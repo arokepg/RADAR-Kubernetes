@@ -950,10 +950,6 @@ releases:
       - name: bootstrapServers
         value: {{ .Values.confluent_cloud.cc.bootstrapServerurl }}
       {{ end }}
-      {{- if .Values.radar_push_endpoint.garmin.enabled }}
-      - name: redis.url
-        value: {{ .Values.radar_output.redis.uri }}
-      {{ end }}
       - name: garmin.userRepositoryClientSecret
         value: {{ dig "garmin" "userRepositoryClientSecret" (dig "oauth_clients" "radar_push_endpoint" "client_secret" "" .Values.management_portal) .Values.radar_push_endpoint }}
 
