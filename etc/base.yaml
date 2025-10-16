@@ -502,6 +502,7 @@ radar_integration:
 
 # --------------------------------------------------------- 20-s3-connector.yaml ---------------------------------------------------------
 
+# DEPRECATED: replaced by OT-CONTAINER-KIT operator deployed redis cluster (see below)
 redis:
   _install: false
   _chart_version: 19.1.6
