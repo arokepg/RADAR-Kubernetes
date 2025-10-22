@@ -2,8 +2,8 @@
 
 <!-- TOC -->
 * [Upgrade instructions](#upgrade-instructions)
-  * [Upgrade to RADAR-Kubernetes version 1.3.0](#upgrade-to-radar-kubernetes-version-130)
-    * [Update `mods/migration/1.3.0.yaml` mods file](#update-modsmigration130yaml-mods-file)
+  * [Upgrade to RADAR-Kubernetes version 2.0.0](#upgrade-to-radar-kubernetes-version-200)
+    * [Update `mods/migration/2.0.0.yaml` mods file](#update-modsmigration130yaml-mods-file)
     * [Update `production.yaml` file](#update-productionyaml-file)
     * [Update `production.yaml.gotmpl` file](#update-productionyamlgotmpl-file)
     * [Update `secrets.yaml` file](#update-secretsyaml-file)
@@ -31,11 +31,11 @@
 
 Run the following instructions to upgrade an existing RADAR-Kubernetes cluster.
 
-## Upgrade to RADAR-Kubernetes version 1.3.0
+## Upgrade to RADAR-Kubernetes version 2.0.0
 
 This version introduces postgresql and Timescaledb clusters managed by the CloudNativePG operator.
 
-### Update `mods/migration/1.3.0.yaml` mods file
+### Update `mods/migration/2.0.0.yaml` mods file
 
 This file provides configuration for database migration. In the `cloudnative_postgresql:` section, remove any database
 from the `databases:` list that is not needed. For instance:
@@ -57,14 +57,7 @@ from the `databases:` list that is not needed. For instance:
 
 1. Remove any line beginning with `_chart_version:`.
 
-2. Add values for the number of Postgresql and Timescaledb replicas. Change the number of replicas if desired:
-
-```yaml
-# Number of Postgres pods that will be installed
-postgres_num_replicates: 2
-```
-
-3. If desired, add a section that changes the default storage size of the Postgresql cluster to be created:
+2. If desired, add a section that changes the default storage size of the Postgresql cluster to be created:
 
 ```yaml
 cloudnative_postgresql:
@@ -74,8 +67,8 @@ cloudnative_postgresql:
         size: 10Gi
 ```
 
-4. Set legacy versions for Timescaledb in jdbc-connector sections. If desired, change the storage size of the
-   respective databases:
+3. If using a TimescaleDB database, set legacy versions for Timescaledb in jdbc-connector sections. If desired, change the storage size of the
+   respective database(s) that is in use:
 
 Note: major version upgrades performed by the CloudNativePG operator are currently under development. When v1.26 is
 released, the Timescaledb databases can be upgraded to the a newer version.
@@ -168,7 +161,7 @@ radar_hydra:
 
 ### Database migration
 
-Important: before database migration the steps in the sections above must have been completed successfully.
+Important: before database migration, the steps in the sections above must have been completed successfully.
 
 Notes:
 
@@ -220,38 +213,25 @@ kubectl exec postgresql-0 -it -- sh -c 'PGPASSWORD=<password> psql -U <user> --p
 Create database users and set ownership of the databases (remove any database that is not needed):
 
 ```sql
-CREATE
-USER managementportal;
-CREATE
-USER restsourceauthorizer;
-CREATE
-USER appconfig;
-CREATE
-USER kratos;
-CREATE
-USER appserver;
-CREATE
-USER uploadconnector;
-ALTER
-DATABASE managementportal OWNER to managementportal;
-ALTER
-DATABASE restsourceauthorizer OWNER to restsourceauthorizer;
-ALTER
-DATABASE appconfig OWNER to appconfig;
-ALTER
-DATABASE kratos OWNER to kratos;
-ALTER
-DATABASE appserver OWNER to appserver;
-ALTER
-DATABASE uploadconnector OWNER to uploadconnector;
+CREATE USER managementportal;
+CREATE USER restsourceauthorizer;
+CREATE USER appconfig;
+CREATE USER kratos;
+CREATE USER appserver;
+CREATE USER uploadconnector;
+ALTER DATABASE managementportal OWNER to managementportal;
+ALTER DATABASE restsourceauthorizer OWNER to restsourceauthorizer;
+ALTER DATABASE appconfig OWNER to appconfig;
+ALTER DATABASE kratos OWNER to kratos;
+ALTER DATABASE appserver OWNER to appserver;
+ALTER DATABASE uploadconnector OWNER to uploadconnector;
 ```
 
 Transfer ownership of all tables in respective databases to the new users. Ignore sections of the command for any
 database that is not used.
 
 ```sql
-\c
-managementportal
+\c managementportal
 CREATE
 OR REPLACE FUNCTION exec(text) returns text language plpgsql volatile
   AS
@@ -268,8 +248,7 @@ SELECT exec ( 'ALTER SEQUENCE ' || sequence_name || ' OWNER TO ' || sequence_cat
 FROM information_schema.sequences
 WHERE sequence_schema = 'public';
 
-\c
-restsourceauthorizer
+\c restsourceauthorizer
 CREATE
 OR REPLACE FUNCTION exec(text) returns void language plpgsql volatile
   AS
@@ -285,8 +264,7 @@ SELECT exec ( 'ALTER SEQUENCE ' || sequence_name || ' OWNER TO ' || sequence_cat
 FROM information_schema.sequences
 WHERE sequence_schema = 'public';
 
-\c
-appconfig
+\c appconfig
 CREATE
 OR REPLACE FUNCTION exec(text) returns text language plpgsql volatile
   AS
@@ -303,8 +281,7 @@ SELECT exec ( 'ALTER SEQUENCE ' || sequence_name || ' OWNER TO ' || sequence_cat
 FROM information_schema.sequences
 WHERE sequence_schema = 'public';
 
-\c
-kratos
+\c kratos
 CREATE
 OR REPLACE FUNCTION exec(text) returns text language plpgsql volatile
   AS
@@ -321,8 +298,7 @@ SELECT exec ( 'ALTER SEQUENCE ' || sequence_name || ' OWNER TO ' || sequence_cat
 FROM information_schema.sequences
 WHERE sequence_schema = 'public';
 
-\c
-appserver
+\c appserver
 CREATE
 OR REPLACE FUNCTION exec(text) returns text language plpgsql volatile
   AS
@@ -339,8 +315,7 @@ SELECT exec ( 'ALTER SEQUENCE ' || sequence_name || ' OWNER TO ' || sequence_cat
 FROM information_schema.sequences
 WHERE sequence_schema = 'public';
 
-\c
-uploadconnector
+\c uploadconnector
 CREATE
 OR REPLACE FUNCTION exec(text) returns text language plpgsql volatile
   AS
@@ -362,7 +337,7 @@ WHERE sequence_schema = 'public';
 
 ##### Update `environments.yaml` file
 
-Add the _mods/migration/1.3.0.yaml_ file to the `values:` section, like so:
+Add the _mods/migration/2.0.0.yaml_ file to the `values:` section, like so:
 
 ```yaml
 environments:
@@ -372,14 +347,15 @@ environments:
       - ../etc/production.yaml
       - ../etc/production.yaml.gotmpl
       - ../etc/secrets.yaml
-      - ../mods/migration/1.3.0.yaml
+      - ../mods/migration/2.0.0.yaml
 ```
 
 Start the database migration of _management_portal_ and Timescaledb databases by using the auto-migration feature of
-the CloudNativePG operator. Run the _helmfile_ command once with the `mods/migration/1.3.0.yaml` modification file.
+the CloudNativePG operator. Run the _helmfile sync_ command once with the `mods/migration/2.0.0.yaml` modification file.
+Omit any service that is not in use from the command below:
 
 ```shell
-helmfile sync 
+helmfile sync -lname=cloudnative-postgresql -lname=radar-jdbc-connector-grafana -lname=radar-jdbc-connector-data-dashboard -lname=radar-jdbc-connector-realtime-dashboard 
 ```
 
 Confirm that all database services initialize successfully.
@@ -424,6 +400,123 @@ psql -d realtime-dashboard -t -c 'SELECT Timescaledb_post_restore();'
 #### 5. Re-enable services that write to the databases
 
 Re-enable all services that were disabled in the _Disable services that write to databases_ section above (see [Disable database changes](#disable-data-ingestion)).
+
+### Kafka migration
+
+RADAR-Kubernetes replaces ConfluentInc Kafka with Strimzi Kafka. The update involves the following steps:
+
+#### 1. Set desired PVC size
+
+In `production.yaml` set values for the desired PVC size of Strimzi Kafka. For instance:
+
+```yaml
+radar_kafka_stack:
+  kafka:
+    storage:
+      size: 200Gi
+```
+
+#### 2. Installation of Strimzi Kafka
+
+Strimzi Kafka will be installed in parallel to ConfluentInc Kafka. For this run:
+
+```shell
+helmfile sync -lname=radar-kafka
+```
+
+To initialize Kafka schemas in Strimzi Kafka, deploy the updated version of catalog-server:
+
+```shell
+helmfile sync -lname=catalog-server
+```
+
+#### 3. Route radar-gateway traffic to Strimzi Kafka
+
+To route incoming data to Strimzi Kafka, deploy the updated version of radar-gateway:
+
+```shell
+helmfile sync -lname=radar-gateway
+```
+
+Confirm that data is being ingested correctly by inspecting the logs of radar-gateway.
+
+#### 4. Spool messages in ConfluentInc Kafka to S3 intermediate storage
+
+Reconfigure radar-s3-connector to process messages in Kafka at an accelerated rate. For this edit the ConfigMap of s3-connector
+like so:
+
+```shell
+    ...
+    flush.size=10000
+    rotate.schedule.interval.ms=5000
+    ...
+```
+
+Redeploy the s3-connector pods and wait until data transfer stops. Then set the flushsize to `1`:
+
+```shell
+    ...
+    flush.size=1
+    rotate.schedule.interval.ms=5000
+    ...
+```
+
+Redeploy the s3-connector pods and wait until data transfer stops.
+
+#### 5. Connect radar-s3-connector to Strimzi Kafka
+
+To route data from Strimzi Kafka to intermediate S3 storage, deploy the updated version of radar-s3-connector:
+
+```shell
+helmfile sync -lname=radar-s3-connector
+```
+### Redis migration
+
+This migration replaces Redis standalone with an instance of Redis cluster (radar-redis). 
+
+In `production.yaml` set values for the desired PVC size of radar-redis. For instance:
+
+```yaml
+radar_redis:
+  redis-cluster:
+    redisCluster:
+      clusterSize: 3
+      leader:
+        replicas: 1
+      follower:
+        replicas: 1
+    storageSpec:
+      volumeClaimTemplate:
+        spec:
+          resources:
+            requests:
+              storage: 1Gi
+```
+
+#### 2. Installation of Redis cluster
+
+Once the correct values have been set, radar-redis can be installed in parallel together with redis-operator. For this run:
+
+```shell
+helmfile sync -lname=radar-redis name=redis-operator
+```
+
+#### 3. Migration of Redis standalone data to cluster
+
+The migration of the redis data to radar-redis is performed by running the following command in the shell of radar-redis-leader:
+
+```shell
+redis-cli --cluster import radar-redis-leader-headless:6379 --cluster-from redis-master:6379
+```
+
+#### 4. Uninstall standalone Redis
+
+Once you have confirmed a successful migration of the redis data to radar-redis, 
+as well as the functionality of radar-redis you can safely uninstall redis.
+
+```shell
+helm uninstall redis
+```
 
 ### Post-migration cleanup
 
@@ -479,7 +572,7 @@ grafana_metrics_timescaledb:
         size: 8Gi
 ```
 
-3. Remove the _mods/migration/1.3.0.yaml_ file reference from the `environments.yaml` file.
+3. Remove the _mods/migration/2.0.0.yaml_ file reference from the `environments.yaml` file.
 
 4. Update the deployment:
 

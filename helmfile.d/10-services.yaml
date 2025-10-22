@@ -50,10 +50,12 @@ releases:
         value: {{ .Values.maintainer_email }}
       - name: graylog.ingress.hosts
         values: [graylog.{{ .Values.server_name }}]
+        {{- if .Values.enable_tls }}
       - name: graylog.ingress.tls[0].secretName
         value: radar-base-tls
       - name: graylog.ingress.tls[0].hosts
         values: ["graylog.{{ .Values.server_name }}"]
+        {{- end }}
 
   - name: fluent-bit
     namespace: graylog
@@ -148,6 +150,8 @@ releases:
     values:
       - {{ .Values.radar_kafka_stack | toYaml | indent 8 | trim }}
     set:
+      - name: server_name
+        value: {{ .Values.server_name }}
       - name: kafka.replicas
         value: {{ .Values.kafka_num_brokers }}
       - name: kafka.insyncReplicas
@@ -777,6 +781,26 @@ releases:
       - "../etc/redis/values.yaml"
       - {{ .Values.redis | toYaml | indent 8 | trim }}
 
+  - name: redis-operator
+    chart: radar/redis-operator
+    version: {{ .Values.redis_operator._chart_version }}
+    installed: {{ .Values.redis_operator._install }}
+    timeout: {{ .Values.redis_operator._extra_timeout }}
+    <<: *logFailedRelease
+    values:
+      - {{ .Values.redis_operator | toYaml | indent 8 | trim }}
+
+  - name: radar-redis
+    chart: radar/radar-redis
+    version: {{ .Values.radar_redis._chart_version }}
+    installed: {{ .Values.radar_redis._install }}
+    timeout: {{ .Values.radar_redis._extra_timeout }}
+    <<: *logFailedRelease
+    needs:
+      - redis-operator
+    values:
+      - {{ .Values.radar_redis | toYaml | indent 8 | trim }}
+
   - name: minio
     chart: radar/minio
     version: {{ .Values.minio._chart_version }}
@@ -846,6 +870,7 @@ releases:
     needs:
       - radar-s3-connector
       {{ if .Values.redis._install }}- redis{{ end }}
+      {{ if .Values.radar_redis._install }}- radar-redis{{ end }}
       {{ if .Values.minio._install }}- minio{{ end }}
     values:
       - {{ .Values.radar_output | toYaml | indent 8 | trim }}
@@ -963,10 +988,6 @@ releases:
         value: {{ .Values.confluent_cloud.cc.schemaRegistryUrl }}
       - name: bootstrapServers
         value: {{ .Values.confluent_cloud.cc.bootstrapServerurl }}
-      {{ end }}
-      {{- if .Values.radar_push_endpoint.garmin.enabled }}
-      - name: redis.url
-        value: {{ .Values.radar_output.redis.uri }}
       {{ end }}
       - name: garmin.userRepositoryClientSecret
         value: {{ dig "garmin" "userRepositoryClientSecret" (dig "oauth_clients" "radar_push_endpoint" "client_secret" "" .Values.management_portal) .Values.radar_push_endpoint }}
