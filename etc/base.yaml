@@ -200,7 +200,7 @@ cloudnativepg_operator:
 
 cloudnative_postgresql:
   _install: true
-  _chart_version: 0.4.2
+  _chart_version: 0.3.2
   _extra_timeout: 0
   cluster:
     cluster:
