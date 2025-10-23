@@ -262,6 +262,15 @@ releases:
     <<: *logFailedRelease
     values:
       - {{ .Values.cloudnative_postgresql | toYaml | indent 8 | trim }}
+    set:
+      - name: cluster.backups.s3.accessKey
+        value: {{ .Values.s3_access_key }}
+      - name: cluster.backups.s3.secretKey
+        value: {{ .Values.s3_secret_key }}
+      - name: cluster.recovery.s3.accessKey
+        value: {{ .Values.s3_access_key }}
+      - name: cluster.recovery.s3.secretKey
+        value: {{ .Values.s3_secret_key }}
 
   - name: management-portal
     chart: radar/management-portal
@@ -544,6 +553,16 @@ releases:
         value: {{ .Values.kafka_num_brokers }}
       - name: timescaledb.cluster.fullnameOverride
         value: grafana-timescaledb
+      - name: timescaledb.cluster.recovery.clusterName
+        value: grafana-timescaledb-cluster
+      - name: timescaledb.cluster.backups.s3.accessKey
+        value: {{ .Values.s3_access_key }}
+      - name: timescaledb.cluster.backups.s3.secretKey
+        value: {{ .Values.s3_secret_key }}
+      - name: timescaledb.cluster.recovery.s3.accessKey
+        value: {{ .Values.s3_access_key }}
+      - name: timescaledb.cluster.recovery.s3.secretKey
+        value: {{ .Values.s3_secret_key }}
 
   - name: radar-jdbc-connector-data-dashboard
     chart: radar/radar-jdbc-connector
@@ -565,6 +584,16 @@ releases:
         value: {{ .Values.kafka_num_brokers }}
       - name: timescaledb.cluster.fullnameOverride
         value: data-dashboard-timescaledb
+      - name: timescaledb.cluster.recovery.clusterName
+        value: data-dashboard-timescaledb-cluster
+      - name: timescaledb.cluster.backups.s3.accessKey
+        value: {{ .Values.s3_access_key }}
+      - name: timescaledb.cluster.backups.s3.secretKey
+        value: {{ .Values.s3_secret_key }}
+      - name: timescaledb.cluster.recovery.s3.accessKey
+        value: {{ .Values.s3_access_key }}
+      - name: timescaledb.cluster.recovery.s3.secretKey
+        value: {{ .Values.s3_secret_key }}
 
   - name: radar-jdbc-connector-realtime-dashboard
     chart: radar/radar-jdbc-connector
@@ -586,6 +615,16 @@ releases:
         value: {{ .Values.kafka_num_brokers }}
       - name: timescaledb.cluster.fullnameOverride
         value: realtime-dashboard-timescaledb
+      - name: timescaledb.cluster.recovery.clusterName
+        value: realtime-dashboard-timescaledb-cluster
+      - name: timescaledb.cluster.backups.s3.accessKey
+        value: {{ .Values.s3_access_key }}
+      - name: timescaledb.cluster.backups.s3.secretKey
+        value: {{ .Values.s3_secret_key }}
+      - name: timescaledb.cluster.recovery.s3.accessKey
+        value: {{ .Values.s3_access_key }}
+      - name: timescaledb.cluster.recovery.s3.secretKey
+        value: {{ .Values.s3_secret_key }}
 
   - name: radar-fitbit-connector
     chart: radar/radar-fitbit-connector

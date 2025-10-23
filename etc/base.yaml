@@ -200,7 +200,7 @@ cloudnativepg_operator:
 
 cloudnative_postgresql:
   _install: true
-  _chart_version: 0.3.2
+  _chart_version: 0.4.2
   _extra_timeout: 0
   cluster:
     cluster:
@@ -418,7 +418,7 @@ data_dashboard_backend:
 # Install when radar_grafana._install is 'true'
 radar_jdbc_connector_grafana:
   _install: false
-  _chart_version: 0.10.4
+  _chart_version: 0.11.0
   _extra_timeout: 0
   replicaCount: 1
   sink:
@@ -438,7 +438,7 @@ radar_jdbc_connector_grafana:
 # Install when data_dashboard_backend._install is 'true'.
 radar_jdbc_connector_data_dashboard_backend:
   _install: false
-  _chart_version: 0.10.4
+  _chart_version: 0.11.0
   _extra_timeout: 0
   replicaCount: 1
   timescaledb:
@@ -455,7 +455,7 @@ radar_jdbc_connector_data_dashboard_backend:
 # Install when using realtime analysis
 radar_jdbc_connector_realtime_dashboard:
   _install: false
-  _chart_version: 0.10.4
+  _chart_version: 0.11.0
   _extra_timeout: 0
   replicaCount: 1
   timescaledb:
