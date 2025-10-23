@@ -319,17 +319,9 @@ radar_rest_sources_authorizer:
 
 radar_rest_sources_backend:
   _install: false
-  # -- Beware: we are stuck with the 1.4.0 version of the the chart
-  #    Reason is that newer versions at the moment require ory kratos/hydra.
   _chart_version: 1.5.4
   _extra_timeout: 0
   replicaCount: 1
-  # -- Remove when chart can handle non-ory setups
-  image:
-    registry: ghcr.io
-    repository: radar-base/radar-rest-source-auth/radar-rest-source-auth-backend
-    tag: 4.4.11
-  # --
   restSourceClients:
     fitbit:
       enable: "false"
