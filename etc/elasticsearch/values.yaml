@@ -3,6 +3,8 @@ clusterName: "elasticsearch"
 replicas: 3
 minimumMasterNodes: 2
 
+imageTag: 7.17.28
+
 maxUnavailable: 0
 
 esMajorVersion: "7"
