@@ -11,30 +11,35 @@ The Kubernetes stack of RADAR-base platform.
 
 ## Table of contents
 
-<!-- TOC start (generated with https://github.com/derlin/bitdowntoc) -->
-
-- [About](#about)
-- [Status](#status)
-- [Prerequisites](#prerequisites)
-    - [Knowledge requirements ](#knowledge-requirements)
-    - [Software Compatibility](#software-compatibility)
-    - [Hosting ](#hosting)
-    - [Third party services](#third-party-services)
-    - [Local machine](#local-machine)
-- [Installation](#installation)
-    - [Prepare](#prepare)
-    - [Project Structure](#project-structure)
-    - [Configure](#configure)
-    - [Install](#install)
-- [Usage and accessing the applications](#usage-and-accessing-the-applications)
-- [Service-specific documentation](#service-specific-documentation)
-- [Troubleshooting](#troubleshooting)
-- [Volume expansion](#volume-expansion)
-- [Uninstall](#uninstall)
-- [Update charts](#update-charts)
-- [Feedback and Contributions](#feedback-and-contributions)
-
-<!-- TOC end -->
+<!-- TOC -->
+* [RADAR-Kubernetes](#radar-kubernetes)
+  * [Table of contents](#table-of-contents)
+  * [About](#about)
+  * [Status](#status)
+  * [Prerequisites](#prerequisites)
+    * [Knowledge requirements](#knowledge-requirements)
+    * [Software Compatibility](#software-compatibility)
+    * [Hosting](#hosting)
+    * [Third party services](#third-party-services)
+    * [Local machine](#local-machine)
+  * [Installation](#installation)
+    * [Prepare](#prepare)
+    * [Project Structure](#project-structure)
+    * [Configure](#configure)
+    * [Install](#install)
+      * [Install RADAR-Kubernetes on your cluster.](#install-radar-kubernetes-on-your-cluster)
+      * [Monitor and verify the installation process.](#monitor-and-verify-the-installation-process)
+        * [Note](#note)
+      * [Ensure Kafka cluster is functional and RADAR-base topics are loaded](#ensure-kafka-cluster-is-functional-and-radar-base-topics-are-loaded)
+  * [Usage and accessing the applications](#usage-and-accessing-the-applications)
+  * [Service-specific documentation](#service-specific-documentation)
+  * [Troubleshooting](#troubleshooting)
+  * [Volume expansion](#volume-expansion)
+  * [Uninstall](#uninstall)
+  * [Update charts](#update-charts)
+  * [Developer documentation](#developer-documentation)
+  * [Feedback and Contributions](#feedback-and-contributions)
+<!-- TOC -->
 
 ## About
 
@@ -511,6 +516,10 @@ To find any updates to the Helm charts that are listed in the repository, run
 ```shell
 bin/chart-updates
 ```
+
+## Developer documentation
+
+See [Development guide](docs/development_guide.md)
 
 ## Feedback and Contributions
 

@@ -11,20 +11,19 @@ All types of contributions are encouraged and valued. See the [Table of Contents
 > - Refer this project in your project's readme
 > - Mention the project at local meetups and tell your friends/colleagues
 
-<!-- omit in toc -->
-## Table of Contents
-
-- [I Have a Question](#i-have-a-question)
-- [I Want To Contribute](#i-want-to-contribute)
-  - [Reporting Bugs](#reporting-bugs)
-  - [Suggesting Enhancements](#suggesting-enhancements)
-  - [Your First Code Contribution](#your-first-code-contribution)
-  - [Improving The Documentation](#improving-the-documentation)
-- [Styleguides](#styleguides)
-  - [Commit Messages](#commit-messages)
-- [Join The Project Team](#join-the-project-team)
-
-
+<!-- TOC -->
+* [Contributing to RADAR-Kubernetes](#contributing-to-radar-kubernetes)
+  * [I Have a Question](#i-have-a-question)
+  * [I Want To Contribute](#i-want-to-contribute)
+    * [Reporting Bugs](#reporting-bugs)
+      * [Before Submitting a Bug Report](#before-submitting-a-bug-report)
+      * [How Do I Submit a Good Bug Report?](#how-do-i-submit-a-good-bug-report)
+    * [Suggesting Enhancements](#suggesting-enhancements)
+      * [Before Submitting an Enhancement](#before-submitting-an-enhancement)
+      * [How Do I Submit a Good Enhancement Suggestion?](#how-do-i-submit-a-good-enhancement-suggestion)
+    * [Your First Code Contribution](#your-first-code-contribution)
+    * [Development guide](#development-guide)
+<!-- TOC -->
 
 ## I Have a Question
 
@@ -110,71 +109,6 @@ Then you can make a new fork or branch and make your changes there and after you
 If you're changing an existing code, make sure that it is either backwards compatible or the documentation shows a clear path of applying the changes without breaking the existing installations.
 
 
-#### Development automation
+### Development guide
 
-This repository can be used for development automation for instance on a k3s or k3d (dockerized k3s) cluster. The example below shows how to deploy on a k3d cluster.
-
-1. Install k3d (see [here](https://github.com/k3d-io/k3d#get))
-2. Create a k3d cluster that is configured to run RADAR-base
-
-```shell
-k3d cluster create my-test-cluster --config=.github/ci_config/k3d-config.yaml
-```
-
-This example creates a cluster named `my-test-cluster` with a load balancer that forwards local port 80 to the cluster. The
-configuration file `.github/ci_config/k3d-config.yaml` is used to configure the cluster. This cluster will be accessible
-in _kubectl_ with context name _k3d-my-test-cluster_.
-
-3. Initialize the RADAR-Kubernetes deployment. Run:
-
-```shell
-./bin/init
-```
-
-4. In file _etc/production.yaml_:
-
-- set _kubeContext_ to _k3d-my-test-cluster_
-- set _dev_deployment_ to _true_
-- (optional) enable/disable components as needed with the __install_ fields
-
-5. Install RADAR-Kubernetes on the k3d cluster:
-
-```shell
-helmfile sync
-```
-
-When installation is complete, you can access the applications at `http://localhost`.
-
-#### Adding a new component to RADAR-Kuberentes
-In order to add a new component you first need to add its helm chart to [radar-helm-charts)](https://github.com/RADAR-base/radar-helm-charts) repository. Refer to contributing guidelines of that repository for more information. Once the chart has been added you need to:
-- Add a helmfile for it in `helmfile.d` directory. The helmfiles are seperated in a modular way in order to avoid having a huge file and also installing certain components in order. Have a look at the current helmfiles and if your component is related to one of them add your component in that file other file create a new file. If your component is a dependency to other components, like Kafka or PostgreSQL prefix the file name with a smaller number so it will be installed first, but if it's a standalone component, the prefix number can be higher.
-- Add release to helmfile. Depending on the helm chart this can mostly be copy pasted from other releases and change names to your component. If you've added custom values files in `etc` directory make sure to reference them in the release.
-- Add a basic configuration of it to `etc/base.yaml` which should include at least `_install`, `_chart_version` and `_extra_timeout` values. In order to keep the `base.yaml` short, only add configurations that the user will most likely to change during installation.
-- If your component is dealing with credentials, the values in the helm charts that refer to that has to be added to `etc/base-secrets.yaml` file.
- - If the credentials isn't something external and can be auto-generated be sure to add it to `bin/generate-secrets`, following examples of the current credentials
-- If the user has to input a file to the helm chart, add the relavant key to the `base.yaml.gotmpl` file.
-- If the component that you're adding is an external component and you want it to have some default configuration, create a folder with its name in `etc` directory and add the default configuration there in a YAML file and refer to that configuration in the helmfile of the component.
-
-#### Testing the changes
-In order to test the changes locally you can use helmfile command to install the component in your cluster. You can make installation faster if you only select your component to install:
-```
-helmfile apply --file helmfile.d/name-of-the-helmfile.yaml --selector name=name-of-the-component
-```
-You can also use other the helmfile commands like `helmfile template` and `helmfile diff` to see what is being applied to the cluster.
-
-
-### Improving The Documentation
-<!-- TODO
-Updating, improving and correcting the documentation
-
--->
-Feel free to make a PR for any part of the documentation that is missing or isn't clear. If the documentation in question is in the wiki send an email to radar-base@kcl.ac.uk and radar-base@thehyve.nl so we can create an account for you to edit the documentation.
-
-
-## Join The Project Team
-<!-- TODO -->
-It's highly recommended to join the [RADAR-Base slack community](https://docs.google.com/forms/d/e/1FAIpQLScKNZ-QonmxNkekDMLLbP-b_IrNHyDRuQValBy1BAsLOjEFpg/viewform) in order to be involved with the community. You can joing #radar-kubernetes to discuss with other developers and attend weekly development meetings.
-
-<!-- omit in toc -->
-## Attribution
-This guide is based on the **contributing-gen**. [Make your own](https://github.com/bttger/contributing-gen)!
+See [Development guide](docs/development_guide.md)
