@@ -1,0 +1,22 @@
+apiVersion: k3d.io/v1alpha5
+kind: Simple
+options:
+  k3s:
+    extraArgs:
+      - arg: --disable=helm-controller
+        nodeFilters:
+          - server:*
+      - arg: --disable=traefik
+        nodeFilters:
+          - server:*
+  runtime:
+    # Raise host container (k3d node) ulimit for open files so Elasticsearch passes bootstrap checks
+    # Elasticsearch requires at least 65535; we set higher to allow headroom.
+    ulimits:
+      - name: nofile
+        soft: 1048576
+        hard: 1048576
+ports:
+  - port: 80:80
+    nodeFilters:
+      - loadbalancer
