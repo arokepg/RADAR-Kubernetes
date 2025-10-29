@@ -9,6 +9,7 @@
         * [Containerd](#containerd)
   * [Adding a new component to RADAR-Kuberentes](#adding-a-new-component-to-radar-kuberentes)
   * [Testing the changes](#testing-the-changes)
+  * [Scaling Strimzi Kafka brokers and using Cruise Control](#scaling-strimzi-kafka-brokers-and-using-cruise-control)
 <!-- TOC -->
 
 ## Development automation
@@ -94,3 +95,7 @@ helmfile apply --file helmfile.d/name-of-the-helmfile.yaml --selector name=name-
 
 You can also use other the helmfile commands like `helmfile template` and `helmfile diff` to see what is being applied
 to the cluster.
+
+## Scaling Strimzi Kafka brokers and using Cruise Control
+
+See the dedicated guide: [Scaling Strimzi Kafka brokers and using Cruise Control](./strimzi_kafka_scaling.md)

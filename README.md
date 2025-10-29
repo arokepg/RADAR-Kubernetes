@@ -412,6 +412,7 @@ next steps.
 
 ## Service-specific documentation
 
+- [Scaling Strimzi Kafka brokers and using Cruise Control](docs/strimzi_kafka_scaling.md)
 - [Configuration of external PostgreSQL and TimescaleDB databases](docs/external_postgresql_databases.md)
 - [Data Dashboard Backend data transformation](docs/ksql-server_for_data-dashboard-backend.md)
 
