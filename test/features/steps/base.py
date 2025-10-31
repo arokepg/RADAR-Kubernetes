@@ -1,4 +1,5 @@
 import base64
+import logging
 import random
 
 import yaml
@@ -12,6 +13,15 @@ import datetime
 import os
 
 minio_client = None
+
+def get_logger():
+    logger = logging.getLogger("behave_logger")
+    logger.setLevel(logging.DEBUG)
+    handler = logging.StreamHandler()
+    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+    handler.setFormatter(formatter)
+    logger.addHandler(handler)
+    return logger
 
 def wait_for_management_portal(context):
     time = 10
@@ -654,3 +664,11 @@ def wait_for_postgresql_record_count(context):
             timeout -= 1
         current_count = _get_postgres_table_state(context, service, database, table)
         assert current_count == int(count)
+
+def retry(func, retries=3, delay=1):
+    for _ in range(retries):
+        try:
+            return func()
+        except Exception as e:
+            time.sleep(delay)
+    raise e
