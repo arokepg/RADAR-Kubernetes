@@ -9,6 +9,6 @@ Feature: Management Portal login flow
     And I confirm the sign in on the login page
     Then I should see <message>
     Examples: Credentials
-      | email             | password         | message                               |
-      | admin@example.com | secret           | Logged in as admin                    |
-      | invalid_user      | invalid_password | The provided credentials are invalid. |
+      | email          | password         | message                              |
+      | $ADMIN_EMAIL   | $ADMIN_PASSWORD  | You are logged in as                 |
+      | invalid_user   | invalid_password | The provided credentials are invalid |
