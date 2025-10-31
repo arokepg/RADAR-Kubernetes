@@ -44,7 +44,7 @@ def before_scenario(context, scenario):
 
         context.browser = webdriver.Chrome(options=options)
         context.ui_wait = WebDriverWait(context.browser, _get_wait_timeout(context))
-        context.login_page = LoginPage(context.browser, context.ui_wait)
+        context.login_page = LoginPage(context.ui_wait)
 
 def after_scenario(context, scenario):
     """
