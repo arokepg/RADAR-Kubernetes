@@ -159,7 +159,7 @@ cp_schema_registry:
 
 radar_kafka_stack:
   _install: true
-  _chart_version: 0.1.4
+  _chart_version: 0.2.4
   _extra_timeout: 0
 
 catalog_server:
@@ -319,7 +319,7 @@ radar_rest_sources_authorizer:
 
 radar_rest_sources_backend:
   _install: false
-  _chart_version: 1.5.5
+  _chart_version: 1.5.6
   _extra_timeout: 0
   replicaCount: 1
   restSourceClients:
@@ -400,7 +400,7 @@ realtime_dashboard_timescaledb:
 #- ksql_server._install to true
 radar_grafana:
   _install: false
-  _chart_version: 0.1.1
+  _chart_version: 0.1.3
   _extra_timeout: 0
   replicaCount: 1
 
@@ -515,7 +515,7 @@ redis_operator:
 
 radar_redis:
   _install: true
-  _chart_version: 0.0.1
+  _chart_version: 0.1.0
   _extra_timeout: 0
   redis-cluster:
     redisCluster:
@@ -574,7 +574,7 @@ s3_proxy:
 
 radar_output:
   _install: true
-  _chart_version: 1.2.5
+  _chart_version: 1.2.6
   _extra_timeout: 0
   replicaCount: 1
   source:
@@ -635,7 +635,7 @@ ccSchemaRegistryProxy:
 
 radar_push_endpoint:
   _install: false
-  _chart_version: 0.6.1
+  _chart_version: 0.6.2
   _extra_timeout: 180
   replicaCount: 1
   adminProperties: {}
