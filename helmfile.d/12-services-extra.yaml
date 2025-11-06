@@ -13,6 +13,7 @@ releases:
     installed: {{ .Values.radar_nifi._install }}
     timeout: {{ add .Values.base_timeout .Values.radar_nifi._extra_timeout }}
     <<: *logFailedRelease
+    # nifi needs cert-manager to be installed
     values:
       - {{ .Values.radar_nifi | toYaml | indent 8 | trim }}
 
