@@ -64,3 +64,6 @@ minio:
     tls: false
   apiIngress:
     tls: false
+cp_schema_registry:
+  ingress:
+    tls: []

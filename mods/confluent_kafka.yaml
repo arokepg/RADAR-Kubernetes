@@ -44,13 +44,8 @@ cp_schema_registry:
         limit_except GET {
           deny all;
         }
-    hosts:
-      - host: localhost
-        path: "/schema/?(.*)"
     tls:
       - secretName: radar-base-tls
-        hosts:
-          - localhost
 
 cp_zookeeper:
   _install: true
