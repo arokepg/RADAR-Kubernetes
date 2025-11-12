@@ -1,0 +1,156 @@
+radar_kafka_stack:
+  _install: false
+
+cp_kafka:
+  _install: true
+  customEnv:
+    KAFKA_AUTO_CREATE_TOPICS_ENABLE: "false"
+    KAFKA_LOG_RETENTION_HOURS: "730"
+    KAFKA_MESSAGE_MAX_BYTES: "4000048"
+    KAFKA_LOG4J_LOGGERS: kafka.producer.async.DefaultEventHandler=INFO,kafka.controller=INFO,state.change.logger=INFO
+    KAFKA_COMPRESSION_TYPE: lz4
+    KAFKA_CONFLUENT_SUPPORT_METRICS_ENABLE: "false"
+    KAFKA_OFFSETS_RETENTION_MINUTES: "10080"
+    KAFKA_ZOOKEEPER_CONNECTION_TIMEOUT_MS: "16000"
+    KAFKA_UNCLEAN_LEADER_ELECTION_ENABLE: "true"
+  cp-zookeeper:
+    enabled: false
+    url: "cp-zookeeper-headless:2181"
+  persistence:
+    size: 2Gi
+  initChownData:
+    enabled: true
+    uid: 1000
+  resources:
+    requests:
+      cpu: 100m
+      memory: 1Gi
+
+cp_schema_registry:
+  _install: true
+  kafka:
+    bootstrapServers: "PLAINTEXT://cp-kafka-headless:9092"
+  resources:
+    requests:
+      cpu: 100m
+      memory: 500Mi
+  ingress:
+    enabled: true
+    annotations:
+      cert-manager.io/cluster-issuer: letsencrypt-prod
+      nginx.ingress.kubernetes.io/enable-cors: "true"
+      nginx.ingress.kubernetes.io/rewrite-target: /$1
+      nginx.ingress.kubernetes.io/configuration-snippet: |
+        limit_except GET {
+          deny all;
+        }
+    hosts:
+      - host: localhost
+        path: "/schema/?(.*)"
+    tls:
+      - secretName: radar-base-tls
+        hosts:
+          - localhost
+
+cp_zookeeper:
+  _install: true
+  syncLimit: 2
+  initLimit: 5
+  zookeeperSnapshotTrustEmpty: "true"
+  initChownData:
+    enabled: true
+    uid: 1000
+  resources:
+    requests:
+      cpu: 100m
+      memory: 300Mi
+radar_s3_connector:
+  schemaRegistry:
+    url: http://cp-schema-registry:8081
+  kafka:
+    url: PLAINTEXT://cp-kafka-headless:9092
+    security:
+      env:
+        - name: CONNECT_SECURITY_PROTOCOL
+          value: PLAINTEXT
+        - name: CONNECT_PRODUCER_SECURITY_PROTOCOL
+          value: PLAINTEXT
+        - name: CONNECT_CONSUMER_SECURITY_PROTOCOL
+          value: PLAINTEXT
+      jaasSecret:
+        name: null
+
+radar_gateway:
+  schemaRegistry: http://cp-schema-registry:8081
+  max_requests: 1000
+  bootstrapServers: cp-kafka-headless:9092
+  checkSourceId: true
+  adminProperties:
+    security.protocol: PLAINTEXT
+  producerProperties:
+    security.protocol: PLAINTEXT
+    compression.type: lz4
+  secret:
+    admin:
+      jaas:
+        name: null
+    producer:
+      jaas:
+        name: null
+
+radar_fitbit_connector:
+  extraEnvVars:
+    - name: CONNECT_SECURITY_PROTOCOL
+      value: PLAINTEXT
+  zookeeper: cp-zookeeper-headless:2181
+  kafka: PLAINTEXT://cp-kafka-headless:9092
+  schema_registry: http://cp-schema-registry:8081
+  secret:
+    jaas:
+      name: null
+
+catalog_server:
+  kafka: cp-kafka-headless:9092
+  schema_registry: http://cp-schema-registry:8081
+  kafkaProperties:
+    security_protocol: PLAINTEXT
+  secret:
+    jaas:
+      name: null
+
+radar_jdbc_connector_grafana:
+  kafka: PLAINTEXT://cp-kafka-headless:9092
+  schema_registry: http://cp-schema-registry:8081
+  extraEnvVars:
+    - name: CONNECT_SECURITY_PROTOCOL
+      value: PLAINTEXT
+  secret:
+    jaas:
+      name: null
+
+radar_push_endpoint:
+  schemaRegistry: http://cp-schema-registry:8081
+  bootstrapServers: cp-kafka-headless:909
+  adminProperties:
+    security.protocol: PLAINTEXT
+  producerProperties:
+    security.protocol: PLAINTEXT
+    compression.type: lz4
+  secret:
+    admin:
+      jaas:
+        name: null
+    producer:
+      jaas:
+        name: null
+
+radar_upload_source_connector:
+  zookeeper: cp-zookeeper-headless:2181
+  kafka: PLAINTEXT://cp-kafka-headless:9092
+  schema_registry: http://cp-schema-registry:8081
+  secret:
+    jaas:
+      name: null
+  extraEnvVars:
+    - name: CONNECT_SECURITY_PROTOCOL
+      value: PLAINTEXT
