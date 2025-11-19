@@ -4,6 +4,8 @@ kube_prometheus_stack:
   _install: false
 mongodb:
   _install: false
+  metrics:
+    enabled: false
 elasticsearch:
   _install: false
 graylog:
@@ -112,9 +114,6 @@ ksql_server:
   prometheus:
     jmx:
       enabled: false
-mongodb:
-  metrics:
-    enabled: false
 radar_kafka_stack:
   metrics:
     enabled: false
