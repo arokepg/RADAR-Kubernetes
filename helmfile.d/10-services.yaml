@@ -120,6 +120,12 @@ releases:
     set:
       - name: brokers
         value: {{ .Values.kafka_num_brokers }}
+      - name: configurationOverrides."default.replication.factor"
+        value: {{ .Values.kafka_num_topic_replicas }}
+      - name: configurationOverrides."min.insync.replicas"
+        value: {{ .Values.kafka_num_in_sync_brokers }}
+      - name: configurationOverrides."num.partitions"
+        value: {{ .Values.kafka_num_topic_partitions }}
 
   - name: cp-schema-registry
     chart: cp-radar/cp-schema-registry
