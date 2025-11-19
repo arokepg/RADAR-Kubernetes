@@ -1,37 +1,32 @@
-from selenium.webdriver.common.by import By
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
+from playwright.sync_api import Page
+from pages.base_page import BasePage
 
-class LoginPage:
-    def __init__(self, wait: WebDriverWait):
-        self.wait = wait
-        self.SIGN_IN_BUTTON = (By.XPATH, "//a[contains(text(), 'Sign in')]")
-        self.LOGIN_BUTTON = (By.XPATH, "//button[contains(text(), 'Login')]")
-        self.EMAIL_INPUT = (By.ID, "identifier")
-        self.PASSWORD_INPUT = (By.ID, "password")
-        self.ERROR_MESSAGE = (By.XPATH, "//span[contains(., 'The provided credentials are invalid')]")
-        self.SUCCESS_MESSAGE = (By.XPATH, f"//*[contains(text(), 'You are logged in as ')]")
+class LoginPage(BasePage):
+    def __init__(self, page: Page, dev_mode: bool):
+        super().__init__(page, dev_mode)
+        self.username_input = page.locator("#identifier")
+        self.password_input = page.locator("#password")
+        self.email_input = page.get_by_role("textbox", name="Email")
+        self.login_button = page.locator("button", has_text="Login")
+        self.change_password_button = page.get_by_role("link", name="Forgot password?")
+        self.submit_button = page.locator("button", has_text="Submit")
+        self.header = page.get_by_role("heading", name="Sign In")
+        self.password_change_confirmation = page.get_by_text("Recovery email has been sent!")
 
-    def enter_email(self, email):
-        email_field = self.wait.until(EC.visibility_of_element_located(self.EMAIL_INPUT))
-        email_field.clear()
-        email_field.send_keys(email)
+    def login(self, username, password):
+        self.username_input.fill(username)
+        self.password_input.fill(password)
+        self.login_button.click()
 
-    def enter_password(self, password):
-        password_field = self.wait.until(EC.visibility_of_element_located(self.PASSWORD_INPUT))
-        password_field.clear()
-        password_field.send_keys(password)
+    def get_header_locator(self):
+        return self.header
 
-    def click_sign_in(self):
-        self.wait.until(EC.element_to_be_clickable(self.SIGN_IN_BUTTON)).click()
+    def click_change_password(self):
+        self.change_password_button.click()
 
-    def click_login(self):
-        self.wait.until(EC.element_to_be_clickable(self.LOGIN_BUTTON)).click()
+    def change_password(self):
+        self.email_input.fill("test@test.com")
+        self.submit_button.click()
 
-    def get_login_success_message(self):
-        success_element = self.wait.until(EC.visibility_of_element_located(self.SUCCESS_MESSAGE))
-        return success_element.text
-
-    def get_login_error_message(self):
-        error_element = self.wait.until(EC.visibility_of_element_located(self.ERROR_MESSAGE))
-        return error_element.text
+    def get_confirm_password_change_locator(self):
+        return self.password_change_confirmation

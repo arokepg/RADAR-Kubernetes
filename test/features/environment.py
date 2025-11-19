@@ -1,14 +1,6 @@
-from selenium import webdriver
-from selenium.webdriver.support.ui import WebDriverWait
-
+from playwright.sync_api import sync_playwright
+from pages.management_portal_page import ManagementPortalPage
 from pages.login_page import LoginPage
-
-
-def _get_wait_timeout(context) -> int:
-    try:
-        return int(context.config.userdata.get("timeout_s", 20))
-    except Exception:
-        return 20
 
 def before_all(context):
     context.cache = {
@@ -29,32 +21,36 @@ def before_all(context):
         "database": {},
         "storage": {},
     }
+    context.playwright = None
+    context.browser = None
+    context.page = None
+
+    # Set up playwright if ANY scenario is tagged with @playwright.
+    needs_playwright = any(
+        scenario for feature in context._runner.features
+        for scenario in feature.scenarios
+        if "playwright" in scenario.tags
+    )
+    if needs_playwright:
+        # Playwright supports two variations of the API: synchronous and asynchronous.
+        # Currently using the synchronous one for simplicity, which could be changed to `async_playwright` if needed
+        context.playwright = sync_playwright().start()
+        dev_mode = context.config.userdata.get("dev_mode", "").lower() == "true"
+        context.browser = context.playwright.chromium.launch(headless=(not dev_mode))
 
 def before_scenario(context, scenario):
-    """
-    Set up the WebDriver before EACH scenario tagged with @needs_browser.
-    """
-    if "needs_browser" in scenario.effective_tags:
-        options = webdriver.ChromeOptions()
-        options.add_argument("--disable-gpu")
-        options.add_argument("--disable-dev-shm-usage")
-        options.add_argument("--window-size=1280,1024")
-        # To add for running in CI/headless environments
-        # options.add_argument("--headless")
-
-        context.browser = webdriver.Chrome(options=options)
-        context.ui_wait = WebDriverWait(context.browser, _get_wait_timeout(context))
-        context.login_page = LoginPage(context.ui_wait)
+    if "playwright" in scenario.effective_tags:
+        dev_mode = context.config.userdata.get("dev_mode", "").lower() == "true"
+        context.page = context.browser.new_page()
+        context.login_page = LoginPage(context.page, dev_mode)
+        context.management_portal_page = ManagementPortalPage(context.page, dev_mode)
 
 def after_scenario(context, scenario):
-    """
-    Tear down the WebDriver after EACH scenario tagged with @needs_browser.
-    """
-    if "needs_browser" in scenario.effective_tags:
-        browser = getattr(context, "browser", None)
-        if browser:
-            try:
-                browser.quit()
-            except Exception:
-                pass
-            context.browser = None
+    if context.page:
+        context.page.close()
+
+def after_all(context):
+    if context.browser:
+        context.browser.close()
+    if context.playwright:
+        context.playwright.stop()
