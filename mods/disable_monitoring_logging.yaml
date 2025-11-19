@@ -118,3 +118,15 @@ mongodb:
 radar_kafka_stack:
   metrics:
     enabled: false
+cp_kafka:
+  prometheus:
+    jmx:
+      enabled: false
+cp_zookeeper:
+  prometheus:
+    jmx:
+      enabled: false
+cp_schema_registry:
+  prometheus:
+    jmx:
+      enabled: false
