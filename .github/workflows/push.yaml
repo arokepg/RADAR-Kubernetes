@@ -38,8 +38,8 @@ jobs:
 
       - name: Install Python dependencies
         run: |
-          pip install -r test/features/requirements.txt
-          python3 -m playwright install
+          python3.12 -m pip install -r test/features/requirements.txt
+          python3.12 -m playwright install
 
       - name: Prepare the environment (add secrets and enable installation of all components)
         run: |
