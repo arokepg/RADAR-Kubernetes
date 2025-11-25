@@ -15,6 +15,7 @@ releases:
     <<: *logFailedRelease
     # nifi needs cert-manager (defined in different helmfile) to be installed
     values:
+      - "../etc/radar-nifi/values.yaml"
       - {{ .Values.radar_nifi | toYaml | indent 8 | trim }}
     set:
       - name: serverName
