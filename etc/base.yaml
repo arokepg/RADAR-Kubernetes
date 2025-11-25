@@ -679,6 +679,19 @@ radar_nifi:
   _install: false
   _chart_version: 3.0.0
   _extra_timeout: 0
+  nifi-cluster:
+    cluster:
+      bootstrapProperties:
+        nifiJvmMemory: 2g
+      nodeConfigGroups:
+        default_group:
+          resourcesRequirements:
+            limits:
+              cpu: 2
+              memory: 3Gi
+            requests:
+              cpu: 1
+              memory: 2Gi
 
 # --------------------------------------------------------- 99-velero.yaml ---------------------------------------------------------
 
