@@ -293,7 +293,6 @@ radar_appserver:
   _extra_timeout: 0
   replicaCount: 1
   managementportal_resource_name: res_AppServer
-  public_key_endpoints: []
   smtp:
     enabled: false # -- set to true, if sending of notifications via email should be enabled.
     host: smtp
