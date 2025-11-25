@@ -13,9 +13,16 @@ releases:
     installed: {{ .Values.radar_nifi._install }}
     timeout: {{ add .Values.base_timeout .Values.radar_nifi._extra_timeout }}
     <<: *logFailedRelease
-    # nifi needs cert-manager to be installed
+    # nifi needs cert-manager (defined in different helmfile) to be installed
     values:
       - {{ .Values.radar_nifi | toYaml | indent 8 | trim }}
+    set:
+      - name: serverName
+        value: {{ .Values.server_name }}
+      - name: nifi-cluster.cluster.nifiProperties.webProxyHosts[0]
+        value: nifi.{{ .Values.server_name }}
+      - name: nifi-cluster.cluster.nifiProperties.webProxyHosts[1]
+        value: nifi.{{ .Values.server_name }}:{{ ternary 443 80 .Values.dev_deployment }}
 
   - name: velero
     namespace: velero
