@@ -241,15 +241,6 @@ releases:
         value: {{ dig "logging" "url" (printf "https://graylog.%s/" .Values.server_name) .Values.radar_home }}
       {{ end }}
 
-  - name: postgresql
-    chart: radar/radar-postgresql
-    version: {{ .Values.postgresql._chart_version }}
-    installed: {{ .Values.postgresql._install }}
-    timeout: {{ add .Values.base_timeout .Values.postgresql._extra_timeout }}
-    <<: *logFailedRelease
-    values:
-      - {{ .Values.postgresql | toYaml | indent 8 | trim }}
-
   - name: cloudnativepg-operator
     chart: radar/cloudnative-pg
     version: {{ .Values.cloudnativepg_operator._chart_version }}
@@ -892,72 +883,6 @@ releases:
       - name: target.s3.secretKey
         value: {{ dig "target" "s3" "secretKey" .Values.s3_secret_key .Values.radar_output }}
 
-  - name: radar-upload-postgresql
-    chart: radar/radar-postgresql
-    version: {{ .Values.radar_upload_postgresql._chart_version }}
-    installed: {{ .Values.radar_upload_postgresql._install }}
-    timeout: {{ add .Values.base_timeout .Values.radar_upload_postgresql._extra_timeout }}
-    <<: *logFailedRelease
-    values:
-      - {{ .Values.radar_upload_postgresql | toYaml | indent 8 | trim }}
-
-  - name: radar-upload-connect-backend
-    chart: radar/radar-upload-connect-backend
-    version: {{ .Values.radar_upload_connect_backend._chart_version }}
-    installed: {{ .Values.radar_upload_connect_backend._install }}
-    timeout: {{ add .Values.base_timeout .Values.radar_upload_connect_backend._extra_timeout }}
-    needs:
-      - management-portal
-      {{ if .Values.radar_upload_postgresql._install }}- radar-upload-postgresql{{ end }}
-      {{ if .Values.cloudnative_postgresql._install }}- radar-cloudnative-postgresql{{ end }}
-    <<: *logFailedRelease
-    values:
-      - {{ .Values.radar_upload_connect_backend | toYaml | indent 8 | trim }}
-    set:
-      - name: ingress.hosts
-        values: [{{ .Values.server_name }}]
-      - name: serverName
-        value: {{ .Values.server_name }}
-      - name: client_secret
-        value: {{ dig "client_secret" (dig "oauth_clients" "radar_upload_backend" "client_secret" "" .Values.management_portal) .Values.radar_upload_connect_backend }}
-
-  - name: radar-upload-connect-frontend
-    chart: radar/radar-upload-connect-frontend
-    version: {{ .Values.radar_upload_connect_frontend._chart_version }}
-    installed: {{ .Values.radar_upload_connect_frontend._install }}
-    timeout: {{ add .Values.base_timeout .Values.radar_upload_connect_frontend._extra_timeout }}
-    <<: *logFailedRelease
-    values:
-      - {{ .Values.radar_upload_connect_frontend | toYaml | indent 8 | trim }}
-    set:
-      - name: server_name
-        value: {{ .Values.server_name }}
-      - name: ingress.hosts
-        values: [{{ .Values.server_name }}]
-
-  - name: radar-upload-source-connector
-    chart: radar/radar-upload-source-connector
-    version: {{ .Values.radar_upload_source_connector._chart_version }}
-    installed: {{ .Values.radar_upload_source_connector._install }}
-    timeout: {{ add .Values.base_timeout .Values.radar_upload_source_connector._extra_timeout }}
-    <<: *logFailedRelease
-    needs:
-      - management-portal
-      - radar-upload-connect-backend
-      {{ if .Values.cp_schema_registry._install }}- cp-schema-registry{{ end }}
-      {{ if .Values.radar_kafka_stack._install }}- radar-kafka{{ end }}
-    values:
-      - {{ .Values.radar_upload_source_connector | toYaml | indent 8 | trim }}
-    set:
-      - name: kafka_num_brokers
-        value: {{ .Values.kafka_num_brokers }}
-      - name: bucketAccessKey
-        value: {{ .Values.s3_access_key }}
-      - name: bucketSecretKey
-        value: {{ .Values.s3_secret_key }}
-      - name: client_secret
-        value: {{ dig "client_secret" (dig "oauth_clients" "radar_upload_connect" "client_secret" "" .Values.management_portal) .Values.radar_upload_source_connector }}
-
   - name: cc-schema-registry-proxy
     chart: radar/cc-schema-registry-proxy
     version: {{ .Values.ccSchemaRegistryProxy._chart_version }}
@@ -999,18 +924,3 @@ releases:
       {{ end }}
       - name: garmin.userRepositoryClientSecret
         value: {{ dig "garmin" "userRepositoryClientSecret" (dig "oauth_clients" "radar_push_endpoint" "client_secret" "" .Values.management_portal) .Values.radar_push_endpoint }}
-
-  - name: velero
-    namespace: velero
-    chart: radar/velero-s3-deployment
-    version: {{ .Values.velero._chart_version }}
-    installed: {{ .Values.velero._install }}
-    timeout: {{ add .Values.base_timeout .Values.velero._extra_timeout }}
-    <<: *logFailedRelease
-    values:
-      - {{ .Values.velero | toYaml | indent 8 | trim }}
-    set:
-      - name: local.accessKey
-        value: {{ dig "local" "accessKey" .Values.s3_access_key .Values.velero }}
-      - name: local.secretKey
-        value: {{ dig "local" "secretKey" .Values.s3_secret_key .Values.velero }}
