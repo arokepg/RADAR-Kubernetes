@@ -1,4 +1,3 @@
-radar_nifi:
   nifi-cluster:
     cluster:
       nodeConfigGroups:
