@@ -7,7 +7,7 @@ confluent_cloud:
 ccSchemaRegistryProxy:
   _install: false
 
-nifi:
+radar_nifi:
   _install: false
 
 radar_kratos:
