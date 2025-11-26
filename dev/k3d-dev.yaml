@@ -23,4 +23,9 @@ ports:
   - port: 0.0.0.0:443:443
     nodeFilters:
       - loadbalancer
+  # This port mapping is required for Nifi to work correctly when TLS is disabled.
+  # The service frontend should derive the port from the ProxyPort header returned by Nginx, but does not.
+  - port: 0.0.0.0:8080:80
+    nodeFilters:
+      - loadbalancer
 
