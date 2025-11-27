@@ -435,7 +435,7 @@ redis_operator:
 radar_redis:
   _install: true
   _chart_version: 0.1.0
-  _extra_timeout: 0
+  _extra_timeout: 90
   redis-cluster:
     redisCluster:
       clusterSize: 3
