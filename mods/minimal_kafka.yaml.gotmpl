@@ -15,3 +15,10 @@ cp_kafka:
     "transaction.state.log.replication.factor": 1
 cp_zookeeper:
   servers: 1
+ksql_server:
+  ksql:
+    ksql:
+      queries: |
+        {{- readFile "../mods/ksql-queries/_base_observations_stream.sql"             | nindent 8 }}
+        {{- readFile "../mods/ksql-queries/questionnaire_response_observations.sql"   | nindent 8 }}
+        {{- readFile "../mods/ksql-queries/questionnaire_app_event_observations.sql"  | nindent 8 }}
