@@ -209,7 +209,7 @@ radar_gateway:
 
 radar_kafka_stack:
   _install: true
-  _chart_version: 0.2.4
+  _chart_version: 0.3.0
   _extra_timeout: 0
 
 # Use confluent cloud instead of a local Kafka cluster.
