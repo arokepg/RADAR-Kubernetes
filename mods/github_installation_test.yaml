@@ -11,9 +11,6 @@ confluent_cloud:
 ccSchemaRegistryProxy:
   _install: false
 
-radar_nifi:
-  _install: false
-
 radar_kratos:
   _install: false
 
@@ -47,3 +44,12 @@ cp_zookeeper:
 
 cp_kafka:
   _install: false
+
+# ---- extra services ----
+velero:
+  _install: false
+
+radar_nifi:
+  _install: false
+# ------------------------
+
