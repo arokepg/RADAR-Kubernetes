@@ -213,7 +213,7 @@ radar_gateway:
 radar_kafka_stack:
   _install: true
   _chart_version: 0.4.0
-  _extra_timeout: 0
+  _extra_timeout: 180
 
 # Use confluent cloud instead of a local Kafka cluster.
 # If this is enabled, then cp_kafka and cp_zookeeper should be disabled.
