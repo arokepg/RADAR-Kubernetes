@@ -59,11 +59,8 @@ redis:
   metrics:
     enabled: false
 radar_redis:
-  redis-cluster:
-    redisExporter:
-      enabled: false
-    serviceMonitor:
-      enabled: false
+  metrics:
+    enabled: false
 minio:
   metrics:
     serviceMonitor:
