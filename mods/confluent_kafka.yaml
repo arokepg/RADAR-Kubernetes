@@ -17,8 +17,6 @@ cp_kafka:
   cp-zookeeper:
     enabled: false
     url: "cp-zookeeper-headless:2181"
-  persistence:
-    size: 2Gi
   initChownData:
     enabled: true
     uid: 1000
