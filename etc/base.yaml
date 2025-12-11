@@ -327,7 +327,7 @@ radar_rest_sources_authorizer:
 
 radar_rest_sources_backend:
   _install: false
-  _chart_version: 1.5.6
+  _chart_version: 1.5.7
   _extra_timeout: 0
   replicaCount: 1
   restSourceClients:
@@ -540,28 +540,16 @@ redis:
   metrics:
     enabled: true
 
-redis_operator:
-  _install: true
-  _chart_version: 0.1.0
-  _extra_timeout: 0
-
 radar_redis:
   _install: true
-  _chart_version: 0.1.0
-  _extra_timeout: 0
-  redis-cluster:
-    redisCluster:
-      clusterSize: 3
-      leader:
-        replicas: 1
-      follower:
-        replicas: 1
-    storageSpec:
-      volumeClaimTemplate:
-        spec:
-          resources:
-            requests:
-              storage: 1Gi
+  _chart_version: 1.2.0
+  _extra_timeout: 90
+  redis-operator:
+    enabled: true
+  multi:
+    replicates: 3
+  storage:
+    size: 1Gi
 
 minio:
   _install: true
@@ -606,7 +594,7 @@ s3_proxy:
 
 radar_output:
   _install: true
-  _chart_version: 1.2.6
+  _chart_version: 1.2.7
   _extra_timeout: 0
   replicaCount: 1
   source:
@@ -667,7 +655,7 @@ ccSchemaRegistryProxy:
 
 radar_push_endpoint:
   _install: false
-  _chart_version: 0.6.2
+  _chart_version: 0.6.3
   _extra_timeout: 180
   replicaCount: 1
   adminProperties: {}
