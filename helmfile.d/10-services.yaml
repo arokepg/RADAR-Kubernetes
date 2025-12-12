@@ -752,16 +752,6 @@ releases:
       - name: oauth_client_secret
         value: {{ dig "oauth_client_secret" (dig "oauth_clients" "radar_redcap_integrator" "client_secret" "" .Values.management_portal) .Values.radar_integration }}
 
-  - name: redis
-    chart: radar/redis
-    version: {{ .Values.redis._chart_version }}
-    installed: {{ .Values.redis._install }}
-    timeout: {{ add .Values.base_timeout .Values.redis._extra_timeout }}
-    <<: *logFailedRelease
-    values:
-      - "../etc/redis/values.yaml"
-      - {{ .Values.redis | toYaml | indent 8 | trim }}
-      -
   - name: radar-redis
     chart: radar/radar-redis
     version: {{ .Values.radar_redis._chart_version }}
@@ -839,7 +829,6 @@ releases:
     <<: *logFailedRelease
     needs:
       - radar-s3-connector
-      {{ if .Values.redis._install }}- redis{{ end }}
       {{ if .Values.radar_redis._install }}- radar-redis{{ end }}
       {{ if .Values.minio._install }}- minio{{ end }}
     values:
