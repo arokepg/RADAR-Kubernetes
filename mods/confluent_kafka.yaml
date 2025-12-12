@@ -122,6 +122,26 @@ radar_jdbc_connector_grafana:
     jaas:
       name: null
 
+radar_jdbc_connector_data_dashboard_backend:
+  kafka: PLAINTEXT://cp-kafka-headless:9092
+  schema_registry: http://cp-schema-registry:8081
+  extraEnvVars:
+    - name: CONNECT_SECURITY_PROTOCOL
+      value: PLAINTEXT
+  secret:
+    jaas:
+      name: null
+
+radar_jdbc_connector_realtime_dashboard:
+  kafka: PLAINTEXT://cp-kafka-headless:9092
+  schema_registry: http://cp-schema-registry:8081
+  extraEnvVars:
+    - name: CONNECT_SECURITY_PROTOCOL
+      value: PLAINTEXT
+  secret:
+    jaas:
+      name: null
+
 radar_push_endpoint:
   schemaRegistry: http://cp-schema-registry:8081
   bootstrapServers: cp-kafka-headless:909
@@ -148,3 +168,15 @@ radar_upload_source_connector:
   extraEnvVars:
     - name: CONNECT_SECURITY_PROTOCOL
       value: PLAINTEXT
+
+ksql_server:
+  ksql:
+    kafka:
+      bootstrapServers: PLAINTEXT://cp-kafka-headless:9092
+    cp-schema-registry:
+      url: http://cp-schema-registry:8081
+    secret:
+      jaas:
+        name: null
+    configurationOverrides:
+      "security.protocol": PLAINTEXT
