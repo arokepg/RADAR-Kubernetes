@@ -45,6 +45,8 @@ radar_home:
 radar_kratos:
   kratos:
     advertised_protocol: http
+    kratos:
+      development: true
 radar_hydra:
   hydra:
     advertised_protocol: http
