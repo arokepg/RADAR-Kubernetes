@@ -3,7 +3,7 @@ atomicInstall: true
 # time to wait for any individual Kubernetes operation
 base_timeout: 90
 # Context that you use in kubectl to access the Kubernetes cluster. Will be translated to `helm --kube-context <context_name>`
-kubeContext: k3d-test
+kubeContext: k3d-ory
 # Domain name that RADAR-Base installation will be accessible from
 server_name: example.com
 # This email address will be used to notify for SSL certificate expiration
