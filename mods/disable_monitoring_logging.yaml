@@ -127,3 +127,9 @@ cp_schema_registry:
   prometheus:
     jmx:
       enabled: false
+radar_kratos:
+  serviceMonitor:
+    enabled: false
+radar_hydra:
+  serviceMonitor:
+    enabled: false
