@@ -235,7 +235,7 @@ management_portal:
     auth: true
 
 radar_kratos:
-  _install: false
+  _install: true
   _chart_version: 0.1.2
   _extra_timeout: 0
   kratos:
