@@ -247,14 +247,14 @@ radar_kratos:
           smtp:
             from_address: radar@thehyve.nl
 
-radar_self_enrolment_ui:
-  _install: true
-  _chart_version: 0.3.1
-  _extra_timeout: 0
-
 radar_hydra:
   _install: true
   _chart_version: 0.2.2
+  _extra_timeout: 0
+
+radar_self_enrolment_ui:
+  _install: true
+  _chart_version: 0.3.1
   _extra_timeout: 0
 
 app_config:
@@ -325,8 +325,6 @@ radar_rest_sources_authorizer:
   _chart_version: 2.3.1
   _extra_timeout: 0
   replicaCount: 1
-  # -- Remove when running with ory hydra/kratos setups
-  authPath: /authorize
 
 radar_rest_sources_backend:
   _install: false
@@ -338,10 +336,6 @@ radar_rest_sources_backend:
       enable: "false"
     garmin:
       enable: "false"
-  # -- Remove when running with ory hydra/kratos setups
-  public_key_endpoints: []
-  # -- Remove when running with ory hydra/kratos setups
-  auth_url: http://management-portal:8080/managementportal/oauth/token
 
 # --------------------------------------------------------- 20-dashboard.yaml ---------------------------------------------------------
 
