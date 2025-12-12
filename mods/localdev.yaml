@@ -50,6 +50,8 @@ radar_kratos:
 radar_hydra:
   hydra:
     advertised_protocol: http
+    hydra:
+      dev: true
 radar_jdbc_connector_data_dashboard_backend:
   timescaledb:
     cluster:
