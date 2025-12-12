@@ -383,10 +383,6 @@ releases:
     set:
       - name: hydra.server_name
         value: {{ .Values.server_name }}
-      - name: hydra.hydra.config.secrets.system[0]
-        value: {{ .Values.radar_hydra.secrets.system }}
-      - name: hydra.hydra.config.secrets.cookie[0]
-        value: {{ .Values.radar_hydra.secrets.cookie }}
 
   - name: radar-self-enrolment-ui
     chart: ../../radar-helm-charts/charts/radar-self-enrolment-ui
