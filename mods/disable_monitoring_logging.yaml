@@ -111,9 +111,10 @@ gateway:
   serviceMonitor:
     enabled: false
 ksql_server:
-  prometheus:
-    jmx:
-      enabled: false
+  ksql:
+    prometheus:
+      jmx:
+        enabled: false
 radar_kafka_stack:
   metrics:
     enabled: false
