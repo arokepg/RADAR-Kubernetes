@@ -14,6 +14,14 @@ controller:
     X-Xss-Protection: 1; mode=block
     X-Content-Type-Options: nosniff
 
+  ingressClassResource:
+    # -- If true, Ingresses without `ingressClassName` get assigned to this IngressClass on creation.
+    # Ingress creation gets rejected if there are multiple default IngressClasses.
+    # Ref: https://kubernetes.io/docs/concepts/services-networking/ingress/#default-ingress-class
+    default: true
+
+  watchIngressWithoutClass: true
+
   ## Define requests resources to avoid probe issues due to CPU utilization in busy nodes
   ## ref: https://github.com/kubernetes/ingress-nginx/issues/4735#issuecomment-551204903
   ## Ideally, there should be no limits.
