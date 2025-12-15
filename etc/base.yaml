@@ -551,6 +551,14 @@ radar_redis:
   storage:
     size: 1Gi
 
+radar_seaweedfs:
+  _install: true
+  _chart_version: 0.0.1
+  _extra_timeout: 210
+  createBuckets:
+    - radar-output-storage
+    - radar-intermediate-storage
+
 minio:
   _install: true
   _chart_version: 14.6.32
@@ -582,7 +590,7 @@ radar_s3_connector:
   replicaCount: 1
   # The bucket name where intermediate data for cold storage should be written to.
   bucketName: radar-intermediate-storage
-  s3Endpoint: http://seaweed1-filer:8333/
+  s3Endpoint: http://radar-seaweedfs-filer:8333/
 
 s3_proxy:
   _install: false
@@ -599,11 +607,11 @@ radar_output:
   replicaCount: 1
   source:
     s3:
-      endpoint: http://seaweed1-filer:8333/
+      endpoint: http://radar-seaweedfs-filer:8333/
       bucket: radar-intermediate-storage
   target:
     s3:
-      endpoint: http://seaweed1-filer:8333/
+      endpoint: http://radar-seaweedfs-filer:8333/
       bucket: radar-output-storage
 
 # --------------------------------------------------------- 20-upload.yaml ---------------------------------------------------------
@@ -638,10 +646,10 @@ radar_upload_connect_frontend:
 
 radar_upload_source_connector:
   _install: false
-  _chart_version: 0.6.2
+  _chart_version: 0.6.4
   _extra_timeout: 60
   replicaCount: 1
-  s3Endpoint: http://seaweed1-filer:8333/
+  s3Endpoint: http://radar-seaweedfs-filer:8333/
 
 # --------------------------------------------------------- 30-cp-cloud.yaml ---------------------------------------------------------
 

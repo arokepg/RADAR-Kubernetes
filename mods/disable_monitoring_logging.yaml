@@ -61,6 +61,12 @@ redis:
 radar_redis:
   metrics:
     enabled: false
+radar_seaweedfs:
+  operator:
+    serviceMonitor:
+      enabled: false
+    grafanaDashboard:
+      enabled: false
 minio:
   metrics:
     serviceMonitor:
