@@ -27,8 +27,18 @@ radar_gateway:
     enabled: false
 radar_s3_connector:
   kafkaHeapOpts: "-Xms128m -Xmx256m"
+radar_redis:
+  mode: standalone
+radar_rest_sources_backend:
+  redis:
+    uri: redis://radar-redis-standalone:6379
 radar_output:
   javaOpts: "-Xms128m -Xmx128m"
+  redis:
+    uri: redis://radar-redis-standalone:6379/
+radar_push_endpoint:
+  redis:
+    uri: redis://radar-redis-standalone:6379/
 minio:
   # Turn off distributed mode for minio
   mode: standalone
