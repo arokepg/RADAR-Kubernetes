@@ -215,10 +215,7 @@ radar_kratos:
 
 radar_self_enrolment_ui:
   image:
-    registry: docker.io
-    repository: ewelina/radar-self-enrolment-ui
-    tag: paprka_updated_v2
-#    tag: auth_flows_v6
+    tag: 0.1.0
   _install: true
   _extra_timeout: 0
 
