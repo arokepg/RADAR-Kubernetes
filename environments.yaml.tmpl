@@ -34,6 +34,9 @@ environments:
     {{ if .Values.e2e_test }}
       - ../mods/e2e.yaml
     {{ end }}
+    {{- if .Values.propose_resource_requests_limits }}
+      - ../mods/resources.yaml
+    {{- end }}
 
 
 ---

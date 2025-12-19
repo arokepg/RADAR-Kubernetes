@@ -1,0 +1,574 @@
+cert_manager:
+  resources:
+    requests:
+      cpu: 10m
+      memory: 64Mi
+    limits:
+      memory: 128Mi
+  cainjector:
+    resources:
+      requests:
+        cpu: 10m
+        memory: 64Mi
+      limits:
+        memory: 128Mi
+  webhook:
+    resources:
+      requests:
+        cpu: 10m
+        memory: 32Mi
+      limits:
+        memory: 64Mi
+
+nginx_ingress:
+  controller:
+    resources:
+      requests:
+        cpu: 100m
+        memory: 256Mi
+      limits:
+#        cpu: 500m
+        memory: 512Mi
+
+radar_kafka_stack:
+  strimzi-kafka-operator:
+    resources:
+      requests:
+        cpu: 10m
+        memory: 128Mi
+      limits:
+#        cpu: 100m
+        memory: 256Mi
+  kafka:
+    jvmOptions:
+      -Xms: 512m
+      -Xmx: 1G
+    resources:
+      requests:
+        cpu: 500m
+        memory: 1Gi
+      limits:
+#        cpu: 1
+        memory: 2Gi
+    nodePool:
+      jvmOptions:
+        -Xms: 512m
+        -Xmx: 1G
+      resources:
+        requests:
+          cpu: 500m
+          memory: 1Gi
+        limits:
+#          cpu: 1
+          memory: 2Gi
+    userOperator:
+      jvmOptions:
+        -Xms: 64m
+        -Xmx: 128m
+      resources:
+        requests:
+          cpu: 10m
+          memory: 256Mi
+        limits:
+#          cpu: 100m
+          memory: 512Mi
+    topicOperator:
+      jvmOptions:
+        -Xms: 64m
+        -Xmx: 128m
+      resources:
+        requests:
+          cpu: 10m
+          memory: 256Mi
+        limits:
+#          cpu: 100m
+          memory: 512Mi
+    cruiseControl:
+      jvmOptions:
+        -Xms: 128m
+        -Xmx: 256m
+      resources:
+        requests:
+          cpu: 10m
+          memory: 256Mi
+        limits:
+#          cpu: 100m
+          memory: 512Mi
+  schema-registry:
+    registry:
+      spec:
+        #    cpuLimit:
+        cpuRequest: 100m
+        memoryLimit: 1Gi
+        memoryRequest: 500Mi
+
+  metrics:
+    kafkaExporter:
+      resources:
+        requests:
+          cpu: 10m
+          memory: 128Mi
+        limits:
+#          cpu: 100m
+          memory: 256Mi
+
+cloudnativepg_operator:
+  resources:
+    requests:
+      cpu: 10m
+      memory: 64Mi
+    limits:
+      memory: 256Mi
+
+cloudnative_postgresql:
+  cluster:
+    cluster:
+      resources:
+        requests:
+          cpu: 500m
+          memory: 256Mi
+        limits:
+          memory: 512Mi
+
+management_portal:
+  extraEnvVars:
+    - name: JAVA_OPTS
+      value: "-Xms256m -Xmx768m"
+  resources:
+    requests:
+      cpu: 100m
+      memory: 512Mi
+    limits:
+#      cpu: 500m
+      memory: 1Gi
+
+radar_kratos:
+  kratos:
+    deployment:
+      resources:
+        requests:
+          cpu: 250m
+          memory: 512Mi
+        limits:
+          memory: 786Mi
+
+radar_hydra:
+  hydra:
+    deployment:
+      resources:
+        requests:
+          cpu: 250m
+          memory: 512Mi
+        limits:
+          memory: 512Mi
+    hydra-maester:
+      deployment:
+        resources:
+          requests:
+            cpu: 10m
+            memory: 16Mi
+          limits:
+            memory: 64Mi
+
+radar_self_enrolment_ui:
+  deployment:
+    resources:
+      requests:
+        cpu: 10m
+        memory: 12Mi
+      limits:
+        #      cpu: 20m
+        memory: 20Mi
+
+app_config:
+  javaOpts: "-Xms550m -Xmx1024m"
+  resources:
+    requests:
+      cpu: 100m
+      memory: 512Mi
+    limits:
+#      cpu: 500m
+      memory: 1500Mi
+
+radar_appserver:
+  extraEnvVars:
+    - name: JDK_JAVA_OPTIONS
+      value: "-Xms256m -Xmx768m -Djava.security.egd=file:/dev/./urandom"
+  resources:
+    requests:
+      cpu: 100m
+      memory: 512Mi
+    limits:
+#      cpu: 500m
+      memory: 1Gi
+
+catalog_server:
+  resources:
+    requests:
+      cpu: 100m
+      memory: 256Mi
+    limits:
+#      cpu: 500m
+      memory: 512Mi
+
+radar_gateway:
+  javaOpts: "-Xms512m -Xmx768m -XX:GCTimeRatio=19 -XX:MinHeapFreeRatio=20 -XX:MaxHeapFreeRatio=30 --add-opens java.base/java.io=ALL-UNNAMED --add-opens java.management/javax.management.openmbean=ALL-UNNAMED --add-opens java.base/java.lang.reflect=ALL-UNNAMED --add-opens java.management/javax.management=ALL-UNNAMED -Djava.util.logging.manager=org.apache.logging.log4j.jul.LogManager"
+  resources:
+    requests:
+      cpu: 100m
+      memory: 768Mi
+    limits:
+#      cpu: 500m
+      memory: 1Gi
+  jmxExporter:
+    resources:
+      requests:
+        cpu: 10m
+        memory: 16Mi
+      limits:
+        memory: 64Mi
+
+radar_home:
+  resources:
+    requests:
+      cpu: 10m
+      memory: 12Mi
+    limits:
+#      cpu: 20m
+      memory: 20Mi
+
+radar_output:
+  javaOpts: "-Xms400m -Xmx3g"
+  resources:
+    requests:
+      cpu: 100m
+      memory: 512Mi
+    limits:
+#      cpu: 1
+      memory: 4Gi
+
+radar_fitbit_connector:
+  heapOptions:
+  extraEnvVars:
+    - name: JAVA_OPTS
+      value: "-Xms256m -Xmx512m"
+  resources:
+    requests:
+      cpu: 100m
+      memory: 512Mi
+    limits:
+#      cpu: 500m
+      memory: 768Mi
+
+radar_oura_connector:
+  extraEnvVars:
+    - name: JAVA_OPTS
+      value: "-Xms256m -Xmx512m"
+  resources:
+    requests:
+      cpu: 100m
+      memory: 512Mi
+    limits:
+#      cpu: 500m
+      memory: 768Mi
+
+radar_jdbc_connector_grafana:
+  heapOpts: "-Xms768m -Xmx2000m"
+  resources:
+    requests:
+      cpu: 100m
+      memory: 1G
+    limits:
+#      cpu: 500m
+      memory: 3Gi
+  timescaledb:
+    cluster:
+      cluster:
+        resources:
+          requests:
+            cpu: 500m
+            memory: 256Mi
+          limits:
+            memory: 512Mi
+
+radar_jdbc_connector_data_dashboard_backend:
+  heapOpts: "-Xms768m -Xmx2000m"
+  resources:
+    requests:
+      cpu: 100m
+      memory: 1G
+    limits:
+#      cpu: 500m
+      memory: 3Gi
+  timescaledb:
+    cluster:
+      cluster:
+        resources:
+          requests:
+            cpu: 500m
+            memory: 256Mi
+          limits:
+            memory: 512Mi
+
+radar_jdbc_connector_realtime_dashboard:
+  heapOpts: "-Xms768m -Xmx2000m"
+  resources:
+    requests:
+      cpu: 100m
+      memory: 1G
+    limits:
+#      cpu: 500m
+      memory: 3Gi
+  timescaledb:
+    cluster:
+      cluster:
+        resources:
+          requests:
+            cpu: 500m
+            memory: 256Mi
+          limits:
+            memory: 512Mi
+
+radar_data_dashboard_backend:
+  javaOpts: "-Xms256m -Xmx550m"
+  resources:
+    requests:
+      cpu: 100m
+      memory: 512Mi
+    limits:
+      memory: 768Mi
+
+radar_rest_sources_backend:
+  extraEnvVars:
+    - name: JAVA_OPTS
+      value: "-Xms256m -Xmx512m"
+  resources:
+    requests:
+      cpu: 100m
+      memory: 512Mi
+    limits:
+#      cpu: 500m
+      memory: 768Mi
+
+radar_s3_connector:
+  kafkaHeapOpts: "-Xms1g -Xmx4g"
+  resources:
+    requests:
+      cpu: 100m
+      memory: 1500Mi
+    limits:
+#      cpu: 500m
+      memory: 5Gi
+
+cp_kafka:
+  heapOptions: "-Xms512M -Xmx512M"
+  resources:
+    requests:
+      cpu: 100m
+      memory: 750Mi
+    limits:
+#      cpu: 1
+      memory: 2Gi
+  prometheus:
+    jmx:
+      resources:
+        requests:
+          cpu: 10m
+          memory: 256Mi
+        limits:
+#          cpu: 100m
+          memory: 512Mi
+
+cp_zookeeper:
+  heapOptions: "-Xms512M -Xmx512M"
+  resources:
+    requests:
+      cpu: 10m
+      memory: 750Mi
+    limits:
+#      cpu: 100m
+      memory: 1Gi
+  prometheus:
+    jmx:
+      resources:
+        requests:
+          cpu: 10m
+          memory: 256Mi
+        limits:
+#          cpu: 100m
+          memory: 512Mi
+cp_schema_registry:
+  heapOptions: "-Xms512M -Xmx512M"
+  resources:
+    requests:
+      cpu: 10m
+      memory: 750Mi
+    limits:
+#      cpu: 100m
+      memory: 1Gi
+  prometheus:
+    jmx:
+      resources:
+        requests:
+          cpu: 10m
+          memory: 256Mi
+        limits:
+#          cpu: 100m
+          memory: 512Mi
+
+radar_redis:
+  redis-operator:
+    redisOperator:
+      resources:
+        requests:
+          cpu: 10m
+          memory: 64Mi
+        limits:
+#          cpu: 500m
+          memory: 128Mi
+  resources:
+    requests:
+#      cpu: 100m
+      memory: 128Mi
+    limits:
+      #      cpu: 750m
+      memory: 256Mi
+  redisExporter:
+    resources:
+      requests:
+        cpu: 10m
+        memory: 16Mi
+      limits:
+        memory: 64Mi
+
+graylog:
+  graylog:
+    heapSize: 1G
+    resources:
+      requests:
+        cpu: 250m
+        memory: 1Gi
+      limits:
+  #      cpu: 750m
+        memory: 2Gi
+
+mongodb:
+  resources:
+    requests:
+      cpu: 100m
+      memory: 250Mi
+    limits:
+#      cpu: 250m
+      memory: 768Mi
+  metrics:
+    resources:
+      requests:
+        cpu: 10m
+        memory: 5Mi
+      limits:
+        cpu: 100
+        memory: 25Mi
+
+fluent_bit:
+  resources:
+    requests:
+      cpu: 15m
+      memory: 20Mi
+    limits:
+#      cpu: 100m
+      memory: 50Mi
+
+elasticsearch:
+  esJavaOpts: "-Xms1g -Xmx1g"
+  resources:
+    requests:
+      cpu: 250m
+      memory: 1536Mi
+    limits:
+      cpu: 2
+      memory: 2Gi
+
+radar_nifi:
+  nifi-cluster:
+    cluster:
+      bootstrapProperties:
+        nifiJvmMemory: 2g
+      nodeConfigGroups:
+        default_group:
+          resourcesRequirements:
+            limits:
+              cpu: 2
+              memory: 3Gi
+            requests:
+              cpu: 1
+              memory: 2Gi
+
+minio:
+  resources:
+    requests:
+      cpu: 500m
+      memory: 768Mi
+    limits:
+#      cpu: 1
+      memory: 2Gi
+
+kube_prometheus_stack:
+  kube-prometheus-stack:
+    prometheus-node-exporter:
+      resources:
+        requests:
+          cpu: 10m
+          memory: 16Mi
+        limits:
+          memory: 32Mi
+    kube-state-metrics:
+      resources:
+        requests:
+          cpu: 10m
+          memory: 24Mi
+        limits:
+          memory: 64Mi
+    alertmanager:
+      alertmanagerSpec:
+        resources:
+          requests:
+            cpu: 10m
+            memory: 32Mi
+          limits:
+            memory: 128Mi
+    prometheusOperator:
+      resources:
+        requests:
+          cpu: 10m
+          memory: 64Mi
+        limits:
+          memory: 128Mi
+      prometheusConfigReloader:
+        resources:
+          requests:
+            cpu: 10m
+            memory: 16Mi
+          limits:
+            memory: 32Mi
+    prometheus:
+      prometheusSpec:
+        resources:
+          requests:
+            cpu: 50m
+            memory: 768Gi
+          limits:
+            memory: 1Gi
+    grafana:
+      resources:
+        requests:
+          cpu: 200m
+          memory: 256Mi
+        limits:
+          memory: 1Gi
+      sidecar:
+        resources:
+          requests:
+            cpu: 10m
+            memory: 64Mi
+          limits:
+            memory: 128Mi
