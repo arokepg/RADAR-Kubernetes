@@ -142,7 +142,7 @@ releases:
         value: "{{ .Values.server_name }}"
       - name: ingress.hosts[0].paths
         values: ["/schema/?(.*)"]
-      {{- if .Values.cp_schema_registry.ingress.tls }}
+      {{- if .Values.enable_tls }}
       - name: ingress.tls[0].secretName
         value: radar-base-tls
       - name: ingress.tls[0].hosts
