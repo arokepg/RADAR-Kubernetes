@@ -399,6 +399,12 @@ releases:
     set:
       - name: serverName
         value: {{ .Values.server_name }}
+      - name: auth.armt.clientSecret
+        value: {{ .Values.radar_hydra.oauth_clients.aRMT.client_secret }}
+      - name: auth.prmt.clientSecret
+        value: {{ .Values.radar_hydra.oauth_clients.pRMT.client_secret }}
+      - name: auth.sep.clientSecret
+        value: {{ .Values.radar_hydra.oauth_clients.SEP.client_secret }}
 
   - name: radar-appserver-postgresql
     chart: radar/radar-postgresql
