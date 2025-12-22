@@ -212,7 +212,7 @@ releases:
       - {{ .Values.radar_home | toYaml | indent 8 | trim }}
     set:
       - name: server_name
-        values: [ {{ .Values.server_name }} ]
+        value: {{ .Values.server_name }}
       - name: s3.enabled
         value: {{ dig "s3" "enabled" .Values.minio._install .Values.radar_home }}
       - name: dashboard.enabled
