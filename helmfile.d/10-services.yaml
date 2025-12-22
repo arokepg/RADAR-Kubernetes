@@ -202,7 +202,8 @@ releases:
       {{ end }}
 
   - name: radar-home
-    chart: radar/radar-home
+#    chart: radar/radar-home
+    chart: ../../radar-helm-charts/charts/radar-home
     version: {{ .Values.radar_home._chart_version }}
     installed: {{ .Values.radar_home._install }}
     timeout: {{ add .Values.base_timeout .Values.radar_home._extra_timeout }}
@@ -313,6 +314,7 @@ releases:
           - "https://dashboard.{{ .Values.server_name }}/login/generic_oauth"
 
   - name: app-config
+#    chart: radar/radar-appconfig
     chart: ../../radar-helm-charts/charts/app-config
     version: {{ .Values.app_config._chart_version }}
     installed: {{ .Values.app_config._install }}
@@ -332,6 +334,7 @@ releases:
         value: {{ .Values.management_portal.oauth_clients.radar_appconfig.client_secret }}
 
   - name: app-config-frontend
+#    chart: radar/radar-appconfig-frontend
     chart: ../../radar-helm-charts/charts/app-config-frontend
     version: {{ .Values.app_config_frontend._chart_version }}
     installed: {{ .Values.app_config_frontend._install }}
@@ -385,6 +388,7 @@ releases:
         value: {{ .Values.server_name }}
 
   - name: radar-self-enrolment-ui
+    chart: radar/radar-self-enrolment-ui
     chart: ../../radar-helm-charts/charts/radar-self-enrolment-ui
     version: {{ .Values.radar_self_enrolment_ui._chart_version }}
     installed: {{ .Values.radar_self_enrolment_ui._install }}
@@ -608,6 +612,7 @@ releases:
         value: {{ .Values.s3_secret_key }}
 
   - name: radar-fitbit-connector
+#    chart: radar/radar-fitbit-connector
     chart: ../../radar-helm-charts/charts/radar-fitbit-connector
     version: {{ .Values.radar_fitbit_connector._chart_version }}
     installed: {{ .Values.radar_fitbit_connector._install }}
@@ -635,6 +640,7 @@ releases:
         value: {{ dig "radar_fitbit_connector" "client_secret" "" .Values.management_portal.oauth_clients }}
 
   - name: radar-rest-sources-authorizer
+#    chart: radar/radar-rest-sources-authorizer
     chart: ../../radar-helm-charts/charts/radar-rest-sources-authorizer
     version: {{ .Values.radar_rest_sources_authorizer._chart_version }}
     installed: {{ .Values.radar_rest_sources_authorizer._install }}
@@ -649,6 +655,7 @@ releases:
         value: {{ .Values.server_name }}
 
   - name: radar-rest-sources-backend
+    #chart: radar/radar-rest-sources-backend
     chart: ../../radar-helm-charts/charts/radar-rest-sources-backend
     version: {{ .Values.radar_rest_sources_backend._chart_version }}
     installed: {{ .Values.radar_rest_sources_backend._install }}
@@ -711,6 +718,7 @@ releases:
         value: {{ dig "radar_oura_connector" "client_secret" "" .Values.management_portal.oauth_clients }}
 
   - name: radar-gateway
+    #chart: radar/radar-gateway
     chart: ../../radar-helm-charts/charts/radar-gateway
     version: {{ .Values.radar_gateway._chart_version }}
     installed: {{ .Values.radar_gateway._install }}
