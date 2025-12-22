@@ -221,6 +221,9 @@ management_portal:
   _chart_version: 1.6.3
   _extra_timeout: 210
   replicaCount: 1  # should be 1
+  # This should be set to 'false' in the MP helm chart when we made the final change to Ory.
+  authserver:
+    internal: false
   managementportal:
     catalogue_server_enable_auto_import: true
     common_privacy_policy_url: http://info.thehyve.nl/radar-cns-privacy-policy
