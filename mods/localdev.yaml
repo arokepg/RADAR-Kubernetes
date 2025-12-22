@@ -4,6 +4,8 @@ server_name: localhost
 base_timeout: 360
 atomicInstall: false
 
+radar_home:
+  advertised_protocol: http
 app_config_frontend:
   advertised_protocol: http
 management_portal:
