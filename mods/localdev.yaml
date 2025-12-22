@@ -31,17 +31,6 @@ radar_upload_connect_frontend:
   advertised_protocol: http
 radar_upload_connect_backend:
   advertised_protocol: http
-radar_home:
-  s3:
-    url: http://s3.localhost/login
-  dashboard:
-    url: http://grafana.localhost
-  logging:
-    enabled: true # either logging or monitoring must be enabled or radar-home crashes
-    url: http://graylog.localhost
-  monitoring:
-    enabled: true # either logging or monitoring must be enabled or radar-home crashes
-    url: http://grafana.localhost/login
 radar_kratos:
   kratos:
     advertised_protocol: http
