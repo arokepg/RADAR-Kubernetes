@@ -331,7 +331,7 @@ releases:
       - name: ingress.hosts
         values: [{{ .Values.server_name }}]
       - name: clientSecret
-        value: {{ .Values.management_portal.oauth_clients.radar_appconfig.client_secret }}
+        value: {{ .Values.radar_hydra.oauth_clients.radar_appconfig.client_secret }}
 
   - name: app-config-frontend
 #    chart: radar/radar-appconfig-frontend
@@ -504,7 +504,7 @@ releases:
         values:
           - {{ .Values.server_name }}
       - name: managementPortal.clientSecret
-        value: {{ .Values.management_portal.oauth_clients.radar_data_dashboard_backend.client_secret }}
+        value: {{ .Values.radar_hydra.oauth_clients.radar_data_dashboard_backend.client_secret }}
 
   - name: ksql-server
     chart: radar/radar-cp-ksql-server
@@ -643,7 +643,7 @@ releases:
         value: {{ .Values.fitbit_api_secret }}
       {{- end }}
       - name: oauthClientSecret
-        value: {{ dig "radar_fitbit_connector" "client_secret" "" .Values.management_portal.oauth_clients }}
+        value: {{ dig "radar_fitbit_connector" "client_secret" "" .Values.radar_hydra.oauth_clients }}
 
   - name: radar-rest-sources-authorizer
 #    chart: radar/radar-rest-sources-authorizer
@@ -696,7 +696,7 @@ releases:
       - name: restSourceClients.garmin.clientSecret
         value: {{ dig "restSourceClients" "garmin" "clientSecret" (dig "garmin" "consumerSecret" "" .Values.radar_push_endpoint) .Values.radar_rest_sources_backend }}
       - name: client_secret
-        value: {{ dig "client_secret" (dig "oauth_clients" "radar_rest_sources_auth_backend" "client_secret" "" .Values.management_portal) .Values.radar_rest_sources_backend }}
+        value: {{ dig "client_secret" (dig "oauth_clients" "radar_rest_sources_auth_backend" "client_secret" "" .Values.radar_hydra) .Values.radar_rest_sources_backend }}
 
   - name: radar-oura-connector
     chart: radar/radar-oura-connector
@@ -721,7 +721,7 @@ releases:
         value: {{ .Values.oura_api_secret }}
       {{- end }}
       - name: oauthClientSecret
-        value: {{ dig "radar_oura_connector" "client_secret" "" .Values.management_portal.oauth_clients }}
+        value: {{ dig "radar_oura_connector" "client_secret" "" .Values.radar_hydra.oauth_clients }}
 
   - name: radar-gateway
     #chart: radar/radar-gateway
@@ -764,7 +764,7 @@ releases:
       - name: ingress.hosts
         values: [{{ .Values.server_name }}]
       - name: oauth_client_secret
-        value: {{ dig "oauth_client_secret" (dig "oauth_clients" "radar_redcap_integrator" "client_secret" "" .Values.management_portal) .Values.radar_integration }}
+        value: {{ dig "oauth_client_secret" (dig "oauth_clients" "radar_redcap_integrator" "client_secret" "" .Values.radar_hydra) .Values.radar_integration }}
 
   - name: redis
     chart: radar/redis
@@ -895,7 +895,7 @@ releases:
       - name: serverName
         value: {{ .Values.server_name }}
       - name: client_secret
-        value: {{ dig "client_secret" (dig "oauth_clients" "radar_upload_backend" "client_secret" "" .Values.management_portal) .Values.radar_upload_connect_backend }}
+        value: {{ dig "client_secret" (dig "oauth_clients" "radar_upload_backend" "client_secret" "" .Values.radar_hydra) .Values.radar_upload_connect_backend }}
 
   - name: radar-upload-connect-frontend
     chart: radar/radar-upload-connect-frontend
@@ -932,7 +932,7 @@ releases:
       - name: bucketSecretKey
         value: {{ .Values.s3_secret_key }}
       - name: client_secret
-        value: {{ dig "client_secret" (dig "oauth_clients" "radar_upload_connect" "client_secret" "" .Values.management_portal) .Values.radar_upload_source_connector }}
+        value: {{ dig "client_secret" (dig "oauth_clients" "radar_upload_connect" "client_secret" "" .Values.radar_hydra) .Values.radar_upload_source_connector }}
 
   - name: cc-schema-registry-proxy
     chart: radar/cc-schema-registry-proxy
@@ -974,7 +974,7 @@ releases:
         value: {{ .Values.confluent_cloud.cc.bootstrapServerurl }}
       {{ end }}
       - name: garmin.userRepositoryClientSecret
-        value: {{ dig "garmin" "userRepositoryClientSecret" (dig "oauth_clients" "radar_push_endpoint" "client_secret" "" .Values.management_portal) .Values.radar_push_endpoint }}
+        value: {{ dig "garmin" "userRepositoryClientSecret" (dig "oauth_clients" "radar_push_endpoint" "client_secret" "" .Values.radar_hydra) .Values.radar_push_endpoint }}
 
   - name: velero
     namespace: velero
