@@ -382,3 +382,14 @@ radar_hydra:
         - refresh_token
         - authorization_code
         - client_credentials
+    radar_rest_sources_auth_backend:
+      audience:
+        - res_ManagementPortal
+        - res_upload
+        # TODO the last aud was added to make e2e tests passing - double-check if it is acceptable (change due to new way of fetching token with client_credentials)
+        - res_restAuthorizer
+      scope:
+        - PROJECT.READ
+        - SUBJECT.READ
+        # TODO the last scope was added to make e2e tests passing - double-check if it is acceptable (change due to new way of fetching token with client_credentials)
+        - SUBJECT.UPDATE
