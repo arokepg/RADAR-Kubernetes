@@ -1,5 +1,5 @@
 # Whether to upgrade process rolls back changes made in case of failed upgrade
-atomicInstall: true
+atomicInstall: false
 # time to wait for any individual Kubernetes operation
 base_timeout: 90
 # Context that you use in kubectl to access the Kubernetes cluster. Will be translated to `helm --kube-context <context_name>`
@@ -10,6 +10,14 @@ server_name: example.com
 maintainer_email: MAINTAINER_EMAIL@example.com
 # Number of Kafka pods that will be installed
 kafka_num_brokers: 3
+# Minimum number of Kafka brokers that should be in sync
+kafka_num_in_sync_brokers: 2
+# Number of replicas for Kafka topics. Should be min 2, max 4, and is normally 3, but can not be larger than kafka_num_brokers.
+# Ref: https://learn.conduktor.io/kafka/kafka-topics-choosing-the-replication-factor-and-partitions-count/
+kafka_num_topic_replicas: 3
+# Number of partitions for Kafka topics. Rule of thumb: 3 times the number of brokers. Headroom is used for future upscale
+# of brokers. Ref: https://learn.conduktor.io/kafka/kafka-topics-choosing-the-replication-factor-and-partitions-count/
+kafka_num_topic_partitions: 12
 # Enable logging and monitoring
 enable_logging_monitoring: false
 # Enable TLS redirection and retrieval of Let's Encrypt certificates.
@@ -19,7 +27,7 @@ enable_tls: true
 # Minimal deployment for development (disables TLS, monitoring and logging, sets kafka and minio brokers to 1).
 dev_deployment: true
 # E2e test deployment (applies very fast application loop timings for tests).
-e2e_test: true
+e2e_test: false
 # Enable GitHub installation test
 github_installation_test: false
 
@@ -116,12 +124,12 @@ confluent_cloud:
   enabled: false
 
 cp_zookeeper:
-  _install: true
+  _install: false
   _extra_timeout: 510
   servers: 3
 
 cp_kafka:
-  _install: true
+  _install: false
   _extra_timeout: 510
   customEnv:
     # Set this to 1.1 when upgrading from Kafka 5.x
@@ -134,15 +142,18 @@ cp_kafka:
     size: 10Gi
 
 cp_schema_registry:
-  _install: true
+  _install: false
   _extra_timeout: 90
   replicaCount: 1
+
+radar_kafka_stack:
+  _install: true
+  _extra_timeout: 0
 
 catalog_server:
   _install: true
   _extra_timeout: 90
   replicaCount: 1
-  schema_registry: http://cp-schema-registry:8081
 
 radar_home:
   _install: true
@@ -179,15 +190,25 @@ cloudnative_postgresql:
       instances: 2
       storage:
         size: 10Gi
+      postgresql:
+        parameters:
+          wal_keep_size: 1GB
+    # Uncomment and update when running on AWS S3.
+    # backups:
+    #  endpointURL: https://s3.eu-central-1.amazonaws.com
+    #  s3:
+    #    bucket: postgresql-backups
 
 management_portal:
   _install: true
   _extra_timeout: 210
   replicaCount: 1  # should be 1
+  # TODO remove
   image:
     registry: docker.io
-    repository: ewelina/management-portal
-    tag: auth-fixes-improvements_v12
+    repository: pvannierop/management-portal
+    tag: 3.0.0
+    pullPolicy: Always
   managementportal:
     catalogue_server_enable_auto_import: true
     common_privacy_policy_url: http://info.thehyve.nl/radar-cns-privacy-policy
@@ -213,23 +234,21 @@ radar_kratos:
           smtp:
             from_address: radar@thehyve.nl
 
-radar_self_enrolment_ui:
-  image:
-    tag: 0.1.0
-  _install: true
-  _extra_timeout: 0
-
 radar_hydra:
   _install: true
   _extra_timeout: 0
 
+radar_self_enrolment_ui:
+  _install: true
+  _extra_timeout: 0
+
 app_config:
-  _install: false
+  _install: true
   _extra_timeout: 0
   replicaCount: 1
 
 app_config_frontend:
-  _install: false
+  _install: true
   _extra_timeout: 0
   replicaCount: 1
 
@@ -269,7 +288,7 @@ radar_appserver:
 # --------------------------------------------------------- 20-fitbit.yaml ---------------------------------------------------------
 # The charts in 20-fitbit.yaml only need to be installed if you will use a Fitbit, Garmin, or Oura API integration.
 radar_fitbit_connector:
-  _install: true
+  _install: false
   _extra_timeout: 0
   replicaCount: 1
   oauthClientId: radar_fitbit_connector
@@ -359,7 +378,7 @@ realtime_dashboard_timescaledb:
 #- radar_jdbc_connector_grafana._install to true
 #- ksql_server._install to true
 radar_grafana:
-  _install: true
+  _install: false
   _extra_timeout: 0
   replicaCount: 1
 
@@ -367,13 +386,13 @@ radar_grafana:
 #- radar_jdbc_connector_data_dashboard_backend._install to true
 #- ksql_server._install to true
 data_dashboard_backend:
-  _install: true
+  _install: false
   _extra_timeout: 0
   replicaCount: 1
 
 # Install when radar_grafana._install is 'true'
 radar_jdbc_connector_grafana:
-  _install: true
+  _install: false
   _extra_timeout: 0
   replicaCount: 1
   sink:
@@ -389,10 +408,18 @@ radar_jdbc_connector_grafana:
           owner: grafana
         storage:
           size: 8Gi
+        postgresql:
+          parameters:
+            wal_keep_size: 1GB
+      # Uncomment and update when running on AWS S3.
+      # backups:
+      #  endpointURL: https://s3.eu-central-1.amazonaws.com
+      #  s3:
+      #    bucket: postgresql-backups
 
 # Install when data_dashboard_backend._install is 'true'.
 radar_jdbc_connector_data_dashboard_backend:
-  _install: true
+  _install: false
   _extra_timeout: 0
   replicaCount: 1
   timescaledb:
@@ -405,10 +432,18 @@ radar_jdbc_connector_data_dashboard_backend:
           owner: data-dashboard
         storage:
           size: 8Gi
+        postgresql:
+          parameters:
+            wal_keep_size: 1GB
+      # Uncomment and update when running on AWS S3.
+      # backups:
+      #  endpointURL: https://s3.eu-central-1.amazonaws.com
+      #  s3:
+      #    bucket: postgresql-backups
 
 # Install when using realtime analysis
 radar_jdbc_connector_realtime_dashboard:
-  _install: true
+  _install: false
   _extra_timeout: 0
   replicaCount: 1
   timescaledb:
@@ -421,6 +456,14 @@ radar_jdbc_connector_realtime_dashboard:
           owner: realtime-dashboard
         storage:
           size: 8Gi
+        postgresql:
+          parameters:
+            wal_keep_size: 1GB
+      # Uncomment and update when running on AWS S3.
+      # backups:
+      #  endpointURL: https://s3.eu-central-1.amazonaws.com
+      #  s3:
+      #    bucket: postgresql-backups
 
 # Install when:
 #- radar_grafana._install is 'true'
@@ -431,7 +474,8 @@ ksql_server:
   _extra_timeout: 0
   # -- Uncomment when using real-time analysis
   # ksql:
-  #   headless: false
+  #   ksql:
+  #     headless: false
   # --
 
 # --------------------------------------------------------- 20-ingestion.yaml ---------------------------------------------------------
@@ -445,24 +489,6 @@ radar_gateway:
   _extra_timeout: 0
   replicaCount: 1
 
-# --------------------------------------------------------- 20-kafka-analysis.yaml ---------------------------------------------------------
-
-radar_backend_monitor:
-  _install: false
-  _extra_timeout: 0
-  replicaCount: 1
-  smtp:
-    host: smtp.google.com
-    port: 25
-    user: user@gmail.com
-  persistence:
-    size: 1Gi
-
-radar_backend_stream:
-  _install: false
-  _extra_timeout: 0
-  replicaCount: 1
-
 # --------------------------------------------------------- 20-redcap.yaml ---------------------------------------------------------
 
 radar_integration:
@@ -473,11 +499,22 @@ radar_integration:
 
 # --------------------------------------------------------- 20-s3-connector.yaml ---------------------------------------------------------
 
+# DEPRECATED: replaced by OT-CONTAINER-KIT operator deployed redis cluster (see below)
 redis:
-  _install: true
+  _install: false
   _extra_timeout: 0
   metrics:
     enabled: true
+
+radar_redis:
+  _install: true
+  _extra_timeout: 90
+  redis-operator:
+    enabled: true
+  multi:
+    replicates: 3
+  storage:
+    size: 1Gi
 
 minio:
   _install: true
@@ -530,13 +567,10 @@ radar_output:
       endpoint: http://minio:9000/
       bucket: radar-output-storage
 
-  redis:
-    uri: redis://redis-master:6379
-
 # --------------------------------------------------------- 20-upload.yaml ---------------------------------------------------------
 
 radar_upload_postgresql:
-  _install: true
+  _install: false
   _extra_timeout: 0
   postgresql:
     auth:
@@ -566,7 +600,7 @@ radar_upload_source_connector:
   replicaCount: 1
   s3Endpoint: http://minio:9000/
 
-# --------------------------------------------------------- 30-confluent-cloud.yaml ---------------------------------------------------------
+# --------------------------------------------------------- 30-cp-cloud.yaml ---------------------------------------------------------
 
 ccSchemaRegistryProxy:
   _install: false

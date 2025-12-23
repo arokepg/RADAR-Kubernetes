@@ -388,7 +388,7 @@ releases:
         value: {{ .Values.server_name }}
 
   - name: radar-self-enrolment-ui
-    chart: radar/radar-self-enrolment-ui
+#    chart: radar/radar-self-enrolment-ui
     chart: ../../radar-helm-charts/charts/radar-self-enrolment-ui
     version: {{ .Values.radar_self_enrolment_ui._chart_version }}
     installed: {{ .Values.radar_self_enrolment_ui._install }}

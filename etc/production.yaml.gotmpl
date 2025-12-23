@@ -11,12 +11,12 @@ management_portal:
   #    # With helmfile, this can be set in a production.yaml.gotmpl
   #    # file by setting
   #    {{/* keystore: {{ readFile "certificate.pem" | b64enc | quote }}  */}}
-
   # Configure public key used for JWT signing in radar-kratos
   public_jwks: {{ readFile "../etc/management-portal/public-jwks.json" | b64enc | quote }}
 
+# Configure radar-kratos for JWT signing
 radar_kratos:
-  # read keystore
+  # read keystore for JWT signing
   keystore: {{ readFile "../etc/radar-kratos/jwks.json" | b64enc | quote }}
 
 radar_grafana:
@@ -42,9 +42,9 @@ radar_grafana:
 # to uncomment the relevant ksql transformer files.
 # Note: never remove the _base_observations_stream.sql file.
 ksql_server:
- ksql:
-   ksql:
-     queries: |
-       {{- readFile "../etc/cp-ksql-server/_base_observations_stream.sql"             | nindent 8 }}
-       {{- readFile "../etc/cp-ksql-server/questionnaire_response_observations.sql"   | nindent 8 }}
-       {{- readFile "../etc/cp-ksql-server/questionnaire_app_event_observations.sql"  | nindent 8 }}
+  ksql:
+    ksql:
+      queries: |
+        {{- readFile "../etc/cp-ksql-server/_base_observations_stream.sql"             | nindent 8 }}
+        {{- readFile "../etc/cp-ksql-server/questionnaire_response_observations.sql"   | nindent 8 }}
+        {{- readFile "../etc/cp-ksql-server/questionnaire_app_event_observations.sql"  | nindent 8 }}

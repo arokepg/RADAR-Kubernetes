@@ -227,8 +227,6 @@ management_portal:
   managementportal:
     catalogue_server_enable_auto_import: true
     common_privacy_policy_url: http://info.thehyve.nl/radar-cns-privacy-policy
-    oauth_checking_key_aliases_0: radarbase-managementportal-ec
-    oauth_checking_key_aliases_1: selfsigned
   smtp:
     enabled: true
     host: smtp
@@ -257,7 +255,7 @@ radar_hydra:
 
 radar_self_enrolment_ui:
   _install: true
-  _chart_version: 0.3.1
+  _chart_version: 0.4.0
   _extra_timeout: 0
 
 app_config:
