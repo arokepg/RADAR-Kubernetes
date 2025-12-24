@@ -396,6 +396,9 @@ releases:
     <<: *logFailedRelease
     values:
       - {{ .Values.radar_self_enrolment_ui | toYaml | indent 8 | trim }}
+    needs:
+      - radar-hydra
+      - radar-kratos
     set:
       - name: serverName
         value: {{ .Values.server_name }}
