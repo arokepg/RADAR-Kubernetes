@@ -203,12 +203,13 @@ management_portal:
   _install: true
   _extra_timeout: 210
   replicaCount: 1  # should be 1
-  # TODO remove
+  # This should be set to 'false' in the MP helm chart when we made the final change to Ory.
   image:
     registry: docker.io
     repository: pvannierop/management-portal
     tag: 3.0.0
-    pullPolicy: Always
+  authserver:
+    internal: false
   managementportal:
     catalogue_server_enable_auto_import: true
     common_privacy_policy_url: http://info.thehyve.nl/radar-cns-privacy-policy
