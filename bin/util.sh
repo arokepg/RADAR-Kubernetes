@@ -64,7 +64,7 @@ copy_template() {
 
 generate_secret() {
   size=${1:-32}
-  openssl rand -base64 $size | tr -d '+/'
+  openssl rand -base64 $size | tr -dc 'a-zA-Z0-9' | head -c $size
 }
 
 query_password() {
