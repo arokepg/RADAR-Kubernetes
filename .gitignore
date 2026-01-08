@@ -1,7 +1,6 @@
 /.env
 kubernetes-HDFS/
 keystore.p12*
-jwks.json*
 radar-is.yml
 *.tgz
 production.yaml
