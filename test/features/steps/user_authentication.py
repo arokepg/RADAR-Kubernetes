@@ -16,7 +16,7 @@ def step_impl(context):
 
 @then('I should be redirected to the login page')
 def step_impl(context):
-    pattern = re.compile(r".*/kratos-ui/auth/oauth-login.*login_challenge.*")
+    pattern = re.compile(r".*/study/auth/oauth-login.*login_challenge.*")
     expect(context.page).to_have_url(pattern)
 
 
@@ -28,7 +28,6 @@ def step_impl(context, email, password):
             if password.startswith("$") \
             else password
     except ValueError as e:
-        logger.error(str(e))
         raise
     context.login_page.login(final_email, final_password)
     context.login_page.take_screenshot("after_login")
@@ -40,8 +39,9 @@ def step_then_see_message(context, message):
         target_locator = context.login_page.page.get_by_text(message)
         context.management_portal_page.take_screenshot("invalid_login_message")
     else:
+        context.login_page.click_sign_in()
+        expect(context.page).to_have_url(re.compile(r".*/managementportal.*"))
         expect(context.management_portal_page.get_header_locator()).to_be_visible()
-        assert "managementportal" in context.page.url
         target_locator = context.management_portal_page.page.get_by_text(message)
         context.management_portal_page.take_screenshot("successful_login_message")
     expect(target_locator).to_be_visible()
@@ -58,7 +58,7 @@ def step_impl(context):
 async def step_impl(context):
     response = await context.login_page.wait_for_response(
         lambda r: (
-                "kratos-ui/api/ory/recovery" in r.url
+                "study/api/ory/recovery" in r.url
                 and r.request.method == "POST"
         )
     )

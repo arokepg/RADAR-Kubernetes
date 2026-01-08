@@ -10,6 +10,7 @@ class LoginPage(BasePage):
         self.login_button = page.locator("button", has_text="Login")
         self.change_password_button = page.get_by_role("link", name="Forgot password?")
         self.submit_button = page.locator("button", has_text="Submit")
+        self.signin_button = page.get_by_role("button", name="Sign in")
         self.header = page.get_by_role("heading", name="Sign In")
         self.password_change_confirmation = page.get_by_text("Recovery email has been sent!")
 
@@ -30,3 +31,6 @@ class LoginPage(BasePage):
 
     def get_confirm_password_change_locator(self):
         return self.password_change_confirmation
+
+    def click_sign_in(self):
+        self.signin_button.click()
