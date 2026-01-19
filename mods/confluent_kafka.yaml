@@ -76,9 +76,7 @@ radar_s3_connector:
 
 radar_gateway:
   schemaRegistry: http://cp-schema-registry:8081
-  max_requests: 1000
   bootstrapServers: cp-kafka-headless:9092
-  checkSourceId: true
   adminProperties:
     security.protocol: PLAINTEXT
   producerProperties:
