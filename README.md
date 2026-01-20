@@ -232,8 +232,7 @@ helmfile sync
 
 The `helmfile sync` will synchronize all the Kubernetes resources defined in the helmfiles with your Kubernetes cluster.
 Depending on your cluster specification, this may take around 30 minutes when installed for the first time. Note that
-during
-first installation, a large portion of the time is spent downloading docker images. This may result in timeout errors
+during first installation, a large portion of the time is spent downloading docker images. This may result in timeout errors
 that
 may be ignored by repeatedly running the `helmfile sync` command.
 
@@ -258,71 +257,66 @@ longer or shorter.
 
 ```shell
 ➜ kubectl get pods --all-namespaces
-NAMESPACE      NAME                                                     READY   STATUS      RESTARTS      AGE
-cert-manager   cert-manager-77c5f7bf75-n57rj                            1/1     Running     0             28m
-cert-manager   cert-manager-cainjector-669d85f6cf-jfmll                 1/1     Running     0             28m
-cert-manager   cert-manager-webhook-585b8b6bfc-clmdd                    1/1     Running     0             28m
-default        app-config-59c9b94755-pcc82                              1/1     Running     0             25m
-default        app-config-frontend-8687769944-mcdpt                     1/1     Running     0             27m
-default        catalog-server-7bf5fbdbb-hvhvn                           1/1     Running     0             25m
-default        cloudnativepg-operator-cloudnative-pg-6c95784c56-8g6qx   1/1     Running     0             27m
-default        ingress-nginx-controller-699dc9cf5c-ccl7f                1/1     Running     0             27m
-default        management-portal-58d8466749-9sjrr                       1/1     Running     1 (24m ago)   25m
-default        minio-0                                                  1/1     Running     0             27m
-default        minio-1                                                  1/1     Running     0             27m
-default        minio-2                                                  1/1     Running     0             27m
-default        minio-3                                                  1/1     Running     0             27m
-default        minio-provisioning-jc6kw                                 0/1     Completed   0             26m
-default        radar-cloudnative-postgresql-cluster-1                   1/1     Running     0             24m
-default        radar-cloudnative-postgresql-cluster-2                   1/1     Running     0             24m
-default        radar-gateway-bd97fddb8-5pb6s                            1/1     Running     0             25m
-default        radar-home-8655d45964-bbddl                              1/1     Running     0             27m
-default        radar-kafka-entity-operator-55cfcc58b7-97k2m             2/2     Running     0             25m
-default        radar-kafka-node-pool-0                                  1/1     Running     0             26m
-default        radar-kafka-node-pool-1                                  1/1     Running     0             26m
-default        radar-kafka-node-pool-2                                  1/1     Running     0             26m
-default        radar-kafka-schema-registry-7ffdf8495b-7cs4w             1/1     Running     0             25m
-default        radar-redis-follower-0                                   1/1     Running     0             25m
-default        radar-redis-leader-0                                     1/1     Running     0             25m
-default        radar-s3-connector-5b9845b99c-lsd8d                      1/1     Running     0             25m
-default        redis-operator-6f46cfc7b7-ms5sm                          1/1     Running     0             27m
-default        strimzi-cluster-operator-7558f9f465-xrcbq                1/1     Running     0             27m
-default        strimzi-registry-operator-6ddff6f7fb-6wrqw               1/1     Running     0             27m
-graylog        mongodb-0                                                1/1     Running     0             27m
-graylog        mongodb-1                                                1/1     Running     0             26m
-graylog        mongodb-arbiter-0                                        1/1     Running     1 (26m ago)   27m
-kube-system    coredns-ccb96694c-gtq4h                                  1/1     Running     0             35m
-kube-system    local-path-provisioner-5cf85fd84d-zqhrt                  1/1     Running     0             35m
-kube-system    metrics-server-5985cbc9d7-p4dgg                          1/1     Running     0             35m
-kube-system    svclb-ingress-nginx-controller-06a238cc-lwr98            2/2     Running     0             27m
+NAMESPACE      NAME                                                   READY   STATUS      RESTARTS   AGE
+cert-manager   cert-manager-77c5f7bf75-f4kjp                          1/1     Running     0          15m
+cert-manager   cert-manager-cainjector-669d85f6cf-hqz4b               1/1     Running     0          15m
+cert-manager   cert-manager-webhook-585b8b6bfc-2lz42                  1/1     Running     0          15m
+default        catalog-server-85896fdc49-d96kj                        1/1     Running     2          10m
+default        cloudnativepg-operator-cloudnative-pg-6c95784c56-ggqbf 1/1     Running     0          15m
+default        cp-kafka-0                                             1/1     Running     0          13m
+default        cp-kafka-1                                             1/1     Running     0          13m
+default        cp-kafka-2                                             1/1     Running     0          12m
+default        cp-schema-registry-5bf975844f-v2jcn                    1/1     Running     0          11m
+default        cp-zookeeper-0                                         1/1     Running     0          15m
+default        cp-zookeeper-1                                         1/1     Running     0          15m
+default        cp-zookeeper-2                                         1/1     Running     0          14m
+default        ingress-nginx-controller-699dc9cf5c-ld65d              1/1     Running     0          15m
+default        management-portal-57d8d8978b-slxqz                     1/1     Running     0          9m42s
+default        minio-0                                                1/1     Running     0          15m
+default        minio-1                                                1/1     Running     0          15m
+default        minio-2                                                1/1     Running     0          15m
+default        minio-3                                                1/1     Running     0          15m
+default        minio-provisioning-gn8db                               0/1     Completed   0          15m
+default        radar-cloudnative-postgresql-cluster-1                 1/1     Running     0          13m
+default        radar-cloudnative-postgresql-cluster-2                 1/1     Running     0          13m
+default        radar-gateway-849bd7f76-bklk7                          1/1     Running     0          10m
+default        radar-home-8655d45964-w65bt                            1/1     Running     0          15m
+default        radar-output-868b578858-rnpz8                          1/1     Running     0          7m5s
+default        radar-redis-replication-0                              1/1     Running     0          15m
+default        radar-redis-replication-1                              1/1     Running     0          15m
+default        radar-redis-replication-2                              1/1     Running     0          15m
+default        radar-s3-connector-6d8898775c-cf77v                    1/1     Running     1          7m39s
+default        redis-operator-569485b5d5-6vb9k                        1/1     Running     0          15m
+kube-system    coredns-ccb96694c-jdpsl                                1/1     Running     0          17m
+kube-system    local-path-provisioner-5cf85fd84d-wzd2j                1/1     Running     0          17m
+kube-system    metrics-server-5985cbc9d7-hmm92                        1/1     Running     0          17m
+kube-system    svclb-ingress-nginx-controller-8d7925e1-kq7qv          2/2     Running     0          15m
 ```
 
 If you have enabled monitoring+logging (`enable_logging_monitoring: true` in `etc/production.yaml`) and HTTPS (
-`disable_tls: false` in `etc/production.yaml`) you should also see these pods:
+`disable_tls: false` in `etc/production.yaml`) you should see an extended list of pods in the `monitoring` and `graylog`
+namespaces (as well as increased companion containers in pods for each service):
 
 ```shell
 ➜ kubectl -n monitoring get pods
-NAME                                                        READY   STATUS    RESTARTS   AGE
-alertmanager-kube-prometheus-stack-alertmanager-0           2/2     Running   0          51m
-kube-prometheus-stack-grafana-bd558f4c6-82g2k               3/3     Running   0          51m
-kube-prometheus-stack-kube-state-metrics-6d57649657-bfpz9   1/1     Running   0          51m
-kube-prometheus-stack-operator-5554dcc847-kbxzj             1/1     Running   0          51m
-kube-prometheus-stack-prometheus-node-exporter-8lsbh        1/1     Running   0          51m
-prometheus-kube-prometheus-stack-prometheus-0               2/2     Running   0          51m
+NAMESPACE      NAME                                                   READY   STATUS      RESTARTS   AGE
+monitoring     alertmanager-kube-prometheus-stack-alertmanager-0      2/2     Running     0          8m12s
+monitoring     kube-prometheus-stack-grafana-64c8964dd4-66l7w         3/3     Running     0          8m14s
+monitoring     kube-prometheus-stack-kube-state-metrics-6d57649657-46fvq 1/1  Running     0          8m14s
+monitoring     kube-prometheus-stack-operator-5554dcc847-78h6s        1/1     Running     0          8m14s
+monitoring     kube-prometheus-stack-prometheus-node-exporter-98pqw   1/1     Running     0          8m14s
+monitoring     prometheus-kube-prometheus-stack-prometheus-0          2/2     Running     0          8m12s
 
 ➜ kubectl -n graylog get pods
-NAME                           READY   STATUS      RESTARTS   AGE
-elasticsearch-master-0         1/1     Running     0          8m21s
-elasticsearch-master-1         1/1     Running     0          8m21s
-elasticsearch-master-2         1/1     Running     0          8m21s
-fluentd-6jmhn                  1/1     Running     0          8m21s
-fluentd-9lc2g                  1/1     Running     0          8m21s
-fluentd-cfzqv                  1/1     Running     0          8m21s
-graylog-0                      1/1     Running     0          8m21s
-graylog-1                      1/1     Running     0          8m21s
-mongodb-mongodb-replicaset-0   2/2     Running     0          8m21s
-mongodb-mongodb-replicaset-1   2/2     Running     0          8m21s
-mongodb-mongodb-replicaset-2   2/2     Running     0          8m21s
+NAMESPACE      NAME                                                   READY   STATUS      RESTARTS   AGE
+graylog        elasticsearch-master-0                                 1/1     Running     0          7m50s
+graylog        elasticsearch-master-1                                 1/1     Running     0          7m50s
+graylog        elasticsearch-master-2                                 1/1     Running     0          7m50s
+graylog        fluent-bit-zlnst                                       1/1     Running     4          2m20s
+graylog        graylog-0                                              1/1     Running     0          6m9s
+graylog        mongodb-0                                              2/2     Running     0          7m47s
+graylog        mongodb-1                                              2/2     Running     0          7m22s
+graylog        mongodb-arbiter-0                                      1/1     Running     1          7m47s
 ```
 
 In most cases seeing `1/1` or `2/2` in `READY` column and `Running` in `STATUS` column indicates that the application is
@@ -337,8 +331,8 @@ result in timeout errors that may be ignored by repeatedly running the `helmfile
 #### Ensure Kafka cluster is functional and RADAR-base topics are loaded
 
 ```shell
-➜  kubectl exec -it radar-kafka-node-pool-0 -c kafka -- /opt/kafka/bin/kafka-topics.sh --bootstrap-server localhost:9092 --list | wc -l
-273
+➜  `kubectl exec -it cp-kafka-0 -c cp-kafka-broker -- kafka-topics --bootstrap-server localhost:9092 --list | wc -l`
+425
 ```
 
 This output means there are 273 topics loaded in the Kafka cluster.
@@ -347,7 +341,7 @@ In your setup, the number of topics can be more or less, depending on components
 Other useful Kafka commands can be found by running
 
 ```shell
-kubectl exec -it radar-kafka-node-pool-0 -c kafka -- sh -c "ls /opt/kafka/bin/kafka*"
+kubectl exec -it cp-kafka-0 -c cp-kafka-broker -- sh -c "ls /usr/bin/kafka*"
 ```
 
 Use the `--help` flag with each tool to see its purpose.
@@ -359,8 +353,8 @@ topic=... # kafka topic to read from
 # add any arguments to kafka-avro-console-consumer, e.g. --from-beginning or --max-messages 100
 args="--property print.key=true --bootstrap-server cp-kafka-headless:9092"
 command="unset JMX_PORT; kafka-avro-console-consumer"
-pod=$(kubectl get pods --selector=app=radar-kafka-schema-registry -o jsonpath="{.items[0].metadata.name}")
-kubectl exec -it $pod -c radar-kafka-schema-registry cp-schema-registry-server -- sh -c "$command --topic $topic $args"
+pod=$(kubectl get pods --selector=app=cp-schema-registry -o jsonpath="{.items[0].metadata.name}")
+kubectl exec -it $pod -c cp-schema-registry-server -- sh -c "$command --topic $topic $args"
 ```
 
 ## Usage and accessing the applications
@@ -412,7 +406,6 @@ next steps.
 
 ## Service-specific documentation
 
-- [Scaling Strimzi Kafka brokers and using Cruise Control](docs/strimzi_kafka_scaling.md)
 - [Configuration of external PostgreSQL and TimescaleDB databases](docs/external_postgresql_databases.md)
 - [Data Dashboard Backend data transformation](docs/ksql-server_for_data-dashboard-backend.md)
 
