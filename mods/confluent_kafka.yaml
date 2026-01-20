@@ -101,6 +101,17 @@ radar_fitbit_connector:
     jaas:
       name: null
 
+radar_oura_connector:
+  extraEnvVars:
+    - name: CONNECT_SECURITY_PROTOCOL
+      value: PLAINTEXT
+  zookeeper: cp-zookeeper-headless:2181
+  kafka: PLAINTEXT://cp-kafka-headless:9092
+  schema_registry: http://cp-schema-registry:8081
+  secret:
+    jaas:
+      name: null
+
 catalog_server:
   kafka: cp-kafka-headless:9092
   schema_registry: http://cp-schema-registry:8081
@@ -142,7 +153,7 @@ radar_jdbc_connector_realtime_dashboard:
 
 radar_push_endpoint:
   schemaRegistry: http://cp-schema-registry:8081
-  bootstrapServers: cp-kafka-headless:909
+  bootstrapServers: cp-kafka-headless:9092
   adminProperties:
     security.protocol: PLAINTEXT
   producerProperties:
