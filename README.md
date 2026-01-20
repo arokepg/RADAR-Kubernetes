@@ -484,23 +484,24 @@ installation creates various components that might need to be manually removed. 
 following commands to delete the applications from cluster:
 
 ```shell
+kubectl get redis -oname | xargs kubectl delete
+kubectl get redisreplications -oname | xargs kubectl delete
+kubectl get redisclusters -oname |  | xargs kubectl delete
 helmfile destroy
 ```
 
 Some configurations can still linger inside the cluster. Try using following commands to purge them as well.
 
 ```shell
-kubectl delete crd prometheuses.monitoring.coreos.com prometheusrules.monitoring.coreos.com servicemonitors.monitoring.coreos.com alertmanagers.monitoring.coreos.com podmonitors.monitoring.coreos.com alertmanagerconfigs.monitoring.coreos.com probes.monitoring.coreos.com thanosrulers.monitoring.coreos.com
-kubectl delete psp kube-prometheus-stack-alertmanager kube-prometheus-stack-grafana kube-prometheus-stack-grafana-test kube-prometheus-stack-kube-state-metrics kube-prometheus-stack-operator kube-prometheus-stack-prometheus kube-prometheus-stack-prometheus-node-exporter
-kubectl delete mutatingwebhookconfigurations prometheus-admission
-kubectl delete ValidatingWebhookConfiguration prometheus-admission
-
-kubectl delete crd certificaterequests.cert-manager.io certificates.cert-manager.io challenges.acme.cert-manager.io clusterissuers.cert-manager.io issuers.cert-manager.io orders.acme.cert-manager.io
+kubectl get sts -oname | xargs kubectl delete
+kubectl get jobs -oname | xargs kubectl delete
+PATTERN="monitoring.coreos.com|redis.opstreelabs.in|postgresql.cnpg.io|cert-manager.io"
+kubectl get crds -oname | grep -E $PATTERN | xargs kubectl delete
 kubectl delete pvc --all
 kubectl delete pv --all
-kubectl -n cert-manager delete secrets letsencrypt-prod
-kubectl -n default delete secrets radar-base-tls
-kubectl -n monitoring delete secrets radar-base-tls
+kubectl -n cert-manager delete secrets --all
+kubectl -n default delete secrets --all
+kubectl -n monitoring delete secrets --all
 ```
 
 ## Update charts
