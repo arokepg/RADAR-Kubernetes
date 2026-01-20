@@ -788,7 +788,6 @@ releases:
     values:
       - "../etc/redis/values.yaml"
       - {{ .Values.redis | toYaml | indent 8 | trim }}
-      -
   - name: radar-redis
     chart: radar/radar-redis
     version: {{ .Values.radar_redis._chart_version }}
