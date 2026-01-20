@@ -43,8 +43,7 @@ jobs:
         run: |
           DNAME='CN=CI,O=TheHyve,L=Utrecht,C=NL' ./bin/init
           cp etc/base-secrets.yaml etc/secrets.yaml
-          helmfile_mods+='\ \ \ \ \ \ - ../.github/ci_config/secrets.yaml.gotmpl'
-          sed -i "/secrets.yaml/a $helmfile_mods" environments.yaml
+          sed -i "/secrets.yaml/a \      - ../.github/ci_config/secrets.yaml.gotmpl" environments.yaml
           sed -i '/_install: /s/false/true/' etc/production.yaml
           # Deploy a minimal deployment accessible on 'localhost:80' with monitoring enabled
           sed -i '/enable_logging_monitoring: /s/false/true/' etc/production.yaml
