@@ -2,8 +2,8 @@
 
 <!-- TOC -->
 * [Upgrade instructions](#upgrade-instructions)
-  * [Upgrade to RADAR-Kubernetes version 2.0.0](#upgrade-to-radar-kubernetes-version-200)
-    * [Update `mods/migration/2.0.0.yaml` mods file](#update-modsmigration130yaml-mods-file)
+  * [Upgrade to RADAR-Kubernetes version 1.3.0](#upgrade-to-radar-kubernetes-version-140)
+    * [Update `mods/migration/1.3.0.yaml` mods file](#update-modsmigration140yaml-mods-file)
     * [Update `production.yaml` file](#update-productionyaml-file)
     * [Update `production.yaml.gotmpl` file](#update-productionyamlgotmpl-file)
     * [Update `secrets.yaml` file](#update-secretsyaml-file)
@@ -17,6 +17,16 @@
         * [Update `environments.yaml` file](#update-environmentsyaml-file)
       * [5. Manual import of Timescaledb databases](#5-manual-import-of-timescaledb-databases)
       * [5. Re-enable services that write to the databases](#5-re-enable-services-that-write-to-the-databases)
+    * [Kafka migration](#kafka-migration)
+      * [1. Set desired PVC size](#1-set-desired-pvc-size)
+      * [2. Installation of Strimzi Kafka](#2-installation-of-strimzi-kafka)
+      * [3. Route radar-gateway traffic to Strimzi Kafka](#3-route-radar-gateway-traffic-to-strimzi-kafka)
+      * [4. Spool messages in ConfluentInc Kafka to S3 intermediate storage](#4-spool-messages-in-confluentinc-kafka-to-s3-intermediate-storage)
+      * [5. Connect radar-s3-connector to Strimzi Kafka](#5-connect-radar-s3-connector-to-strimzi-kafka)
+    * [Redis migration](#redis-migration)
+      * [2. Installation of Redis cluster](#2-installation-of-redis-cluster)
+      * [3. Migration of Redis standalone data to cluster](#3-migration-of-redis-standalone-data-to-cluster)
+      * [4. Uninstall standalone Redis](#4-uninstall-standalone-redis)
     * [Post-migration cleanup](#post-migration-cleanup)
   * [Upgrade to RADAR-Kubernetes version 1.2.0](#upgrade-to-radar-kubernetes-version-120)
     * [Update `production.yaml` file](#update-productionyaml-file-1)
@@ -31,11 +41,11 @@
 
 Run the following instructions to upgrade an existing RADAR-Kubernetes cluster.
 
-## Upgrade to RADAR-Kubernetes version 2.0.0
+## Upgrade to RADAR-Kubernetes version 1.3.0
 
 This version introduces postgresql and Timescaledb clusters managed by the CloudNativePG operator.
 
-### Update `mods/migration/2.0.0.yaml` mods file
+### Update `mods/migration/1.3.0.yaml` mods file
 
 This file provides configuration for database migration. In the `cloudnative_postgresql:` section, remove any database
 from the `databases:` list that is not needed. For instance:
@@ -337,7 +347,7 @@ WHERE sequence_schema = 'public';
 
 ##### Update `environments.yaml` file
 
-Add the _mods/migration/2.0.0.yaml_ file to the `values:` section, like so:
+Add the _mods/migration/1.3.0.yaml_ file to the `values:` section, like so:
 
 ```yaml
 environments:
@@ -347,11 +357,11 @@ environments:
       - ../etc/production.yaml
       - ../etc/production.yaml.gotmpl
       - ../etc/secrets.yaml
-      - ../mods/migration/2.0.0.yaml
+      - ../mods/migration/1.3.0.yaml
 ```
 
 Start the database migration of _management_portal_ and Timescaledb databases by using the auto-migration feature of
-the CloudNativePG operator. Run the _helmfile sync_ command once with the `mods/migration/2.0.0.yaml` modification file.
+the CloudNativePG operator. Run the _helmfile sync_ command once with the `mods/migration/1.3.0.yaml` modification file.
 Omit any service that is not in use from the command below:
 
 ```shell
@@ -572,7 +582,7 @@ grafana_metrics_timescaledb:
         size: 8Gi
 ```
 
-3. Remove the _mods/migration/2.0.0.yaml_ file reference from the `environments.yaml` file.
+3. Remove the _mods/migration/1.3.0.yaml_ file reference from the `environments.yaml` file.
 
 4. Update the deployment:
 
