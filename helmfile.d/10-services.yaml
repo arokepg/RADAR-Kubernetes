@@ -680,10 +680,11 @@ releases:
     version: {{ .Values.radar_rest_sources_backend._chart_version }}
     installed: {{ .Values.radar_rest_sources_backend._install }}
     timeout: {{ add .Values.base_timeout .Values.radar_rest_sources_backend._extra_timeout }}
-    {{ if or .Values.postgresql._install .Values.cloudnative_postgresql._install }}
+    {{ if or .Values.postgresql._install .Values.cloudnative_postgresql._install .Values.radar_redis._install }}
     needs:
     {{ if .Values.postgresql._install }}- postgresql{{ end }}
     {{ if .Values.cloudnative_postgresql._install }}- radar-cloudnative-postgresql{{ end }}
+    {{ if .Values.radar_redis._install }}- radar-redis{{ end }}
     {{ end }}
     <<: *logFailedRelease
     values:
@@ -968,6 +969,7 @@ releases:
     timeout: {{ add .Values.base_timeout .Values.radar_push_endpoint._extra_timeout }}
     needs:
       - management-portal
+      {{ if .Values.radar_redis._install }}- radar-redis{{ end }}
     <<: *logFailedRelease
     values:
       - {{ .Values.radar_push_endpoint | toYaml | indent 8 | trim }}
