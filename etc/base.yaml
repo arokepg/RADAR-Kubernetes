@@ -203,7 +203,7 @@ cloudnativepg_operator:
 
 cloudnative_postgresql:
   _install: true
-  _chart_version: 0.4.0
+  _chart_version: 0.4.1
   _extra_timeout: 0
   cluster:
     cluster:
@@ -213,8 +213,10 @@ cloudnative_postgresql:
       postgresql:
         parameters:
           wal_keep_size: 1GB
+    backups:
+    # Set to 'true' for storing backups in S3 object store.
+      enabled: false
     # Uncomment and update when running on AWS S3.
-    # backups:
     #  endpointURL: https://s3.eu-central-1.amazonaws.com
     #  s3:
     #    bucket: postgresql-backups
@@ -446,8 +448,10 @@ radar_jdbc_connector_grafana:
         postgresql:
           parameters:
             wal_keep_size: 1GB
+      backups:
+      # Set to 'true' for storing backups in S3 object store.
+        enabled: false
       # Uncomment and update when running on AWS S3.
-      # backups:
       #  endpointURL: https://s3.eu-central-1.amazonaws.com
       #  s3:
       #    bucket: postgresql-backups
@@ -471,8 +475,10 @@ radar_jdbc_connector_data_dashboard_backend:
         postgresql:
           parameters:
             wal_keep_size: 1GB
+      # Set to 'true' for storing backups in S3 object store.
+      backups:
+        enabled: false
       # Uncomment and update when running on AWS S3.
-      # backups:
       #  endpointURL: https://s3.eu-central-1.amazonaws.com
       #  s3:
       #    bucket: postgresql-backups
@@ -496,8 +502,10 @@ radar_jdbc_connector_realtime_dashboard:
         postgresql:
           parameters:
             wal_keep_size: 1GB
+      # Set to 'true' for storing backups in S3 object store.
+      backups:
+        enabled: false
       # Uncomment and update when running on AWS S3.
-      # backups:
       #  endpointURL: https://s3.eu-central-1.amazonaws.com
       #  s3:
       #    bucket: postgresql-backups
