@@ -308,14 +308,14 @@ radar_appserver:
 # The charts in 20-fitbit.yaml only need to be installed if you will use a Fitbit, Garmin, or Oura API integration.
 radar_fitbit_connector:
   _install: false
-  _chart_version: 0.11.0
+  _chart_version: 0.11.1
   _extra_timeout: 0
   replicaCount: 1
   oauthClientId: radar_fitbit_connector
 
 radar_oura_connector:
   _install: false
-  _chart_version: 0.5.1
+  _chart_version: 0.5.2
   _extra_timeout: 0
   replicaCount: 1
   oauthClientId: radar_oura_connector
@@ -330,7 +330,7 @@ radar_rest_sources_authorizer:
 
 radar_rest_sources_backend:
   _install: false
-  _chart_version: 1.5.7
+  _chart_version: 1.5.8
   _extra_timeout: 0
   replicaCount: 1
   restSourceClients:
@@ -658,7 +658,7 @@ ccSchemaRegistryProxy:
 
 radar_push_endpoint:
   _install: false
-  _chart_version: 0.6.3
+  _chart_version: 0.6.5
   _extra_timeout: 180
   replicaCount: 1
   adminProperties: {}
