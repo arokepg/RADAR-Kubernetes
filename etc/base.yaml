@@ -673,7 +673,7 @@ radar_push_endpoint:
   garmin:
     enabled: true
 
-# --------------------------------------------------------- 99-velero.yaml ---------------------------------------------------------
+# ---------------------------------------------------- extra services -------------------------------------------------------------
 
 velero:
   _install: false
@@ -689,6 +689,11 @@ velero:
         bucket: radar-base-backups
         config:
           s3Url: https://s3.amazon.com # protocol should be specified
+
+radar_nifi:
+  _install: false
+  _chart_version: 3.0.0
+  _extra_timeout: 0
 
 radar_mockserver:
   _install: false
