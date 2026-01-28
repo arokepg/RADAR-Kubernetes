@@ -118,6 +118,7 @@ provisioning:
   buckets:
     - name: radar-output-storage
     - name: radar-intermediate-storage
+    - name: cloudnative-postgresql
 
 ## Configure the ingress resource that allows you to access the
 ## MinIO&reg; Console. Set up the URL
