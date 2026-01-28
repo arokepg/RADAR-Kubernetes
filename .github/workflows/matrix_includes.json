@@ -1,8 +1,13 @@
 [
   {
+    "KUBECTL_VERSION": "v1.34.0",
+    "K3S_VERSION": "v1.34.3+k3s1",
+    "runOnBranch": "always"
+  },
+  {
     "KUBECTL_VERSION": "v1.33.0",
     "K3S_VERSION": "v1.33.2+k3s1",
-    "runOnBranch": "always"
+    "runOnBranch": "main"
   },
   {
     "KUBECTL_VERSION": "v1.32.0",
