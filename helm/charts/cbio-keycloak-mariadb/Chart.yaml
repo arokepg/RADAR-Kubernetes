@@ -1,0 +1,17 @@
+apiVersion: v2
+appVersion: "v2.2.0"
+description: MySQL charts Keycloak for The Hyve cBioPortal SAAS
+name: cbio-keycloak-mariadb
+home: https://thehyve.nl
+version: 0.0.1
+maintainers:
+  - email: pim@thehyve.nl
+    name: Pim van Nierop
+    url: https://www.thehyve.nl/experts/pim-van-nierop
+type: application
+dependencies:
+  - name: common
+    repository: https://radar-base.github.io/radar-helm-charts
+    tags:
+      - bitnami-common
+    version: 2.x.x

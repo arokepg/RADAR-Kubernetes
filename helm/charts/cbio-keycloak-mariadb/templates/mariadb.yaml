@@ -1,0 +1,128 @@
+apiVersion: k8s.mariadb.com/v1alpha1
+kind: MariaDB
+metadata:
+  name: {{ template "common.names.fullname" . }}
+  namespace: {{ .Release.Namespace }}
+spec:
+  rootPasswordSecretKeyRef:
+    name: {{ template "common.names.fullname" . }}-root-password
+    key: password
+
+  database: keycloak
+
+  image: docker-registry1.mariadb.com/library/mariadb:11.4.5
+  imagePullPolicy: IfNotPresent
+  imagePullSecrets:
+    - name: registry # run 'make registry-secret' to generate a secret from ~/.docker/config.json
+
+  port: {{ .Values.port | default 3306 }}
+
+  storage:
+    size: 1Gi
+# TODO - Uncomment this section if you want to use a persistent volume for backups
+#    storageClassName: standard
+#    resizeInUseVolumes: true
+#    waitForVolumeResize: true
+#  volumes:
+#    - name: mariabackup
+#      persistentVolumeClaim:
+#        claimName: mariabackup
+#  volumeMounts:
+#    - name: mariabackup
+#      mountPath: /var/mariadb/backup/
+
+  replicas: {{ .Values.replicaCount | default 1 }}
+
+  galera:
+    enabled: {{ ternary "true" "false" (and .Values.galera.enabled (gt (.Values.replicaCount | int) 1)) }}
+
+  connection:
+    secretName: connection-mariadb
+    secretTemplate:
+      key: dsn
+    healthCheck:
+      interval: 10s
+      retryInterval: 3s
+    params:
+      parseTime: "true"
+
+  myCnf: |
+    [mariadb]
+    bind-address=*
+    default_storage_engine=InnoDB
+    binlog_format=row
+    innodb_autoinc_lock_mode=2
+    innodb_buffer_pool_size=1024M
+    max_allowed_packet=256M
+
+  myCnfConfigMapKeyRef:
+    name: mariadb
+    key: my.cnf
+
+  timeZone: "UTC"
+
+  resources:
+    requests:
+      cpu: {{ .Values.spec.resources.requests.cpu | default "100m" }}
+      memory: {{ .Values.spec.resources.requests.memory | default "128Mi" }}
+    limits:
+      cpu: {{ .Values.spec.resources.limits.cpu | default "" }}
+      memory: {{ .Values.spec.resources.limits.memory | default "1Gi" }}
+
+  env:
+    - name: TZ
+      value: SYSTEM
+
+  podSecurityContext:
+    runAsUser: 0
+
+  securityContext:
+    allowPrivilegeEscalation: false
+
+  livenessProbe:
+    exec:
+      command:
+        - bash
+        - -c
+        - mariadb -u root -p"${MARIADB_ROOT_PASSWORD}" -e "SELECT 1;"
+    periodSeconds: 30
+    timeoutSeconds: 30
+    failureThreshold: 20
+
+  readinessProbe:
+    exec:
+      command:
+        - bash
+        - -c
+        - mariadb -u root -p"${MARIADB_ROOT_PASSWORD}" -e "SELECT 1;"
+    periodSeconds: 5
+    timeoutSeconds: 5
+
+  startupProbe:
+    exec:
+      command:
+        - bash
+        - -c
+        - mariadb -u root -p"${MARIADB_ROOT_PASSWORD}" -e "SELECT 1;"
+    failureThreshold: 10
+    periodSeconds: 5
+    timeoutSeconds: 5
+
+  podDisruptionBudget:
+    maxUnavailable: 50%
+
+  updateStrategy:
+    type: ReplicasFirstPrimaryLast
+
+  service:
+    type: LoadBalancer
+    metadata:
+      annotations:
+        metallb.universe.tf/loadBalancerIPs: 172.18.0.20
+    externalTrafficPolicy: Cluster
+    sessionAffinity: None
+
+  metrics:
+    enabled: {{ .Values.metrics.enabled | default false }}
+
+  suspend: false

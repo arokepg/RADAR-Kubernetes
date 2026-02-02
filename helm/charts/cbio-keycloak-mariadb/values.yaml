@@ -1,0 +1,6 @@
+replicaCount: 1
+port: "3306"
+metrics:
+  enabled: false
+galera:
+  enabled: false

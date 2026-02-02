@@ -1,0 +1,137 @@
+serverName: localhost
+advertised_protocol: http
+replicaCount: 1
+
+database:
+  url: jdbc:mariadb://cbio-keycloak-mariadb-internal:3306/keycloak
+  usernameSecret:
+    name: cbio-keycloak-mariadb-user
+    key: username
+  passwordSecret:
+    name: cbio-keycloak-mariadb-user
+    key: password
+
+email:
+  enabled: false
+  emailFrom: pim@thehyve.nl
+  emailFromDisplayName: Pim van Nierop
+  replyTo: pim@thehyve.nl
+  replyToDisplayName: Pim van Nierop
+  smtp:
+    host:
+    port: 587
+    username:
+    password:
+    auth: true
+    startTls: true
+
+operator:
+  keycloakUrl: 'http://{{ include "common.names.fullname" . }}-service.{{ .Release.Namespace }}.svc:8080'
+# for client specific loging procedure see: https://stackoverflow.com/questions/79533407/how-to-restrict-user-login-to-specific-clients-in-keycloak-based-on-attributes
+realms:
+  - name: broker
+    email:
+      enabled: false
+    userAttributes:
+      - name: policy
+        displayName: minio-policy
+        multivalued: true
+
+    clientScopes:
+      - name: minio-policy
+        description: OpenID Connect custom scope for adding minio policies to token
+        protocolMapper: oidc-usermodel-attribute-mapper
+        config:
+          claim.name: policy
+          user.attribute: policy
+          jsonType.label: "String"
+          id.token.claim: "true"
+          access.token.claim: "true"
+          lightweight.claim: "false"
+          userinfo.token.claim: "true"
+          introspection.token.claim: "true"
+          multivalued: "true"
+          aggregate.attrs: "true"
+
+    clients:
+      - name: idp
+        clientId: identity-provider
+        webUrl: '{{ .Values.advertised_protocol }}://keycloak.{{ .Values.serverName }}'
+        defaultClientScopes:
+          - email
+          - profile
+          - roles
+          - web-origins
+        redirectUris:
+          - '{{ .Values.advertised_protocol }}://keycloak.{{ .Values.serverName }}/*'
+      - name: minio
+        clientId: minio
+        webUrl: '{{ .Values.advertised_protocol }}://s3.{{ .Values.serverName }}'
+        redirectUris:
+          - '{{ .Values.advertised_protocol }}://s3.{{ .Values.serverName }}/*'
+        defaultClientScopes:
+          - minio-policy
+        clientSpecificLoginRole: true
+      - name: nifi
+        clientId: nifi
+        webUrl: '{{ .Values.advertised_protocol }}://nifi.{{ .Values.serverName }}'
+        defaultClientScopes:
+          - email
+          - profile
+          - roles
+          - web-origins
+        redirectUris:
+          - '{{ .Values.advertised_protocol }}://nifi.{{ .Values.serverName }}/*'
+        clientSpecificLoginRole: true
+      - name: grafana
+        clientId: grafana
+        webUrl: '{{ .Values.advertised_protocol }}://grafana.{{ .Values.serverName }}'
+        defaultClientScopes:
+          - email
+          - profile
+          - roles
+          - offline_access
+        redirectUris:
+          - '{{ .Values.advertised_protocol }}://grafana.{{ .Values.serverName }}/login/generic_oauth'
+        clientSpecificLoginRole: true
+
+ingress:
+  enabled: true
+  hostname: 'keycloak.{{ .Values.serverName }}'
+  ingressClassName: nginx
+  path: /
+  pathType: ImplementationSpecific
+  backend: '{{ include "common.names.fullname" . }}-service'
+  tls: false
+
+metrics:
+  enabled: false
+
+prometheus:
+  enabled: false
+
+serviceMonitor:
+  enabled: false
+  port: management
+  path: /metrics
+
+# MinIO public bucket job configuration
+minio:
+  # Whether to run the job to ensure the public bucket and upload openid-configuration.json
+  publicBucketJob:
+    enabled: true
+    bucketName: public
+    # MinIO endpoint used by mc alias (protocol+host[:port])
+    endpoint: http://minio
+    # Name of a secret in this namespace that has keys: accessKey, secretKey
+    # By default, use the admin user created by the cbio-minio chart, if present
+    credentialsSecretName: admin-minio-user
+    # -- Image registry
+    registry: docker.io
+    # -- Image repository
+    repository: pvannierop/cbio-loading-study
+    # -- Image tag (immutable tags are recommended)
+    # Overrides the image tag whose default is the chart appVersion.
+    tag: 1.0.1
+    # -- Image pull policy
+    pullPolicy: Always

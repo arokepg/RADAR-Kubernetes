@@ -1,0 +1,9 @@
+{{/*Connects the Keycloak deployment to the keycloak-epd operator*/}}
+{{- $adminSecretName := include "common.secrets.name" (dict "existingSecret" "" "defaultNameSuffix" "admin" "context" $) }}
+apiVersion: v1.edp.epam.com/v1
+kind: Keycloak
+metadata:
+  name: {{ include "common.names.fullname" . }}
+spec:
+  secret: {{ $adminSecretName }}
+  url: {{ tpl .Values.operator.keycloakUrl . | quote }}

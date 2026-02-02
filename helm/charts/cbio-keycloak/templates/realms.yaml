@@ -1,0 +1,51 @@
+{{- range .Values.realms }}
+{{- $realmName := .name }}
+apiVersion: v1.edp.epam.com/v1
+kind: KeycloakRealm
+metadata:
+  name: {{ include "common.names.fullname" $ }}-{{ $realmName }}
+spec:
+  realmName: {{ $realmName }}
+  keycloakRef:
+    name: {{ include "common.names.fullname" $ }}
+    kind: Keycloak
+{{- if .userAttributes }}
+{{- range .userAttributes }}
+  userProfileConfig:
+    unmanagedAttributePolicy: "ENABLED"
+    attributes:
+      - name: {{ .name }}
+        displayName: {{ .displayName }}
+        group: user-metadata
+        multivalued: {{ .multivalued }}
+        permissions:
+          edit:
+            - "admin"
+{{- end }}
+{{- end }}
+{{- if .email.enabled }}
+{{- $_ := required "Email is enabled and value 'email.smtp.host' is not set. Disable email or define this value." $.Values.email.smtp.host }}
+  smtp:
+    template:
+      from: {{ $.Values.email.emailFrom }}
+      fromDisplayName: {{ $.Values.email.emailFrom }}
+      replyTo: {{ $.Values.email.emailFrom }}
+      replyToDisplayName: {{ $.Values.email.emailFrom }}
+      envelopeFrom: {{ $.Values.email.emailFrom }}
+    connection:
+      host: {{ $.Values.email.smtp.host }}
+      port: {{ $.Values.email.smtp.port }}
+      enableSSL: {{ $.Values.email.smtp.ssl }}
+      enableStartTLS: {{ $.Values.email.smtp.startTls }}
+      authentication:
+        password:
+          secretKeyRef:
+            name: cbio-keycloak-smtp-server
+            key: password
+        username: {{ $.Values.email.smtp.username }}
+          secretKeyRef:
+            name: cbio-keycloak-smtp-server
+            key: username
+{{- end }}
+---
+{{- end }}

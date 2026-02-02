@@ -1,0 +1,49 @@
+{{- $adminSecretName := include "common.secrets.name" (dict "existingSecret" "" "defaultNameSuffix" "admin" "context" $) }}
+apiVersion: k8s.keycloak.org/v2alpha1
+kind: Keycloak
+metadata:
+  name: cbio-keycloak
+spec:
+  instances: {{ .Values.replicaCount }}
+  ingress:
+    # We use our own Ingress definition that has more flexibility
+    enabled: false
+  hostname:
+    hostname: {{ .Values.advertised_protocol }}://keycloak.{{ .Values.serverName }}
+    admin: {{ .Values.advertised_protocol }}://keycloak.{{ .Values.serverName }}
+  http:
+    httpEnabled: true
+    labels:
+      # Needed for selection of the ServiceMonitor by Prometheus.
+      app.kubernetes.io/instance: {{ .Release.Name }}
+      app.kubernetes.io/name: {{ include "common.names.fullname" . }}
+  bootstrapAdmin:
+    user:
+      secret: {{ $adminSecretName }}
+  db:
+    vendor: mariadb
+    usernameSecret:
+      name: {{ .Values.database.usernameSecret.name }}
+      key: {{ .Values.database.usernameSecret.key }}
+    passwordSecret:
+      name: {{ .Values.database.passwordSecret.name }}
+      key: {{ .Values.database.passwordSecret.key }}
+    url: {{ .Values.database.url }}
+    poolInitialSize: 1
+    poolMinSize: 2
+    poolMaxSize: 3
+  features:
+    enabled:
+      - docker
+      - authorization
+      - admin
+      - admin-fine-grained-authz:v2
+    disabled:
+      - step-up-authentication
+  additionalOptions:
+    - name: metrics-enabled
+      value: {{ .Values.metrics.enabled | default false | quote }}
+    - name: event-metrics-user-enabled
+      value: {{ .Values.metrics.enabled | default false | quote }}
+    - name: http-metrics-histograms-enabled
+      value: "true"

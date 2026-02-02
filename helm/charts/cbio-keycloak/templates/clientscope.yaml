@@ -1,0 +1,24 @@
+{{- range .Values.realms }}
+{{- $realmName := .name }}
+{{- range .clientScopes }}
+apiVersion: v1.edp.epam.com/v1
+kind: KeycloakClientScope
+metadata:
+  name: {{ $realmName }}-{{ .name }}
+spec:
+  name: {{ .name | quote }}
+  realmRef:
+    name: {{ include "common.names.fullname" $ }}-{{ $realmName }}
+    kind: KeycloakRealm
+  protocol: openid-connect
+  description: {{ .description | quote }}
+  attributes:
+    "include.in.token.scope": "true"
+  protocolMappers:
+    - name: {{ .config.claimName | quote }}
+      protocol: openid-connect
+      protocolMapper: {{ .protocolMapper }}
+      config:
+        {{ .config | toYaml | indent 8 | trim }}
+{{- end }}
+{{- end }}

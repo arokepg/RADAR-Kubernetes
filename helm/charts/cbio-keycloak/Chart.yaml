@@ -1,0 +1,22 @@
+apiVersion: v2
+appVersion: "v26.4.0"
+description: Keycloak chart for The Hyve cBioPortal SAAS
+name: cbio-keycloak
+home: https://thehyve.nl
+version: 0.1.1
+maintainers:
+  - email: pim@thehyve.nl
+    name: Pim van Nierop
+    url: https://www.thehyve.nl/experts/pim-van-nierop
+type: application
+dependencies:
+  - name: common
+    repository: https://radar-base.github.io/radar-helm-charts
+    tags:
+      - bitnami-common
+    version: 2.x.x
+  - name: helmet
+    version: 0.14.0
+    repository: https://charts.companyinfo.dev
+    import-values:
+      - defaults

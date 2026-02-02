@@ -1,0 +1,19 @@
+{{/*For every client with frontend authorization create a corresponding realm role*/}}
+{{ range .Values.realms }}
+{{ $realmName := .name }}
+{{ range .clients }}
+{{ if .clientSpecificLoginRole }}
+apiVersion: v1.edp.epam.com/v1
+kind: KeycloakRealmRole
+metadata:
+  name: {{ $realmName }}-{{ .name }}-login
+spec:
+  description: {{ .description }}
+  name: {{ .name }}-login
+  realmRef:
+    name: {{ include "common.names.fullname" $ }}-{{ $realmName }}
+    kind: KeycloakRealm
+---
+{{ end }}
+{{ end }}
+{{ end }}

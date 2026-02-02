@@ -1,0 +1,21 @@
+{{- $cfg := .Values.pdb | default dict -}}
+{{- if and $cfg $cfg.enabled }}
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: {{ default (printf "%s-pdb" ((include "common.names.name" .) | default .Chart.Name)) $cfg.name | quote }}
+spec:
+  {{- if hasKey $cfg "minAvailable" }}
+  minAvailable: {{ $cfg.minAvailable }}
+  {{- end }}
+  {{- if hasKey $cfg "maxUnavailable" }}
+  maxUnavailable: {{ $cfg.maxUnavailable }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- if hasKey $cfg "selectorLabels" }}
+      {{- toYaml $cfg.selectorLabels | nindent 6 }}
+      {{- else }}
+      {{ include "common.labels.matchLabels" . | nindent 6 }}
+      {{- end }}
+{{- end }}

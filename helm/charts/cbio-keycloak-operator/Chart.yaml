@@ -1,0 +1,8 @@
+apiVersion: v2
+name: cbio-keycloak-operator
+description: Keycloak operator charts for The Hyve cBioPortal SAAS
+appVersion: "26.4.0"
+version: 0.2.0
+type: application
+
+
