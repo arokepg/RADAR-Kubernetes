@@ -681,3 +681,13 @@ radar_mockserver:
   _install: false
   _chart_version: 0.1.3
   _extra_timeout: 0
+
+radar_keycloak_operator:
+  version: 0.1.0
+  installed: true
+radar_keycloak:
+  version: 0.1.0
+  installed: true
+keycloak_edp_operator:
+  version: 0.0.1
+  installed: true

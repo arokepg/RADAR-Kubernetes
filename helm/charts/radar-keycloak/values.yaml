@@ -1,0 +1,400 @@
+serverName: localhost
+advertised_protocol: https
+replicaCount: 1
+
+image:
+  registry: quay.io
+  repository: keycloak/keycloak
+  tag:
+
+database:
+  url: jdbc:mariadb://radar-keycloak-mariadb-internal:3306/keycloak
+  usernameSecret:
+    name: radar-keycloak-mariadb-user
+    key: username
+  passwordSecret:
+    name: radar-keycloak-mariadb-user
+    key: password
+
+email:
+  enabled: false
+  emailFrom: pim@thehyve.nl
+  emailFromDisplayName: Pim van Nierop
+  replyTo: pim@thehyve.nl
+  replyToDisplayName: Pim van Nierop
+  smtp:
+    host:
+    port: 587
+    username:
+    password:
+    auth: true
+    startTls: true
+
+operator:
+  keycloakUrl: 'http://{{ include "common.names.fullname" . }}-service.{{ .Release.Namespace }}.svc:8080'
+
+keycloak:
+  # -- Set new env vars here.
+  additionalOptions: []
+
+# for client specific loging procedure see: https://stackoverflow.com/questions/79533407/how-to-restrict-user-login-to-specific-clients-in-keycloak-based-on-attributes
+realms:
+  - name: radar-base
+
+    email:
+      enabled: false
+
+    userAttributes:
+      - name: policy
+        displayName: minio-policy
+        multivalued: true
+
+    roles:
+      - name: ROLE_SYS_ADMIN
+      - name: "MAIN:ROLE_ORGANIZATION_ADMIN"
+      - name: "STAGING_PROJECT:ROLE_PROJECT_ADMIN"
+
+    clientScopes:
+      - name: MEASUREMENT.CREATE
+        description: OpenID Connect custom scope
+        attributes:
+          - name: include.in.token.scope
+            value: "true"
+      - name: MEASUREMENT.READ
+        description: OpenID Connect custom scope
+        attributes:
+          - name: include.in.token.scope
+            value: "true"
+      - name: MEASUREMENT.UPDATE
+        description: OpenID Connect custom scope
+        attributes:
+          - name: include.in.token.scope
+            value: "true"
+      - name: MEASUREMENT.DELETE
+        description: OpenID Connect custom scope
+        attributes:
+          - name: include.in.token.scope
+            value: "true"
+
+      - name: SUBJECT.CREATE
+        description: OpenID Connect custom scope
+        attributes:
+          - name: include.in.token.scope
+            value: "true"
+      - name: SUBJECT.READ
+        description: OpenID Connect custom scope
+        attributes:
+          - name: include.in.token.scope
+            value: "true"
+      - name: SUBJECT.UPDATE
+        description: OpenID Connect custom scope
+        attributes:
+          - name: include.in.token.scope
+            value: "true"
+      - name: SUBJECT.DELETE
+        description: OpenID Connect custom scope
+        attributes:
+          - name: include.in.token.scope
+            value: "true"
+
+      - name: PROJECT.CREATE
+        description: OpenID Connect custom scope
+        attributes:
+          - name: include.in.token.scope
+            value: "true"
+      - name: PROJECT.READ
+        description: OpenID Connect custom scope
+        attributes:
+          - name: include.in.token.scope
+            value: "true"
+      - name: PROJECT.UPDATE
+        description: OpenID Connect custom scope
+        attributes:
+          - name: include.in.token.scope
+            value: "true"
+      - name: PROJECT.DELETE
+        description: OpenID Connect custom scope
+        attributes:
+          - name: include.in.token.scope
+            value: "true"
+
+      - name: ORGANIZATION.CREATE
+        description: OpenID Connect custom scope
+        attributes:
+          - name: include.in.token.scope
+            value: "true"
+      - name: ORGANIZATION.READ
+        description: OpenID Connect custom scope
+        attributes:
+          - name: include.in.token.scope
+            value: "true"
+      - name: ORGANIZATION.UPDATE
+        description: OpenID Connect custom scope
+        attributes:
+          - name: include.in.token.scope
+            value: "true"
+      - name: ORGANIZATION.DELETE
+        description: OpenID Connect custom scope
+        attributes:
+          - name: include.in.token.scope
+            value: "true"
+
+      - name: SOURCETYPE.CREATE
+        description: OpenID Connect custom scope
+        attributes:
+          - name: include.in.token.scope
+            value: "true"
+      - name: SOURCETYPE.READ
+        description: OpenID Connect custom scope
+        attributes:
+          - name: include.in.token.scope
+            value: "true"
+      - name: SOURCETYPE.UPDATE
+        description: OpenID Connect custom scope
+        attributes:
+          - name: include.in.token.scope
+            value: "true"
+      - name: SOURCETYPE.DELETE
+        description: OpenID Connect custom scope
+        attributes:
+          - name: include.in.token.scope
+            value: "true"
+
+      - name: SOURCEDATA.CREATE
+        description: OpenID Connect custom scope
+        attributes:
+          - name: include.in.token.scope
+            value: "true"
+      - name: SOURCEDATA.READ
+        description: OpenID Connect custom scope
+        attributes:
+          - name: include.in.token.scope
+            value: "true"
+      - name: SOURCEDATA.UPDATE
+        description: OpenID Connect custom scope
+        attributes:
+          - name: include.in.token.scope
+            value: "true"
+      - name: SOURCEDATA.DELETE
+        description: OpenID Connect custom scope
+        attributes:
+          - name: include.in.token.scope
+            value: "true"
+
+      - name: SOURCE.CREATE
+        description: OpenID Connect custom scope
+        attributes:
+          - name: include.in.token.scope
+            value: "true"
+      - name: SOURCE.READ
+        description: OpenID Connect custom scope
+        attributes:
+          - name: include.in.token.scope
+            value: "true"
+      - name: SOURCE.UPDATE
+        description: OpenID Connect custom scope
+        attributes:
+          - name: include.in.token.scope
+            value: "true"
+      - name: SOURCE.DELETE
+        description: OpenID Connect custom scope
+        attributes:
+          - name: include.in.token.scope
+            value: "true"
+
+      - name: USER.CREATE
+        description: OpenID Connect custom scope
+        attributes:
+          - name: include.in.token.scope
+            value: "true"
+      - name: USER.READ
+        description: OpenID Connect custom scope
+        attributes:
+          - name: include.in.token.scope
+            value: "true"
+      - name: USER.UPDATE
+        description: OpenID Connect custom scope
+        attributes:
+          - name: include.in.token.scope
+            value: "true"
+      - name: USER.DELETE
+        description: OpenID Connect custom scope
+        attributes:
+          - name: include.in.token.scope
+            value: "true"
+
+      - name: ROLE.CREATE
+        description: OpenID Connect custom scope
+        attributes:
+          - name: include.in.token.scope
+            value: "true"
+      - name: ROLE.READ
+        description: OpenID Connect custom scope
+        attributes:
+          - name: include.in.token.scope
+            value: "true"
+      - name: ROLE.UPDATE
+        description: OpenID Connect custom scope
+        attributes:
+          - name: include.in.token.scope
+            value: "true"
+      - name: ROLE.DELETE
+        description: OpenID Connect custom scope
+        attributes:
+          - name: include.in.token.scope
+            value: "true"
+
+      - name: OAUTHCLIENTS.CREATE
+        description: OpenID Connect custom scope
+        attributes:
+          - name: include.in.token.scope
+            value: "true"
+      - name: OAUTHCLIENTS.READ
+        description: OpenID Connect custom scope
+        attributes:
+          - name: include.in.token.scope
+            value: "true"
+      - name: OAUTHCLIENTS.UPDATE
+        description: OpenID Connect custom scope
+        attributes:
+          - name: include.in.token.scope
+            value: "true"
+      - name: OAUTHCLIENTS.DELETE
+        description: OpenID Connect custom scope
+        attributes:
+          - name: include.in.token.scope
+            value: "true"
+
+      - name: AUDIT.CREATE
+        description: OpenID Connect custom scope
+        attributes:
+          - name: include.in.token.scope
+            value: "true"
+      - name: AUDIT.READ
+        description: OpenID Connect custom scope
+        attributes:
+          - name: include.in.token.scope
+            value: "true"
+      - name: AUDIT.UPDATE
+        description: OpenID Connect custom scope
+        attributes:
+          - name: include.in.token.scope
+            value: "true"
+      - name: AUDIT.DELETE
+        description: OpenID Connect custom scope
+        attributes:
+          - name: include.in.token.scope
+            value: "true"
+
+      - name: AUTHORITY.CREATE
+        description: OpenID Connect custom scope
+        attributes:
+          - name: include.in.token.scope
+            value: "true"
+      - name: AUTHORITY.READ
+        description: OpenID Connect custom scope
+        attributes:
+          - name: include.in.token.scope
+            value: "true"
+      - name: AUTHORITY.UPDATE
+        description: OpenID Connect custom scope
+        attributes:
+          - name: include.in.token.scope
+            value: "true"
+      - name: AUTHORITY.DELETE
+        description: OpenID Connect custom scope
+        attributes:
+          - name: include.in.token.scope
+            value: "true"
+      - name: ManagementPortalapp-dedicated
+        description: OpenID Connect custom scope
+        attributes:
+          - name: include.in.token.scope
+            value: "true"
+          - name: display.on.consent.screen
+            value: "false"
+
+    groups:
+      - name: sys_admin
+      - name: "Main:org_admin"
+      - name: "STAGING_PROJECT:project_admin"
+
+    clients:
+      - name: ManagementPortalapp
+        clientId: ManagementPortalapp
+        webUrl: '{{ .Values.advertised_protocol }}://{{ .Values.serverName }}/managementportal'
+        serviceAccount:
+          enabled: true
+        attributes:
+          token.endpoint.auth.method: client_secret_post
+        defaultClientScopes:
+          - roles
+        optionalClientScopes:
+          - MEASUREMENT.CREATE
+          - MEASUREMENT.READ
+          - MEASUREMENT.UPDATE
+          - MEASUREMENT.DELETE
+          - SUBJECT.CREATE
+          - SUBJECT.READ
+          - SUBJECT.UPDATE
+          - SUBJECT.DELETE
+          - PROJECT.CREATE
+          - PROJECT.READ
+          - PROJECT.UPDATE
+          - PROJECT.DELETE
+          - SOURCETYPE.CREATE
+          - SOURCETYPE.READ
+          - SOURCETYPE.UPDATE
+          - SOURCETYPE.DELETE
+          - SOURCEDATA.CREATE
+          - SOURCEDATA.READ
+          - SOURCEDATA.UPDATE
+          - SOURCEDATA.DELETE
+          - SOURCE.CREATE
+          - SOURCE.READ
+          - SOURCE.UPDATE
+          - SOURCE.DELETE
+          - USER.CREATE
+          - USER.READ
+          - USER.UPDATE
+          - USER.DELETE
+          - ROLE.CREATE
+          - ROLE.READ
+          - ROLE.UPDATE
+          - ROLE.DELETE
+          - OAUTHCLIENTS.CREATE
+          - OAUTHCLIENTS.READ
+          - OAUTHCLIENTS.UPDATE
+          - OAUTHCLIENTS.DELETE
+          - AUDIT.READ
+          - AUTHORITY.READ
+          - MEASUREMENT.READ
+          - MEASUREMENT.CREATE
+        redirectUris:
+          - '{{ .Values.advertised_protocol }}://{{ .Values.serverName }}/managementportal/*'
+
+ingress:
+  enabled: true
+  hostname: 'keycloak.{{ .Values.serverName }}'
+  ingressClassName: nginx
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+    nginx.ingress.kubernetes.io/proxy-buffer-size: "16k"
+    nginx.ingress.kubernetes.io/proxy-buffers-number: "8"
+    nginx.ingress.kubernetes.io/proxy-busy-buffers-size: "64k"
+  path: /
+  pathType: ImplementationSpecific
+  backend: '{{ include "common.names.fullname" . }}-service'
+  tls: true
+  selfSigned: false
+
+metrics:
+  enabled: false
+
+prometheus:
+  enabled: false
+
+serviceMonitor:
+  enabled: false
+  port: management
+  path: /metrics

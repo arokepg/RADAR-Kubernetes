@@ -1,0 +1,42 @@
+{{ range .Values.realms }}
+{{ $realmName := .name }}
+{{ range .clients }}
+{{ $secretSuffix := lower (printf "%s-%s" $realmName .name) }}
+{{ $secretName := include "common.secrets.name" (dict "existingSecret" "" "defaultNameSuffix" $secretSuffix "context" $) }}
+apiVersion: v1.edp.epam.com/v1
+kind: KeycloakClient
+metadata:
+  name: {{ include "common.names.fullname" $ }}-{{ lower (.name) }}
+spec:
+  realmRef:
+    name: {{ include "common.names.fullname" $ }}-{{ $realmName }}
+    kind: KeycloakRealm
+  advancedProtocolMappers: true
+  clientId: {{ .clientId }}
+  secret: ${{ $secretName }}:clientSecret
+  directAccess: true
+  webUrl: {{ tpl .webUrl $ | quote }}
+  homeUrl: "/"
+  {{- with .serviceAccount }}
+  serviceAccount:
+    {{- . | toYaml | nindent 4 }}
+  {{- end }}
+  {{- with .attributes }}
+  attributes:
+    {{- . | toYaml | nindent 4 }}
+  {{- end }}
+  {{ with .defaultClientScopes }}
+  defaultClientScopes:
+    {{ . | toYaml |  nindent 4 | trim }}
+  {{- end }}
+  {{- with .optionalClientScopes }}
+  optionalClientScopes:
+    {{ . | toYaml |  nindent 4 | trim }}
+  {{- end }}
+  redirectUris:
+    {{ range .redirectUris }}
+    - {{ tpl . $ | quote }}
+    {{ end }}
+---
+{{- end }}
+{{- end }}

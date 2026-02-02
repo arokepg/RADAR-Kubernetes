@@ -1,0 +1,167 @@
+smtp:
+  host: localhost
+  username: ""
+  password: ""
+
+cloudnative_postgresql:
+  secret:
+    users:
+      - user: managementportal
+        dbname: managementportal
+      - user: restsourceauthorizer
+        dbname: restsourceauthorizer
+      - user: appconfig
+        dbname: appconfig
+      - user: kratos
+        dbname: kratos
+      - user: hydra
+        dbname: hydra
+      - user: appserver
+        dbname: appserver
+      - user: uploadconnector
+        dbname: uploadconnector
+      - user: keycloak
+        dbname: keycloak
+  cluster:
+    cluster:
+      initdb:
+        postInitSQL:
+          - CREATE USER restsourceauthorizer
+          - CREATE USER appconfig
+          - CREATE USER kratos
+          - CREATE USER hydra
+          - CREATE USER appserver
+          - CREATE USER uploadconnector
+          - CREATE USER keycloak
+          - CREATE DATABASE restsourceauthorizer OWNER restsourceauthorizer
+          - CREATE DATABASE appconfig OWNER appconfig
+          - CREATE DATABASE kratos OWNER kratos
+          - CREATE DATABASE hydra OWNER hydra
+          - CREATE DATABASE appserver OWNER appserver
+          - CREATE DATABASE uploadconnector OWNER uploadconnector
+          - CREATE DATABASE keycloak OWNER keycloak
+      roles:
+        - name: managementportal
+          ensure: present
+          comment: User for the managementportal database
+          login: true
+          superuser: false
+          passwordSecret:
+            name: radar-cloudnative-postgresql-managementportal
+        - name: restsourceauthorizer
+          ensure: present
+          comment: User for the restsourceauthorizer database
+          login: true
+          superuser: false
+          passwordSecret:
+            name: radar-cloudnative-postgresql-restsourceauthorizer
+        - name: appconfig
+          ensure: present
+          comment: User for the appconfig database
+          login: true
+          superuser: false
+          passwordSecret:
+            name: radar-cloudnative-postgresql-appconfig
+        - name: kratos
+          ensure: present
+          comment: User for the kratos database
+          login: true
+          superuser: false
+          passwordSecret:
+            name: radar-cloudnative-postgresql-kratos
+        - name: hydra
+          ensure: present
+          comment: User for the hydra database
+          login: true
+          superuser: false
+          passwordSecret:
+            name: radar-cloudnative-postgresql-hydra
+        - name: appserver
+          ensure: present
+          comment: User for the appserver database
+          login: true
+          superuser: false
+          passwordSecret:
+            name: radar-cloudnative-postgresql-appserver
+        - name: uploadconnector
+          ensure: present
+          comment: User for the uploadconnector database
+          login: true
+          superuser: false
+          passwordSecret:
+            name: radar-cloudnative-postgresql-uploadconnector
+        - name: keycloak
+          ensure: present
+          comment: User for the keycloak database
+          login: true
+          superuser: false
+          passwordSecret:
+            name: radar-cloudnative-postgresql-keycloak
+
+radar_keycloak:
+  image:
+    registry: docker.io
+    repository: pvannierop/keycloak-scope-mapper
+    tag: 0.8.15
+  ingress:
+    backend: radar-keycloak-service
+  database:
+    url: jdbc:postgresql://radar-cloudnative-postgresql-cluster-rw.default:5432/keycloak
+    usernameSecret:
+      name: radar-cloudnative-postgresql-keycloak
+      key: username
+    passwordSecret:
+      name: radar-cloudnative-postgresql-keycloak
+      key: password
+#  keycloak:
+#    additionalOptions:
+#      - name: KC_SPI_EVENTS_LISTENER_USER_CREATION_LISTENER_MANAGEMENT_PORTAL_URL
+#        value: http://management-portal:8080/managementportal/api/users
+
+management_portal:
+  image:
+    registry: docker.io
+    repository: pvannierop/management-portal
+    tag: 3.0.0-keycloak-0.8
+  postgres:
+    urlSecret:
+      name: radar-cloudnative-postgresql-managementportal
+      key: jdbc-uri
+    userSecret:
+      name: radar-cloudnative-postgresql-managementportal
+      key: username
+    passwordSecret:
+      name: radar-cloudnative-postgresql-managementportal
+      key: password
+  authserver:
+    internal: false
+    server_url: 'http://radar-keycloak-service.default.svc.cluster.local:8080/realms/radar-base/protocol/openid-connect/token'
+    login_url: 'https://keycloak.{{ .Values.server_name }}/realms/radar-base/protocol/openid-connect/auth'
+    server_admin_url: 'http://radar-keycloak-service.default.svc.cluster.local:8080/realms/radar-base'
+  identity_server:
+    internal: false
+    server_url: http://radar-keycloak-service.default.svc.cluster.local:8080
+    server_admin_url: http://radar-keycloak-service.default.svc.cluster.local:8080
+    user_activation_flow_type: "verification"
+    user_activation_method: "link"
+    admin_email: admin@example.com
+
+  extraEnvVars:
+    - name: MANAGEMENTPORTAL_AUTHSERVER_KEYSPATH
+      value: /protocol/openid-connect/certs
+    - name: MANAGEMENTPORTAL_IDENTITYSERVER_REALM
+      value: radar-base
+    - name: MANAGEMENTPORTAL_IDENTITYSERVER_USERCREATIONSERVICE_CLIENTID
+      value: user-creation-service
+    - name: MANAGEMENTPORTAL_IDENTITYSERVER_USERCREATIONSERVICE_CLIENTSECRET
+      value: qcVgvkyuzr9PH2YoMu9IuGiDS9NI4x3q
+
+radar_gateway:
+  image:
+    registry: docker.io
+    repository: pvannierop/radar-gateway
+    tag: 0.10.2-keycloak
+  managementportal_url:
+  public_key_endpoints:
+    - http://radar-keycloak-service.default.svc.cluster.local:8080/realms/radar-base/protocol/openid-connect/certs
+  checkSourceId: false

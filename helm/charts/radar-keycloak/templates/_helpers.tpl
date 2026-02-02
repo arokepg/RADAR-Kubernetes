@@ -6,8 +6,12 @@ Arguments (dict):
 - key: the key in the secret
 - contxt: global/root helm context
 */}}
-{{- define "cbio-keycloak-mariadb.secret.value" -}}
+{{- define "radar-keycloak.secret.value" -}}
 {{- $secretObj := (lookup "v1" "Secret" .context.Release.Namespace .secret) | default dict }}
 {{- $secretData := (get $secretObj "data") | default dict }}
 {{- get $secretData .key | b64dec }}
 {{- end -}}
+
+{{- define "radar-keycloak.name.clean" }}
+{{- . | lower | replace "." "-" | replace "_" "-" | replace ":" "-" | trunc 63 | trimSuffix "-" }}
+{{- end }}

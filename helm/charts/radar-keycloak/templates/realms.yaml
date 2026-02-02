@@ -40,11 +40,11 @@ spec:
       authentication:
         password:
           secretKeyRef:
-            name: cbio-keycloak-smtp-server
+            name: radar-keycloak-smtp-server
             key: password
         username: {{ $.Values.email.smtp.username }}
           secretKeyRef:
-            name: cbio-keycloak-smtp-server
+            name: radar-keycloak-smtp-server
             key: username
 {{- end }}
 ---

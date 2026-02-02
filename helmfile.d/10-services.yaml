@@ -993,3 +993,46 @@ releases:
         value: {{ dig "local" "accessKey" .Values.s3_access_key .Values.velero }}
       - name: local.secretKey
         value: {{ dig "local" "secretKey" .Values.s3_secret_key .Values.velero }}
+
+  - name: radar-keycloak-operator
+    # The keycloak operator only observes the namespace it is installed in.
+    # For this reason we do not install in the 'operator' namespace.
+    namespace: default
+    chart: ../helm/charts/radar-keycloak-operator
+    version: {{ .Values.radar_keycloak_operator.version }}
+    installed: {{ .Values.radar_keycloak_operator.installed }}
+    timeout: {{ .Values.base_timeout }}
+    <<: *logFailedRelease
+
+  - name: keycloak-edp
+    namespace: operator
+    chart: ../helm/external/keycloak-edp
+    version: {{ .Values.keycloak_edp_operator.version }}
+    installed: {{ .Values.keycloak_edp_operator.installed }}
+    timeout: {{ .Values.base_timeout }}
+    <<: *logFailedRelease
+    set:
+      - name: clusterReconciliationEnabled
+        value: true
+
+  - name: radar-keycloak
+    namespace: default
+    chart: ../helm/charts/radar-keycloak
+    version: {{ .Values.radar_keycloak.version }}
+    installed: {{ .Values.radar_keycloak.installed }}
+    timeout: {{ .Values.base_timeout }}
+    <<: *logFailedRelease
+    needs:
+      - radar-keycloak-operator
+      - operator/keycloak-edp
+    values:
+      - {{ .Values.radar_keycloak | toYaml | indent 8 | trim }}
+    set:
+      - name: serverName
+        value: {{ .Values.server_name }}
+      - name: email.smtp.host
+        value: {{ .Values.smtp.host }}
+      - name: email.smtp.username
+        value: {{ .Values.smtp.username }}
+      - name: email.smtp.password
+        value: {{ .Values.smtp.password }}

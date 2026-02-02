@@ -1,0 +1,15 @@
+{{ range .Values.realms }}
+{{ $realmName := .name }}
+{{ range .groups }}
+apiVersion: v1.edp.epam.com/v1
+kind: KeycloakRealmGroup
+metadata:
+  name: {{ $realmName }}-{{ include "radar-keycloak.name.clean" .name }}
+spec:
+  name: {{ .name }}
+  realmRef:
+    name: {{ include "common.names.fullname" $ }}-{{ $realmName }}
+    kind: KeycloakRealm
+---
+{{ end }}
+{{ end }}

@@ -4,7 +4,7 @@
 apiVersion: v1.edp.epam.com/v1
 kind: KeycloakClientScope
 metadata:
-  name: {{ $realmName }}-{{ .name }}
+  name: {{ $realmName }}-{{ include "radar-keycloak.name.clean" .name }}
 spec:
   name: {{ .name | quote }}
   realmRef:
@@ -13,12 +13,17 @@ spec:
   protocol: openid-connect
   description: {{ .description | quote }}
   attributes:
-    "include.in.token.scope": "true"
+    {{- range .attributes }}
+    {{ .name }}: {{ .value | quote }}
+    {{- end }}
+  {{- if .protocolMapper }}
   protocolMappers:
-    - name: {{ .config.claimName | quote }}
+    - name: {{ index "claim.name" .config | quote }}
       protocol: openid-connect
       protocolMapper: {{ .protocolMapper }}
       config:
         {{ .config | toYaml | indent 8 | trim }}
+  {{- end }}
+---
 {{- end }}
 {{- end }}

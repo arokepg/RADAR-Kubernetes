@@ -10,7 +10,7 @@ controller:
     server-tokens: "false"
     annotations-risk-level: "Critical"
   addHeaders:
-    X-Frame-Options: Deny
+    X-Frame-Options: SAMEORIGIN
     X-Xss-Protection: 1; mode=block
     X-Content-Type-Options: nosniff
 

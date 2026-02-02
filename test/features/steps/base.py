@@ -39,13 +39,14 @@ def get_mp_token(context):
     if context.cache["management_portal_token"] is not None:
         return context.cache["management_portal_token"]
 
-    token_url = f'{context.config.userdata["url"]}/hydra/oauth2/token'
+    token_url = f'https://keycloak.staging-gamma.radar.thehyve.nl/realms/radar-base/protocol/openid-connect/token'
     client_id = 'ManagementPortalapp'
-    client_secret = 'secret'
+    client_secret = 'JjRHogK5XK3S96kF2aTy08dxONDYXsq01LhJo5Jj52BkerlpS52cNAHfH8AlVoUct'
 
     data_basic = {
         'grant_type': 'client_credentials',
-        'audience': 'res_ManagementPortal'
+        'audience': 'res_ManagementPortal',
+        'scope': 'SOURCEDATA.CREATE SOURCETYPE.UPDATE SOURCETYPE.DELETE AUTHORITY.UPDATE MEASUREMENT.DELETE PROJECT.READ AUDIT.CREATE USER.DELETE AUTHORITY.DELETE SUBJECT.DELETE MEASUREMENT.UPDATE SOURCEDATA.UPDATE SUBJECT.READ USER.UPDATE SOURCETYPE.CREATE AUTHORITY.READ USER.CREATE SOURCE.CREATE SOURCE.READ SUBJECT.CREATE ROLE.UPDATE ROLE.READ MEASUREMENT.READ PROJECT.UPDATE PROJECT.DELETE ROLE.DELETE SOURCE.DELETE SOURCETYPE.READ ROLE.CREATE SOURCEDATA.DELETE SUBJECT.UPDATE SOURCE.UPDATE PROJECT.CREATE AUDIT.READ MEASUREMENT.CREATE AUDIT.DELETE AUDIT.UPDATE AUTHORITY.CREATE USER.READ ORGANIZATION.READ ORGANIZATION.CREATE ORGANIZATION.UPDATE SOURCEDATA.READ OAUTHCLIENTS.READ OAUTHCLIENTS.CREATE OAUTHCLIENTS.UPDATE'
     }
 
     headers_basic = {
@@ -60,6 +61,7 @@ def get_mp_token(context):
 
         response = requests.post(token_url, headers=headers_basic, data=data_basic)
         if response.ok:
+            print(response.json())
             token_data = response.json()
             access_token = token_data.get('access_token')
             assert access_token is not None, "No access token received for ManagementPortalapp client"

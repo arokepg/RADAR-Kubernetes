@@ -2,8 +2,13 @@
 apiVersion: k8s.keycloak.org/v2alpha1
 kind: Keycloak
 metadata:
-  name: cbio-keycloak
+  name: radar-keycloak
 spec:
+  {{- with .Values.keycloak.additionalOptions }}
+  additionalOptions:
+    env:
+      {{ . | toYaml | nindent 6 }}
+  {{- end }}
   instances: {{ .Values.replicaCount }}
   ingress:
     # We use our own Ingress definition that has more flexibility
@@ -11,6 +16,11 @@ spec:
   hostname:
     hostname: {{ .Values.advertised_protocol }}://keycloak.{{ .Values.serverName }}
     admin: {{ .Values.advertised_protocol }}://keycloak.{{ .Values.serverName }}
+{{/*    strict: false*/}}
+  image: {{ include "common.images.image" (dict "imageRoot" .Values.image "global" .Values.global "chart" .Chart ) }}
+  # By default, operator considers docker images to be optimized (built). If we would like the image to build before running,
+  # set to 'false'.
+  startOptimized: false
   http:
     httpEnabled: true
     labels:
@@ -21,7 +31,7 @@ spec:
     user:
       secret: {{ $adminSecretName }}
   db:
-    vendor: mariadb
+    vendor: postgres
     usernameSecret:
       name: {{ .Values.database.usernameSecret.name }}
       key: {{ .Values.database.usernameSecret.key }}
@@ -38,6 +48,7 @@ spec:
       - authorization
       - admin
       - admin-fine-grained-authz:v2
+      - scripts
     disabled:
       - step-up-authentication
   additionalOptions:
@@ -47,3 +58,4 @@ spec:
       value: {{ .Values.metrics.enabled | default false | quote }}
     - name: http-metrics-histograms-enabled
       value: "true"
+
