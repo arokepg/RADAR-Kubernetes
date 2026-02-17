@@ -43,3 +43,6 @@ velero:
 
 redis:
   _install: false
+
+radar_upload_postgresql:
+  _install: false
