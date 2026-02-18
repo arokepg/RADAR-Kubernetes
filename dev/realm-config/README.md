@@ -1,0 +1,1 @@
+This config was succesfully used for admin login to RB management portal.
