@@ -3,21 +3,21 @@ atomicInstall: false
 # time to wait for any individual Kubernetes operation
 base_timeout: 90
 # Context that you use in kubectl to access the Kubernetes cluster. Will be translated to `helm --kube-context <context_name>`
-kubeContext: k3d-ory
+kubeContext: gamma
 # Domain name that RADAR-Base installation will be accessible from
-server_name: example.com
+server_name: staging-gamma.radar.thehyve.nl
 # This email address will be used to notify for SSL certificate expiration
-maintainer_email: MAINTAINER_EMAIL@example.com
+maintainer_email: radar-ops@thehyve.nl
 # Number of Kafka pods that will be installed
-kafka_num_brokers: 3
+kafka_num_brokers: 1
 # Minimum number of Kafka brokers that should be in sync
-kafka_num_in_sync_brokers: 2
+kafka_num_in_sync_brokers: 1
 # Number of replicas for Kafka topics. Should be min 2, max 4, and is normally 3, but can not be larger than kafka_num_brokers.
 # Ref: https://learn.conduktor.io/kafka/kafka-topics-choosing-the-replication-factor-and-partitions-count/
-kafka_num_topic_replicas: 3
+kafka_num_topic_replicas: 1
 # Number of partitions for Kafka topics. Rule of thumb: 3 times the number of brokers. Headroom is used for future upscale
 # of brokers. Ref: https://learn.conduktor.io/kafka/kafka-topics-choosing-the-replication-factor-and-partitions-count/
-kafka_num_topic_partitions: 12
+kafka_num_topic_partitions: 1
 # Enable logging and monitoring
 enable_logging_monitoring: false
 # Enable TLS redirection and retrieval of Let's Encrypt certificates.
@@ -25,7 +25,8 @@ enable_logging_monitoring: false
 enable_tls: true
 
 # Minimal deployment for development (disables TLS, monitoring and logging, sets kafka and minio brokers to 1).
-dev_deployment: true
+dev_deployment: false
+
 # E2e test deployment (applies very fast application loop timings for tests).
 e2e_test: false
 # Enable GitHub installation test
