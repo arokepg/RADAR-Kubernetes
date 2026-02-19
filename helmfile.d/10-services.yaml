@@ -400,7 +400,7 @@ releases:
       - radar-hydra
       - radar-kratos
     set:
-      - name: serverName
+      - name: server_name
         value: {{ .Values.server_name }}
       - name: auth.armt.clientSecret
         value: {{ .Values.radar_hydra.oauth_clients.aRMT.client_secret }}

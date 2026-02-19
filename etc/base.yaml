@@ -234,6 +234,16 @@ management_portal:
     from: noreply@example.com
     starttls: false
     auth: true
+  postgres:
+    urlSecret:
+      name: radar-cloudnative-postgresql-managementportal
+      key: jdbc-uri
+    userSecret:
+      name: radar-cloudnative-postgresql-managementportal
+      key: username
+    passwordSecret:
+      name: radar-cloudnative-postgresql-managementportal
+      key: password
 
 radar_kratos:
   _install: true
@@ -246,7 +256,7 @@ radar_kratos:
       config:
         courier:
           smtp:
-            from_address: radar@thehyve.nl
+            from_address: radar-ops@thehyve.nl
 
 radar_hydra:
   _install: true
