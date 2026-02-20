@@ -224,6 +224,8 @@ management_portal:
   # This should be set to 'false' in the MP helm chart when we made the final change to Ory.
   authserver:
     internal: false
+  identity_server:
+    internal: false
   managementportal:
     catalogue_server_enable_auto_import: true
     common_privacy_policy_url: http://info.thehyve.nl/radar-cns-privacy-policy
