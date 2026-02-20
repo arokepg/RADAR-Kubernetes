@@ -215,9 +215,9 @@ management_portal:
     oauth_checking_key_aliases_1: selfsigned
   smtp:
     enabled: true
-    host: smtp
-    port: 25
-    from: noreply@example.com
+    host: email-smtp.eu-central-1.amazonaws.com
+    port: 587
+    from: radar-ops@thehyve.nl
     starttls: false
     auth: true
 
