@@ -207,6 +207,7 @@ management_portal:
   image:
     tag: release-3.0.0
   authserver:
+    # This should be set to 'false' in the MP helm chart when we made the final change to Ory.
     internal: false
   managementportal:
     catalogue_server_enable_auto_import: true
