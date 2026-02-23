@@ -35,11 +35,14 @@ data_dashboard_timescaledb:
 radar_upload_connect_frontend:
   _install: false
 
-cp_schema_registry:
+radar_appserver_postgresql:
   _install: false
 
-cp_zookeeper:
+velero:
   _install: false
 
-cp_kafka:
+redis:
+  _install: false
+
+radar_upload_postgresql:
   _install: false

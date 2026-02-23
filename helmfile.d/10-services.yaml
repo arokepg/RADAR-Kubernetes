@@ -50,10 +50,12 @@ releases:
         value: {{ .Values.maintainer_email }}
       - name: graylog.ingress.hosts
         values: [graylog.{{ .Values.server_name }}]
+        {{- if .Values.enable_tls }}
       - name: graylog.ingress.tls[0].secretName
         value: radar-base-tls
       - name: graylog.ingress.tls[0].hosts
         values: ["graylog.{{ .Values.server_name }}"]
+        {{- end }}
 
   - name: fluent-bit
     namespace: graylog
@@ -118,6 +120,12 @@ releases:
     set:
       - name: brokers
         value: {{ .Values.kafka_num_brokers }}
+      - name: configurationOverrides.default\.replication\.factor
+        value: {{ .Values.kafka_num_topic_replicas }}
+      - name: configurationOverrides.min\.insync\.replicas
+        value: {{ .Values.kafka_num_in_sync_brokers }}
+      - name: configurationOverrides.num\.partitions
+        value: {{ .Values.kafka_num_topic_partitions }}
 
   - name: cp-schema-registry
     chart: cp-radar/cp-schema-registry
@@ -134,10 +142,12 @@ releases:
         value: "{{ .Values.server_name }}"
       - name: ingress.hosts[0].paths
         values: ["/schema/?(.*)"]
+      {{- if .Values.enable_tls }}
       - name: ingress.tls[0].secretName
         value: radar-base-tls
       - name: ingress.tls[0].hosts
         values: ["{{ .Values.server_name }}"]
+      {{- end }}
 
   - name: radar-kafka
     chart: radar/radar-kafka
@@ -148,6 +158,8 @@ releases:
     values:
       - {{ .Values.radar_kafka_stack | toYaml | indent 8 | trim }}
     set:
+      - name: server_name
+        value: {{ .Values.server_name }}
       - name: kafka.replicas
         value: {{ .Values.kafka_num_brokers }}
       - name: kafka.insyncReplicas
@@ -258,6 +270,15 @@ releases:
     <<: *logFailedRelease
     values:
       - {{ .Values.cloudnative_postgresql | toYaml | indent 8 | trim }}
+    set:
+      - name: cluster.backups.s3.accessKey
+        value: {{ .Values.s3_access_key }}
+      - name: cluster.backups.s3.secretKey
+        value: {{ .Values.s3_secret_key }}
+      - name: cluster.recovery.s3.accessKey
+        value: {{ .Values.s3_access_key }}
+      - name: cluster.recovery.s3.secretKey
+        value: {{ .Values.s3_secret_key }}
 
   - name: management-portal
     chart: radar/management-portal
@@ -540,6 +561,16 @@ releases:
         value: {{ .Values.kafka_num_brokers }}
       - name: timescaledb.cluster.fullnameOverride
         value: grafana-timescaledb
+      - name: timescaledb.cluster.recovery.clusterName
+        value: grafana-timescaledb-cluster
+      - name: timescaledb.cluster.backups.s3.accessKey
+        value: {{ .Values.s3_access_key }}
+      - name: timescaledb.cluster.backups.s3.secretKey
+        value: {{ .Values.s3_secret_key }}
+      - name: timescaledb.cluster.recovery.s3.accessKey
+        value: {{ .Values.s3_access_key }}
+      - name: timescaledb.cluster.recovery.s3.secretKey
+        value: {{ .Values.s3_secret_key }}
 
   - name: radar-jdbc-connector-data-dashboard
     chart: radar/radar-jdbc-connector
@@ -561,6 +592,16 @@ releases:
         value: {{ .Values.kafka_num_brokers }}
       - name: timescaledb.cluster.fullnameOverride
         value: data-dashboard-timescaledb
+      - name: timescaledb.cluster.recovery.clusterName
+        value: data-dashboard-timescaledb-cluster
+      - name: timescaledb.cluster.backups.s3.accessKey
+        value: {{ .Values.s3_access_key }}
+      - name: timescaledb.cluster.backups.s3.secretKey
+        value: {{ .Values.s3_secret_key }}
+      - name: timescaledb.cluster.recovery.s3.accessKey
+        value: {{ .Values.s3_access_key }}
+      - name: timescaledb.cluster.recovery.s3.secretKey
+        value: {{ .Values.s3_secret_key }}
 
   - name: radar-jdbc-connector-realtime-dashboard
     chart: radar/radar-jdbc-connector
@@ -582,6 +623,16 @@ releases:
         value: {{ .Values.kafka_num_brokers }}
       - name: timescaledb.cluster.fullnameOverride
         value: realtime-dashboard-timescaledb
+      - name: timescaledb.cluster.recovery.clusterName
+        value: realtime-dashboard-timescaledb-cluster
+      - name: timescaledb.cluster.backups.s3.accessKey
+        value: {{ .Values.s3_access_key }}
+      - name: timescaledb.cluster.backups.s3.secretKey
+        value: {{ .Values.s3_secret_key }}
+      - name: timescaledb.cluster.recovery.s3.accessKey
+        value: {{ .Values.s3_access_key }}
+      - name: timescaledb.cluster.recovery.s3.secretKey
+        value: {{ .Values.s3_secret_key }}
 
   - name: radar-fitbit-connector
     chart: radar/radar-fitbit-connector
@@ -629,10 +680,11 @@ releases:
     version: {{ .Values.radar_rest_sources_backend._chart_version }}
     installed: {{ .Values.radar_rest_sources_backend._install }}
     timeout: {{ add .Values.base_timeout .Values.radar_rest_sources_backend._extra_timeout }}
-    {{ if or .Values.postgresql._install .Values.cloudnative_postgresql._install }}
+    {{ if or .Values.postgresql._install .Values.cloudnative_postgresql._install .Values.radar_redis._install }}
     needs:
     {{ if .Values.postgresql._install }}- postgresql{{ end }}
     {{ if .Values.cloudnative_postgresql._install }}- radar-cloudnative-postgresql{{ end }}
+    {{ if .Values.radar_redis._install }}- radar-redis{{ end }}
     {{ end }}
     <<: *logFailedRelease
     values:
@@ -737,6 +789,14 @@ releases:
     values:
       - "../etc/redis/values.yaml"
       - {{ .Values.redis | toYaml | indent 8 | trim }}
+  - name: radar-redis
+    chart: radar/radar-redis
+    version: {{ .Values.radar_redis._chart_version }}
+    installed: {{ .Values.radar_redis._install }}
+    timeout: {{ .Values.radar_redis._extra_timeout }}
+    <<: *logFailedRelease
+    values:
+      - {{ .Values.radar_redis | toYaml | indent 8 | trim }}
 
   - name: minio
     chart: radar/minio
@@ -807,6 +867,7 @@ releases:
     needs:
       - radar-s3-connector
       {{ if .Values.redis._install }}- redis{{ end }}
+      {{ if .Values.radar_redis._install }}- radar-redis{{ end }}
       {{ if .Values.minio._install }}- minio{{ end }}
     values:
       - {{ .Values.radar_output | toYaml | indent 8 | trim }}
@@ -908,6 +969,7 @@ releases:
     timeout: {{ add .Values.base_timeout .Values.radar_push_endpoint._extra_timeout }}
     needs:
       - management-portal
+      {{ if .Values.radar_redis._install }}- radar-redis{{ end }}
     <<: *logFailedRelease
     values:
       - {{ .Values.radar_push_endpoint | toYaml | indent 8 | trim }}
@@ -924,10 +986,6 @@ releases:
         value: {{ .Values.confluent_cloud.cc.schemaRegistryUrl }}
       - name: bootstrapServers
         value: {{ .Values.confluent_cloud.cc.bootstrapServerurl }}
-      {{ end }}
-      {{- if .Values.radar_push_endpoint.garmin.enabled }}
-      - name: redis.url
-        value: {{ .Values.radar_output.redis.uri }}
       {{ end }}
       - name: garmin.userRepositoryClientSecret
         value: {{ dig "garmin" "userRepositoryClientSecret" (dig "oauth_clients" "radar_push_endpoint" "client_secret" "" .Values.management_portal) .Values.radar_push_endpoint }}

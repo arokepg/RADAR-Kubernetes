@@ -20,6 +20,7 @@ for line in $(cat /tmp/helmfile.txt); do
     containerType=init
   elif [[ $line == *"image:"* ]]; then
     image=$(echo $line | sed "s/image://g")
+    image=${image:-not_specified}
     if [ $containerType == "container" ]; then
       if [ -z "${container[$image]}" ]; then
         container[$image]=$chart

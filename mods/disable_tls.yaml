@@ -48,13 +48,22 @@ radar_hydra:
         tls: []
       admin:
         tls: []
-kube-prometheus-stack:
-  grafana:
-    ingress:
-      tls: null
-  prometheus:
-    ingress:
-      tls: null
-  alertmanager:
-    ingress:
-      tls: null
+kube_prometheus_stack:
+  kube-prometheus-stack:
+    grafana:
+      ingress:
+        tls: null
+    prometheus:
+      ingress:
+        tls: null
+    alertmanager:
+      ingress:
+        tls: null
+minio:
+  ingress:
+    tls: false
+  apiIngress:
+    tls: false
+cp_schema_registry:
+  ingress:
+    tls: []

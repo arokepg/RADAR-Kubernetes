@@ -11,30 +11,35 @@ The Kubernetes stack of RADAR-base platform.
 
 ## Table of contents
 
-<!-- TOC start (generated with https://github.com/derlin/bitdowntoc) -->
-
-- [About](#about)
-- [Status](#status)
-- [Prerequisites](#prerequisites)
-    - [Knowledge requirements ](#knowledge-requirements)
-    - [Software Compatibility](#software-compatibility)
-    - [Hosting ](#hosting)
-    - [Third party services](#third-party-services)
-    - [Local machine](#local-machine)
-- [Installation](#installation)
-    - [Prepare](#prepare)
-    - [Project Structure](#project-structure)
-    - [Configure](#configure)
-    - [Install](#install)
-- [Usage and accessing the applications](#usage-and-accessing-the-applications)
-- [Service-specific documentation](#service-specific-documentation)
-- [Troubleshooting](#troubleshooting)
-- [Volume expansion](#volume-expansion)
-- [Uninstall](#uninstall)
-- [Update charts](#update-charts)
-- [Feedback and Contributions](#feedback-and-contributions)
-
-<!-- TOC end -->
+<!-- TOC -->
+* [RADAR-Kubernetes](#radar-kubernetes)
+  * [Table of contents](#table-of-contents)
+  * [About](#about)
+  * [Status](#status)
+  * [Prerequisites](#prerequisites)
+    * [Knowledge requirements](#knowledge-requirements)
+    * [Software Compatibility](#software-compatibility)
+    * [Hosting](#hosting)
+    * [Third party services](#third-party-services)
+    * [Local machine](#local-machine)
+  * [Installation](#installation)
+    * [Prepare](#prepare)
+    * [Project Structure](#project-structure)
+    * [Configure](#configure)
+    * [Install](#install)
+      * [Install RADAR-Kubernetes on your cluster.](#install-radar-kubernetes-on-your-cluster)
+      * [Monitor and verify the installation process.](#monitor-and-verify-the-installation-process)
+        * [Note](#note)
+      * [Ensure Kafka cluster is functional and RADAR-base topics are loaded](#ensure-kafka-cluster-is-functional-and-radar-base-topics-are-loaded)
+  * [Usage and accessing the applications](#usage-and-accessing-the-applications)
+  * [Service-specific documentation](#service-specific-documentation)
+  * [Troubleshooting](#troubleshooting)
+  * [Volume expansion](#volume-expansion)
+  * [Uninstall](#uninstall)
+  * [Update charts](#update-charts)
+  * [Developer documentation](#developer-documentation)
+  * [Feedback and Contributions](#feedback-and-contributions)
+<!-- TOC -->
 
 ## About
 
@@ -66,10 +71,9 @@ use of the platform.
 This documentation assumes familiarity with all referenced Kubernetes concepts, utilities, and procedures and
 familiarity with Helm charts and helmfile, depending on your environment you might need to have knowledge of other
 hosting infrastructure such as DNS and mail servers as well. While this documentation will provide guidance for
-installing and configuring RADAR-base platform on a Kubernetes
-cluster and tries to make is as simple and possible, it is not a replacement for the detailed knowledge of the tools
-that have been used. If you are not familiar with these tools, we strongly recommend you to get familiar with these
-tools. Here is
+installing and configuring RADAR-base platform on a Kubernetes cluster and tries to make is as simple and possible, it
+is not a replacement for the detailed knowledge of the tools that have been used. If you are not familiar with these
+tools, we strongly recommend you to get familiar with these tools. Here is
 a [list of useful links](https://radar-base.atlassian.net/wiki/spaces/RAD/pages/2731638785/How+to+get+started+with+tools+around+RADAR-Kubernetes)
 to get started.
 
@@ -111,7 +115,7 @@ required to create an AWS EKS cluster and other managed services required for RA
 Alternatively, in order to have a simple single node Kubernetes server you can run these commands on a Linux machine:
 
 ```shell
-curl -sfL https://get.k3s.io | INSTALL_K3S_VERSION="v1.31.2+k3s1" K3S_KUBECONFIG_MODE="644" INSTALL_K3S_SYMLINK="skip" sh -s - --disable traefik --disable-helm-controller
+curl -sfL https://get.k3s.io | INSTALL_K3S_VERSION="v1.33.2+k3s1" K3S_KUBECONFIG_MODE="644" INSTALL_K3S_SYMLINK="skip" sh -s - --disable traefik --disable-helm-controller
 ```
 
 ### Third party services
@@ -172,7 +176,7 @@ and [helm-secrets](https://github.com/jkroepke/helm-secrets) but it's outside th
 - `bin/`: Contains initialization scripts.
 - `etc/`: Contains configurations for the Helm charts.
 - `helmfile.d/`: Contains Helmfiles for modular deployment of the platform.
-- `environments.yaml/`: Defines current environment files in order to be used by helmfile and where to find the
+- `environments.yaml`: Defines current environment files in order to be used by helmfile and where to find the
   configuration files.
 - `etc/production.yaml`: Production helmfile template to configure and install RADAR-base components. Inspect the file
   to enable, disable and configure components required for your use case. The default helmfile enables all core
@@ -180,8 +184,10 @@ and [helm-secrets](https://github.com/jkroepke/helm-secrets) but it's outside th
   want to enable you can refer to wiki
   for [an overview and breakdown on RADAR-Base components and their roles](https://radar-base.atlassian.net/wiki/spaces/RAD/pages/2673967112/Component+overview+and+breakdown).
 - `etc/production.yaml.gotmpl`: Some helm charts need an external file during installation, you should put those files
-  in the specifed path and uncomment the respective lines.
+  in the specified path and uncomment the respective lines.
 - `etc/secrets.yaml`: Passwords and client secrets used by the installation.
+- `mods/`: contains helmfile value files that configure groups of services for specific purposes. Mods are applied in
+  `environments.yaml` file, often via setting _master_ options in `etc/production.yaml`.
 
 ### Configure
 
@@ -192,10 +198,6 @@ and [helm-secrets](https://github.com/jkroepke/helm-secrets) but it's outside th
    ```shell
    nano etc/production.yaml  # Change setup parameters and configurations
    ```
-
-   When doing a clean install, you are advised to change the `postgresql`, `radar_appserver_postgresql`
-   `radar_upload_postgresql` image tags to the latest PostgreSQL version. Likewise, the timescaledb image tag should use
-   the latest timescaledb version. PostgreSQL passwords and major versions cannot easily be updated after installation.
 
 2. In `etc/production.yaml.gotmpl` file, change setup parameters for charts that are reading input files. You most
    likely just want to put the file in the default location specified in the file and uncomment the respective lines.
@@ -210,9 +212,10 @@ and [helm-secrets](https://github.com/jkroepke/helm-secrets) but it's outside th
    Admin SDK private key. Store the generated key as `etc/radar-appserver/firebase-adminsdk.json` and uncomment the
    respective section in `etc/production.yaml.gotmpl`.
 
-4. In `etc/secrets.yaml` file, change any passwords, client secrets or API credentials like for Fitbit or Garmin
-   Connect. After the installation you can find login credentials to the components in this file. Be sure to keep it
-   private.
+4. In `etc/secrets.yaml` file, add any passwords, client secrets or API credentials that are determined by services
+   outside RADAR-base (for instance Fitbit or Garmin Connect). After the installation you can find login credentials to
+   the components in this file. Be sure to keep it private.
+
    ```shell
    nano etc/secrets.yaml
    ```
@@ -224,20 +227,21 @@ Once all configuration files are ready, the RADAR-Kubernetes can be deployed on 
 #### Install RADAR-Kubernetes on your cluster.
 
 ```shell
-helmfile sync --concurrency 1
+helmfile sync
 ```
 
 The `helmfile sync` will synchronize all the Kubernetes resources defined in the helmfiles with your Kubernetes cluster.
-Having `--concurrency 1` will make sure components are installed in required order. Depending on your cluster
-specification, this may take around 30 minutes when installed for the first time.
+Depending on your cluster specification, this may take around 30 minutes when installed for the first time. Note that
+during first installation, a large portion of the time is spent downloading docker images. This may result in timeout errors
+that
+may be ignored by repeatedly running the `helmfile sync` command.
 
 | :exclamation: Note |
 |:-------------------|
 
-| Installing the stack with `--concurrency 1` may make the installation slower. However, it is necessary because some
-components such as `kube-prometheus-stack` and `catalog-server`, should be installed in their specified order. If you've
-forgotten to use this flag, then the installation may not be successful. To continue,
-follow [Uninstallation](#uninstall) steps to clean up the Kubernetes cluster before you can try again.
+By default, RADAR-Kubernetes deploys in _atomic_ mode where any error results in the automatic rollback of all changes.
+For analysis of potential problem it is advised to disable this feature by setting the `atomicInstall: false` in
+`etc/production.yaml`.
 
 Graylog and fluent-bit services in the `graylog` namespace will not immediately be operational, first it needs an input
 source defined. Log into `graylog.<server name>` with the Graylog credentials. Then navigate to _System_ -> _Inputs_,
@@ -245,93 +249,90 @@ select GELF TCP in the dropdown and _Launch new input_. Set it as a global input
 
 #### Monitor and verify the installation process.
 
-Once the installation is done or in progress, you can check the status using `kubectl get pods`.
+Once the installation is done or in progress, you can check the status using `kubectl get pods --all-namespaces`.
 
-If the installation has been successful, you should see an output similar to the list below. However, depending on which
-components that you've enabled for installation this list and be longer or shorter.
+If the installation has been successful, you should see an output similar to the list below when using the services
+installed by default. However, depending on which components that you've enabled for installation this list and be
+longer or shorter.
 
 ```shell
-➜ kubectl get pods
-NAME                                             READY   STATUS    RESTARTS   AGE
-catalog-server-5c6767cbd8-dc6wc                  1/1     Running   0          8m21s
-cp-kafka-0                                       2/2     Running   0          8m21s
-cp-kafka-1                                       2/2     Running   0          8m21s
-cp-kafka-2                                       2/2     Running   0          8m21s
-cp-kafka-rest-5c654995d4-vtzbb                   2/2     Running   0          8m21s
-cp-schema-registry-7968b7c554-mznv7              2/2     Running   0          8m21s
-cp-schema-registry-7968b7c554-sz6w2              2/2     Running   0          8m21s
-cp-zookeeper-0                                   2/2     Running   0          8m21s
-cp-zookeeper-1                                   2/2     Running   0          8m21s
-cp-zookeeper-2                                   2/2     Running   0          8m21s
-management-portal-56cd7f88c6-vmqfk               1/1     Running   0          8m21s
-minio-0                                          1/1     Running   0          8m21s
-minio-1                                          1/1     Running   0          8m21s
-minio-2                                          1/1     Running   0          8m21s
-minio-3                                          1/1     Running   0          8m21s
-nginx-ingress-controller-748f5b5b88-9j882        1/1     Running   0          8m21s
-postgresql-0                                     3/3     Running   0          8m21s
-radar-fitbit-connector-594d8b668c-h8m4d          2/2     Running   0          8m21s
-radar-gateway-5c4b8c8645-c8zrh                   2/2     Running   0          8m21s
-radar-grafana-75b698d68-8gq94                    1/1     Running   0          8m21s
-radar-integration-75b76c785c-j8cl9               1/1     Running   0          8m21s
-radar-jdbc-connector-677d9dd8c7-txchq            1/1     Running   0          8m21s
-radar-output-5d58db5bff-t96vx                    1/1     Running   0          8m21s
-radar-rest-sources-authorizer-848cfcbcdf-sdxjg   1/1     Running   0          8m21s
-radar-rest-sources-backend-f5895cfd5-d8cdm       1/1     Running   0          8m21s
-radar-s3-connector-864b69bd5d-68dvk              1/1     Running   0          8m21s
-radar-upload-connect-backend-6d446f885d-29jnc    1/1     Running   0          8m21s
-radar-upload-connect-frontend-547cb69595-9ld5s   1/1     Running   0          8m21s
-radar-upload-postgresql-postgresql-0             3/3     Running   0          8m21s
-radar-upload-source-connector-c87ddc848-fxlg7    1/1     Running   0          8m21s
-redis-master-0                                   2/2     Running   0          8m21s
-timescaledb-postgresql-0                         3/3     Running   0          8m21s
+➜ kubectl get pods --all-namespaces
+NAMESPACE      NAME                                                   READY   STATUS      RESTARTS   AGE
+cert-manager   cert-manager-77c5f7bf75-f4kjp                          1/1     Running     0          15m
+cert-manager   cert-manager-cainjector-669d85f6cf-hqz4b               1/1     Running     0          15m
+cert-manager   cert-manager-webhook-585b8b6bfc-2lz42                  1/1     Running     0          15m
+default        catalog-server-85896fdc49-d96kj                        1/1     Running     2          10m
+default        cloudnativepg-operator-cloudnative-pg-6c95784c56-ggqbf 1/1     Running     0          15m
+default        cp-kafka-0                                             1/1     Running     0          13m
+default        cp-kafka-1                                             1/1     Running     0          13m
+default        cp-kafka-2                                             1/1     Running     0          12m
+default        cp-schema-registry-5bf975844f-v2jcn                    1/1     Running     0          11m
+default        cp-zookeeper-0                                         1/1     Running     0          15m
+default        cp-zookeeper-1                                         1/1     Running     0          15m
+default        cp-zookeeper-2                                         1/1     Running     0          14m
+default        ingress-nginx-controller-699dc9cf5c-ld65d              1/1     Running     0          15m
+default        management-portal-57d8d8978b-slxqz                     1/1     Running     0          9m42s
+default        minio-0                                                1/1     Running     0          15m
+default        minio-1                                                1/1     Running     0          15m
+default        minio-2                                                1/1     Running     0          15m
+default        minio-3                                                1/1     Running     0          15m
+default        minio-provisioning-gn8db                               0/1     Completed   0          15m
+default        radar-cloudnative-postgresql-cluster-1                 1/1     Running     0          13m
+default        radar-cloudnative-postgresql-cluster-2                 1/1     Running     0          13m
+default        radar-gateway-849bd7f76-bklk7                          1/1     Running     0          10m
+default        radar-home-8655d45964-w65bt                            1/1     Running     0          15m
+default        radar-output-868b578858-rnpz8                          1/1     Running     0          7m5s
+default        radar-redis-replication-0                              1/1     Running     0          15m
+default        radar-redis-replication-1                              1/1     Running     0          15m
+default        radar-redis-replication-2                              1/1     Running     0          15m
+default        radar-s3-connector-6d8898775c-cf77v                    1/1     Running     1          7m39s
+default        redis-operator-569485b5d5-6vb9k                        1/1     Running     0          15m
+kube-system    coredns-ccb96694c-jdpsl                                1/1     Running     0          17m
+kube-system    local-path-provisioner-5cf85fd84d-wzd2j                1/1     Running     0          17m
+kube-system    metrics-server-5985cbc9d7-hmm92                        1/1     Running     0          17m
+kube-system    svclb-ingress-nginx-controller-8d7925e1-kq7qv          2/2     Running     0          15m
 ```
 
-If you have enabled monitoring, logging and HTTPS you should see these as well:
+If you have enabled monitoring+logging (`enable_logging_monitoring: true` in `etc/production.yaml`) and HTTPS (
+`disable_tls: false` in `etc/production.yaml`) you should see an extended list of pods in the `monitoring` and `graylog`
+namespaces (as well as increased companion containers in pods for each service):
 
 ```shell
 ➜ kubectl -n monitoring get pods
-NAME                                                       READY   STATUS    RESTARTS   AGE
-kube-prometheus-stack-grafana-674bb6887f-2pgxh             2/2     Running   0          8m29s
-kube-prometheus-stack-kube-state-metrics-bbf56d7f5-tm2kg   1/1     Running   0          8m29s
-kube-prometheus-stack-operator-7d456878d7-bwrsx            1/1     Running   0          8m29s
-kube-prometheus-stack-prometheus-node-exporter-84n2m       1/1     Running   0          8m29s
-kube-prometheus-stack-prometheus-node-exporter-h5kgc       1/1     Running   0          8m29s
-kube-prometheus-stack-prometheus-node-exporter-p6mkb       1/1     Running   0          8m29s
-prometheus-kube-prometheus-stack-prometheus-0              2/2     Running   1          8m21s
-prometheus-kube-prometheus-stack-prometheus-1              2/2     Running   1          8m21s
-prometheus-kube-prometheus-stack-prometheus-2              2/2     Running   1          8m21s
+NAMESPACE      NAME                                                   READY   STATUS      RESTARTS   AGE
+monitoring     alertmanager-kube-prometheus-stack-alertmanager-0      2/2     Running     0          8m12s
+monitoring     kube-prometheus-stack-grafana-64c8964dd4-66l7w         3/3     Running     0          8m14s
+monitoring     kube-prometheus-stack-kube-state-metrics-6d57649657-46fvq 1/1  Running     0          8m14s
+monitoring     kube-prometheus-stack-operator-5554dcc847-78h6s        1/1     Running     0          8m14s
+monitoring     kube-prometheus-stack-prometheus-node-exporter-98pqw   1/1     Running     0          8m14s
+monitoring     prometheus-kube-prometheus-stack-prometheus-0          2/2     Running     0          8m12s
 
 ➜ kubectl -n graylog get pods
-NAME                           READY   STATUS      RESTARTS   AGE
-elasticsearch-master-0         1/1     Running     0          8m21s
-elasticsearch-master-1         1/1     Running     0          8m21s
-elasticsearch-master-2         1/1     Running     0          8m21s
-fluentd-6jmhn                  1/1     Running     0          8m21s
-fluentd-9lc2g                  1/1     Running     0          8m21s
-fluentd-cfzqv                  1/1     Running     0          8m21s
-graylog-0                      1/1     Running     0          8m21s
-graylog-1                      1/1     Running     0          8m21s
-mongodb-mongodb-replicaset-0   2/2     Running     0          8m21s
-mongodb-mongodb-replicaset-1   2/2     Running     0          8m21s
-mongodb-mongodb-replicaset-2   2/2     Running     0          8m21s
-
-➜ kubectl -n cert-manager get pods
-NAME                            READY   STATUS    RESTARTS   AGE
-cert-manager-77bbfd565c-rf7wh              1/1     Running   0          8m21s
-cert-manager-cainjector-75b6bc7b8b-dv2js   1/1     Running   0          8m21s
-cert-manager-webhook-8444c4bc77-jhzgb      1/1     Running   0          8m21s
+NAMESPACE      NAME                                                   READY   STATUS      RESTARTS   AGE
+graylog        elasticsearch-master-0                                 1/1     Running     0          7m50s
+graylog        elasticsearch-master-1                                 1/1     Running     0          7m50s
+graylog        elasticsearch-master-2                                 1/1     Running     0          7m50s
+graylog        fluent-bit-zlnst                                       1/1     Running     4          2m20s
+graylog        graylog-0                                              1/1     Running     0          6m9s
+graylog        mongodb-0                                              2/2     Running     0          7m47s
+graylog        mongodb-1                                              2/2     Running     0          7m22s
+graylog        mongodb-arbiter-0                                      1/1     Running     1          7m47s
 ```
 
 In most cases seeing `1/1` or `2/2` in `READY` column and `Running` in `STATUS` column indicates that the application is
 running and healthy. Other ways to ensure that installation have been successful is to check application logs for errors
 and exceptions.
 
+##### Note
+
+The first time the cluster is installed, a considerable time is consumed by the download of docker images. This may
+result in timeout errors that may be ignored by repeatedly running the `helmfile sync` command.
+
 #### Ensure Kafka cluster is functional and RADAR-base topics are loaded
 
 ```shell
-➜  kubectl exec -it cp-kafka-0 -c cp-kafka-broker -- kafka-topics --bootstrap-server localhost:9092 --list | wc -l
-273
+➜  `kubectl exec -it cp-kafka-0 -c cp-kafka-broker -- kafka-topics --bootstrap-server localhost:9092 --list | wc -l`
+425
 ```
 
 This output means there are 273 topics loaded in the Kafka cluster.
@@ -376,7 +377,7 @@ nginx-ingress-controller   LoadBalancer   10.100.237.75   XXXX.eu-central-1.elb.
 
 - If you're using a cloud provider you need to point the value in `EXTERNAL-IP` column (in this example
   `XXXX.eu-central-1.elb.amazonaws.com`) to `k8s.radar-base.org` domain in your DNS server.
-- Some of the RADAR-base applications are accesible through sub-domains and you need to configure the DNS server to
+- Some of the RADAR-base applications are accessible through sub-domains and you need to configure the DNS server to
   allow access to those applications. The easy way to do this is to create two wildcard CNAME records:
   ```
   *.k8s.radar-base.org              IN  CNAME  k8s.radar-base.org
@@ -422,12 +423,12 @@ watch kubectl get pods
 kubectl get pods --watch
 ```
 
-This can help you indentify potential issues faster.
+This can help you identify potential issues faster.
 
 It is suggested to change value of `atomicInstall` to `false` in `etc/production.yaml` file during the installation.
 This will help troubleshooting potential installation issues easier since it will leave the broken components in place
 for further inspection, be sure to enable this flag after the installation to prevent broken components causing
-distruption in case of a faulty update.
+disruption in case of a faulty update.
 
 Some useful commands for troubleshooting a component are mentioned below.
 
@@ -483,23 +484,24 @@ installation creates various components that might need to be manually removed. 
 following commands to delete the applications from cluster:
 
 ```shell
+kubectl get redis -oname | xargs kubectl delete
+kubectl get redisreplications -oname | xargs kubectl delete
+kubectl get redisclusters -oname |  | xargs kubectl delete
 helmfile destroy
 ```
 
 Some configurations can still linger inside the cluster. Try using following commands to purge them as well.
 
 ```shell
-kubectl delete crd prometheuses.monitoring.coreos.com prometheusrules.monitoring.coreos.com servicemonitors.monitoring.coreos.com alertmanagers.monitoring.coreos.com podmonitors.monitoring.coreos.com alertmanagerconfigs.monitoring.coreos.com probes.monitoring.coreos.com thanosrulers.monitoring.coreos.com
-kubectl delete psp kube-prometheus-stack-alertmanager kube-prometheus-stack-grafana kube-prometheus-stack-grafana-test kube-prometheus-stack-kube-state-metrics kube-prometheus-stack-operator kube-prometheus-stack-prometheus kube-prometheus-stack-prometheus-node-exporter
-kubectl delete mutatingwebhookconfigurations prometheus-admission
-kubectl delete ValidatingWebhookConfiguration prometheus-admission
-
-kubectl delete crd certificaterequests.cert-manager.io certificates.cert-manager.io challenges.acme.cert-manager.io clusterissuers.cert-manager.io issuers.cert-manager.io orders.acme.cert-manager.io
+kubectl get sts -oname | xargs kubectl delete
+kubectl get jobs -oname | xargs kubectl delete
+PATTERN="monitoring.coreos.com|redis.opstreelabs.in|postgresql.cnpg.io|cert-manager.io"
+kubectl get crds -oname | grep -E $PATTERN | xargs kubectl delete
 kubectl delete pvc --all
 kubectl delete pv --all
-kubectl -n cert-manager delete secrets letsencrypt-prod
-kubectl -n default delete secrets radar-base-tls
-kubectl -n monitoring delete secrets radar-base-tls
+kubectl -n cert-manager delete secrets --all
+kubectl -n default delete secrets --all
+kubectl -n monitoring delete secrets --all
 ```
 
 ## Update charts
@@ -509,6 +511,10 @@ To find any updates to the Helm charts that are listed in the repository, run
 ```shell
 bin/chart-updates
 ```
+
+## Developer documentation
+
+See [Development guide](docs/development_guide.md)
 
 ## Feedback and Contributions
 

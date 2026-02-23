@@ -4,6 +4,8 @@ kube_prometheus_stack:
   _install: false
 mongodb:
   _install: false
+  metrics:
+    enabled: false
 elasticsearch:
   _install: false
 graylog:
@@ -56,6 +58,9 @@ catalog_server:
 redis:
   metrics:
     enabled: false
+radar_redis:
+  metrics:
+    enabled: false
 minio:
   metrics:
     serviceMonitor:
@@ -103,12 +108,22 @@ gateway:
   serviceMonitor:
     enabled: false
 ksql_server:
-  prometheus:
-    jmx:
-      enabled: false
-mongodb:
-  metrics:
-    enabled: false
+  ksql:
+    prometheus:
+      jmx:
+        enabled: false
 radar_kafka_stack:
   metrics:
     enabled: false
+cp_kafka:
+  prometheus:
+    jmx:
+      enabled: false
+cp_zookeeper:
+  prometheus:
+    jmx:
+      enabled: false
+cp_schema_registry:
+  prometheus:
+    jmx:
+      enabled: false

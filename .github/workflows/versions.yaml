@@ -8,16 +8,20 @@ on:
 jobs:
   update_versions:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
 
       - name: setup-helmfile
-        uses: mamezou-tech/setup-helmfile@v1.2.0
+        uses: mamezou-tech/setup-helmfile@v2.1.0
         with:
           install-helm-plugins: no
           install-kubectl: no
+          helmfile-version: 0.67.0
+          helm-version: v3.17.3
 
       - name: Update versions.md
         run: bin/version_scan

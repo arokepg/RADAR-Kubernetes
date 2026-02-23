@@ -18,6 +18,9 @@ kafka_num_topic_replicas: 3
 # Number of partitions for Kafka topics. Rule of thumb: 3 times the number of brokers. Headroom is used for future upscale
 # of brokers. Ref: https://learn.conduktor.io/kafka/kafka-topics-choosing-the-replication-factor-and-partitions-count/
 kafka_num_topic_partitions: 12
+# Use proposed resource requests and limits for Kafka pods.
+# Note: these settings need to be adjusted based on the actual workload of the cluster.
+propose_resource_requests_limits: false
 # Enable logging and monitoring
 enable_logging_monitoring: false
 # Enable TLS redirection and retrieval of Let's Encrypt certificates.
@@ -159,7 +162,7 @@ cp_schema_registry:
 
 radar_kafka_stack:
   _install: true
-  _chart_version: 0.0.3
+  _chart_version: 0.4.0
   _extra_timeout: 0
 
 catalog_server:
@@ -170,7 +173,7 @@ catalog_server:
 
 radar_home:
   _install: true
-  _chart_version: 0.5.1
+  _chart_version: 0.5.3
   _extra_timeout: 0
 
 # --------------------------------------------------------- 10-managementportal.yaml ---------------------------------------------------------
@@ -200,17 +203,27 @@ cloudnativepg_operator:
 
 cloudnative_postgresql:
   _install: true
-  _chart_version: 0.3.0
+  _chart_version: 0.4.1
   _extra_timeout: 0
   cluster:
     cluster:
       instances: 2
       storage:
         size: 10Gi
+      postgresql:
+        parameters:
+          wal_keep_size: 1GB
+    backups:
+    # Set to 'true' for storing backups in S3 object store.
+      enabled: false
+    # Uncomment and update when running on AWS S3.
+    #  endpointURL: https://s3.eu-central-1.amazonaws.com
+    #  s3:
+    #    bucket: postgresql-backups
 
 management_portal:
   _install: true
-  _chart_version: 1.6.1
+  _chart_version: 1.6.3
   _extra_timeout: 210
   replicaCount: 1  # should be 1
   managementportal:
@@ -228,7 +241,7 @@ management_portal:
 
 radar_kratos:
   _install: false
-  _chart_version: 0.1.1
+  _chart_version: 0.1.2
   _extra_timeout: 0
   kratos:
     kratos:
@@ -238,7 +251,7 @@ radar_kratos:
 
 radar_self_enrolment_ui:
   _install: false
-  _chart_version: 0.3.0
+  _chart_version: 0.3.1
   _extra_timeout: 0
 
 radar_hydra:
@@ -247,13 +260,13 @@ radar_hydra:
   _extra_timeout: 0
 
 app_config:
-  _install: true
-  _chart_version: 1.7.0
+  _install: false
+  _chart_version: 1.7.1
   _extra_timeout: 0
   replicaCount: 1
 
 app_config_frontend:
-  _install: true
+  _install: false
   _chart_version: 2.4.0
   _extra_timeout: 0
   replicaCount: 1
@@ -278,7 +291,7 @@ radar_appserver_postgresql:
 
 radar_appserver:
   _install: false
-  _chart_version: 0.10.1
+  _chart_version: 0.10.2
   _extra_timeout: 0
   replicaCount: 1
   managementportal_resource_name: res_AppServer
@@ -297,14 +310,14 @@ radar_appserver:
 # The charts in 20-fitbit.yaml only need to be installed if you will use a Fitbit, Garmin, or Oura API integration.
 radar_fitbit_connector:
   _install: false
-  _chart_version: 0.10.2
+  _chart_version: 0.11.2
   _extra_timeout: 0
   replicaCount: 1
   oauthClientId: radar_fitbit_connector
 
 radar_oura_connector:
   _install: false
-  _chart_version: 0.5.1
+  _chart_version: 0.5.2
   _extra_timeout: 0
   replicaCount: 1
   oauthClientId: radar_oura_connector
@@ -314,25 +327,23 @@ radar_rest_sources_authorizer:
   _chart_version: 2.3.1
   _extra_timeout: 0
   replicaCount: 1
+  # -- Remove when running with ory hydra/kratos setups
+  authPath: /authorize
 
 radar_rest_sources_backend:
   _install: false
-  # -- Beware: we are stuck with the 1.4.0 version of the the chart
-  #    Reason is that newer versions at the moment require ory kratos/hydra.
-  _chart_version: 1.4.0
+  _chart_version: 1.5.8
   _extra_timeout: 0
   replicaCount: 1
-  # -- Remove when chart can handle non-ory setups
-  image:
-    registry: ghcr.io
-    repository: radar-base/radar-rest-source-auth/radar-rest-source-auth-backend
-    tag: 4.4.11
-  # --
   restSourceClients:
     fitbit:
       enable: "false"
     garmin:
       enable: "false"
+  # -- Remove when running with ory hydra/kratos setups
+  public_key_endpoints: []
+  # -- Remove when running with ory hydra/kratos setups
+  auth_url: http://management-portal:8080/managementportal/oauth/token
 
 # --------------------------------------------------------- 20-dashboard.yaml ---------------------------------------------------------
 
@@ -402,7 +413,7 @@ realtime_dashboard_timescaledb:
 #- ksql_server._install to true
 radar_grafana:
   _install: false
-  _chart_version: 0.1.1
+  _chart_version: 0.1.3
   _extra_timeout: 0
   replicaCount: 1
 
@@ -418,7 +429,7 @@ data_dashboard_backend:
 # Install when radar_grafana._install is 'true'
 radar_jdbc_connector_grafana:
   _install: false
-  _chart_version: 0.10.1
+  _chart_version: 0.11.0
   _extra_timeout: 0
   replicaCount: 1
   sink:
@@ -434,11 +445,21 @@ radar_jdbc_connector_grafana:
           owner: grafana
         storage:
           size: 8Gi
+        postgresql:
+          parameters:
+            wal_keep_size: 1GB
+      backups:
+      # Set to 'true' for storing backups in S3 object store.
+        enabled: false
+      # Uncomment and update when running on AWS S3.
+      #  endpointURL: https://s3.eu-central-1.amazonaws.com
+      #  s3:
+      #    bucket: postgresql-backups
 
 # Install when data_dashboard_backend._install is 'true'.
 radar_jdbc_connector_data_dashboard_backend:
   _install: false
-  _chart_version: 0.10.1
+  _chart_version: 0.11.0
   _extra_timeout: 0
   replicaCount: 1
   timescaledb:
@@ -451,11 +472,21 @@ radar_jdbc_connector_data_dashboard_backend:
           owner: data-dashboard
         storage:
           size: 8Gi
+        postgresql:
+          parameters:
+            wal_keep_size: 1GB
+      # Set to 'true' for storing backups in S3 object store.
+      backups:
+        enabled: false
+      # Uncomment and update when running on AWS S3.
+      #  endpointURL: https://s3.eu-central-1.amazonaws.com
+      #  s3:
+      #    bucket: postgresql-backups
 
 # Install when using realtime analysis
 radar_jdbc_connector_realtime_dashboard:
   _install: false
-  _chart_version: 0.10.1
+  _chart_version: 0.11.0
   _extra_timeout: 0
   replicaCount: 1
   timescaledb:
@@ -468,6 +499,16 @@ radar_jdbc_connector_realtime_dashboard:
           owner: realtime-dashboard
         storage:
           size: 8Gi
+        postgresql:
+          parameters:
+            wal_keep_size: 1GB
+      # Set to 'true' for storing backups in S3 object store.
+      backups:
+        enabled: false
+      # Uncomment and update when running on AWS S3.
+      #  endpointURL: https://s3.eu-central-1.amazonaws.com
+      #  s3:
+      #    bucket: postgresql-backups
 
 # Install when:
 #- radar_grafana._install is 'true'
@@ -487,7 +528,7 @@ ksql_server:
 
 radar_gateway:
   _install: true
-  _chart_version: 1.7.1
+  _chart_version: 1.8.0
   _extra_timeout: 0
   replicaCount: 1
 
@@ -502,12 +543,24 @@ radar_integration:
 
 # --------------------------------------------------------- 20-s3-connector.yaml ---------------------------------------------------------
 
+# DEPRECATED: replaced by OT-CONTAINER-KIT operator deployed redis cluster (see below)
 redis:
-  _install: true
+  _install: false
   _chart_version: 19.1.6
   _extra_timeout: 0
   metrics:
     enabled: true
+
+radar_redis:
+  _install: true
+  _chart_version: 1.3.0
+  _extra_timeout: 90
+  redis-operator:
+    enabled: true
+  multi:
+    replicates: 3
+  storage:
+    size: 1Gi
 
 minio:
   _install: true
@@ -552,7 +605,7 @@ s3_proxy:
 
 radar_output:
   _install: true
-  _chart_version: 1.2.3
+  _chart_version: 1.2.7
   _extra_timeout: 0
   replicaCount: 1
   source:
@@ -563,9 +616,6 @@ radar_output:
     s3:
       endpoint: http://minio:9000/
       bucket: radar-output-storage
-
-  redis:
-    uri: redis://redis-master:6379
 
 # --------------------------------------------------------- 20-upload.yaml ---------------------------------------------------------
 
@@ -587,19 +637,19 @@ radar_upload_postgresql:
 
 radar_upload_connect_backend:
   _install: false
-  _chart_version: 0.9.0
+  _chart_version: 0.9.1
   _extra_timeout: 0
   replicaCount: 1
 
 radar_upload_connect_frontend:
   _install: false
-  _chart_version: 0.8.0
+  _chart_version: 0.8.1
   _extra_timeout: 0
   replicaCount: 1
 
 radar_upload_source_connector:
   _install: false
-  _chart_version: 0.6.1
+  _chart_version: 0.6.2
   _extra_timeout: 60
   replicaCount: 1
   s3Endpoint: http://minio:9000/
@@ -616,7 +666,7 @@ ccSchemaRegistryProxy:
 
 radar_push_endpoint:
   _install: false
-  _chart_version: 0.6.0
+  _chart_version: 0.6.5
   _extra_timeout: 180
   replicaCount: 1
   adminProperties: {}

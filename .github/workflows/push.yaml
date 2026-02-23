@@ -43,8 +43,7 @@ jobs:
         run: |
           DNAME='CN=CI,O=TheHyve,L=Utrecht,C=NL' ./bin/init
           cp etc/base-secrets.yaml etc/secrets.yaml
-          helmfile_mods+='\ \ \ \ \ \ - ../.github/ci_config/secrets.yaml.gotmpl'
-          sed -i "/secrets.yaml/a $helmfile_mods" environments.yaml
+          sed -i "/secrets.yaml/a \      - ../.github/ci_config/secrets.yaml.gotmpl" environments.yaml
           sed -i '/_install: /s/false/true/' etc/production.yaml
           # Deploy a minimal deployment accessible on 'localhost:80' with monitoring enabled
           sed -i '/enable_logging_monitoring: /s/false/true/' etc/production.yaml
@@ -104,7 +103,7 @@ jobs:
       - uses: nolar/setup-k3d-k3s@v1
         with:
           version: ${{ matrix.K3S_VERSION }}
-          k3d-args: --k3s-arg --disable=traefik@server:0 --k3s-arg --disable-helm-controller@server:0 --config .github/ci_config/k3d-config.yaml
+          k3d-args: --k3s-arg --disable=traefik@server:0 --k3s-arg --disable-helm-controller@server:0 --config dev/k3d-dev-containerd.yaml
           # Note: k3d adds a 'k3d-' prefix to this name
           k3d-name: ${{ matrix.KUBECTL_VERSION }}
 

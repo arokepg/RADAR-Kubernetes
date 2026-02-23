@@ -2,8 +2,8 @@
 
 <!-- TOC -->
 * [Upgrade instructions](#upgrade-instructions)
-  * [Upgrade to RADAR-Kubernetes version 1.3.0](#upgrade-to-radar-kubernetes-version-130)
-    * [Update `mods/migration/1.3.0.yaml` mods file](#update-modsmigration130yaml-mods-file)
+  * [Upgrade to RADAR-Kubernetes version 1.3.0](#upgrade-to-radar-kubernetes-version-140)
+    * [Update `mods/migration/1.3.0.yaml` mods file](#update-modsmigration140yaml-mods-file)
     * [Update `production.yaml` file](#update-productionyaml-file)
     * [Update `production.yaml.gotmpl` file](#update-productionyamlgotmpl-file)
     * [Update `secrets.yaml` file](#update-secretsyaml-file)
@@ -17,6 +17,16 @@
         * [Update `environments.yaml` file](#update-environmentsyaml-file)
       * [5. Manual import of Timescaledb databases](#5-manual-import-of-timescaledb-databases)
       * [5. Re-enable services that write to the databases](#5-re-enable-services-that-write-to-the-databases)
+    * [Kafka migration](#kafka-migration)
+      * [1. Set desired PVC size](#1-set-desired-pvc-size)
+      * [2. Installation of Strimzi Kafka](#2-installation-of-strimzi-kafka)
+      * [3. Route radar-gateway traffic to Strimzi Kafka](#3-route-radar-gateway-traffic-to-strimzi-kafka)
+      * [4. Spool messages in ConfluentInc Kafka to S3 intermediate storage](#4-spool-messages-in-confluentinc-kafka-to-s3-intermediate-storage)
+      * [5. Connect radar-s3-connector to Strimzi Kafka](#5-connect-radar-s3-connector-to-strimzi-kafka)
+    * [Redis migration](#redis-migration)
+      * [2. Installation of Redis cluster](#2-installation-of-redis-cluster)
+      * [3. Migration of Redis standalone data to cluster](#3-migration-of-redis-standalone-data-to-cluster)
+      * [4. Uninstall standalone Redis](#4-uninstall-standalone-redis)
     * [Post-migration cleanup](#post-migration-cleanup)
   * [Upgrade to RADAR-Kubernetes version 1.2.0](#upgrade-to-radar-kubernetes-version-120)
     * [Update `production.yaml` file](#update-productionyaml-file-1)
@@ -57,14 +67,7 @@ from the `databases:` list that is not needed. For instance:
 
 1. Remove any line beginning with `_chart_version:`.
 
-2. Add values for the number of Postgresql and Timescaledb replicas. Change the number of replicas if desired:
-
-```yaml
-# Number of Postgres pods that will be installed
-postgres_num_replicates: 2
-```
-
-3. If desired, add a section that changes the default storage size of the Postgresql cluster to be created:
+2. If desired, add a section that changes the default storage size of the Postgresql cluster to be created:
 
 ```yaml
 cloudnative_postgresql:
@@ -74,8 +77,8 @@ cloudnative_postgresql:
         size: 10Gi
 ```
 
-4. Set legacy versions for Timescaledb in jdbc-connector sections. If desired, change the storage size of the
-   respective databases:
+3. If using a TimescaleDB database, set legacy versions for Timescaledb in jdbc-connector sections. If desired, change the storage size of the
+   respective database(s) that is in use:
 
 Note: major version upgrades performed by the CloudNativePG operator are currently under development. When v1.26 is
 released, the Timescaledb databases can be upgraded to the a newer version.
@@ -168,7 +171,7 @@ radar_hydra:
 
 ### Database migration
 
-Important: before database migration the steps in the sections above must have been completed successfully.
+Important: before database migration, the steps in the sections above must have been completed successfully.
 
 Notes:
 
@@ -220,38 +223,25 @@ kubectl exec postgresql-0 -it -- sh -c 'PGPASSWORD=<password> psql -U <user> --p
 Create database users and set ownership of the databases (remove any database that is not needed):
 
 ```sql
-CREATE
-USER managementportal;
-CREATE
-USER restsourceauthorizer;
-CREATE
-USER appconfig;
-CREATE
-USER kratos;
-CREATE
-USER appserver;
-CREATE
-USER uploadconnector;
-ALTER
-DATABASE managementportal OWNER to managementportal;
-ALTER
-DATABASE restsourceauthorizer OWNER to restsourceauthorizer;
-ALTER
-DATABASE appconfig OWNER to appconfig;
-ALTER
-DATABASE kratos OWNER to kratos;
-ALTER
-DATABASE appserver OWNER to appserver;
-ALTER
-DATABASE uploadconnector OWNER to uploadconnector;
+CREATE USER managementportal;
+CREATE USER restsourceauthorizer;
+CREATE USER appconfig;
+CREATE USER kratos;
+CREATE USER appserver;
+CREATE USER uploadconnector;
+ALTER DATABASE managementportal OWNER to managementportal;
+ALTER DATABASE restsourceauthorizer OWNER to restsourceauthorizer;
+ALTER DATABASE appconfig OWNER to appconfig;
+ALTER DATABASE kratos OWNER to kratos;
+ALTER DATABASE appserver OWNER to appserver;
+ALTER DATABASE uploadconnector OWNER to uploadconnector;
 ```
 
 Transfer ownership of all tables in respective databases to the new users. Ignore sections of the command for any
 database that is not used.
 
 ```sql
-\c
-managementportal
+\c managementportal
 CREATE
 OR REPLACE FUNCTION exec(text) returns text language plpgsql volatile
   AS
@@ -268,8 +258,7 @@ SELECT exec ( 'ALTER SEQUENCE ' || sequence_name || ' OWNER TO ' || sequence_cat
 FROM information_schema.sequences
 WHERE sequence_schema = 'public';
 
-\c
-restsourceauthorizer
+\c restsourceauthorizer
 CREATE
 OR REPLACE FUNCTION exec(text) returns void language plpgsql volatile
   AS
@@ -285,8 +274,7 @@ SELECT exec ( 'ALTER SEQUENCE ' || sequence_name || ' OWNER TO ' || sequence_cat
 FROM information_schema.sequences
 WHERE sequence_schema = 'public';
 
-\c
-appconfig
+\c appconfig
 CREATE
 OR REPLACE FUNCTION exec(text) returns text language plpgsql volatile
   AS
@@ -303,8 +291,7 @@ SELECT exec ( 'ALTER SEQUENCE ' || sequence_name || ' OWNER TO ' || sequence_cat
 FROM information_schema.sequences
 WHERE sequence_schema = 'public';
 
-\c
-kratos
+\c kratos
 CREATE
 OR REPLACE FUNCTION exec(text) returns text language plpgsql volatile
   AS
@@ -321,8 +308,7 @@ SELECT exec ( 'ALTER SEQUENCE ' || sequence_name || ' OWNER TO ' || sequence_cat
 FROM information_schema.sequences
 WHERE sequence_schema = 'public';
 
-\c
-appserver
+\c appserver
 CREATE
 OR REPLACE FUNCTION exec(text) returns text language plpgsql volatile
   AS
@@ -339,8 +325,7 @@ SELECT exec ( 'ALTER SEQUENCE ' || sequence_name || ' OWNER TO ' || sequence_cat
 FROM information_schema.sequences
 WHERE sequence_schema = 'public';
 
-\c
-uploadconnector
+\c uploadconnector
 CREATE
 OR REPLACE FUNCTION exec(text) returns text language plpgsql volatile
   AS
@@ -376,10 +361,11 @@ environments:
 ```
 
 Start the database migration of _management_portal_ and Timescaledb databases by using the auto-migration feature of
-the CloudNativePG operator. Run the _helmfile_ command once with the `mods/migration/1.3.0.yaml` modification file.
+the CloudNativePG operator. Run the _helmfile sync_ command once with the `mods/migration/1.3.0.yaml` modification file.
+Omit any service that is not in use from the command below:
 
 ```shell
-helmfile sync 
+helmfile sync -lname=cloudnative-postgresql -lname=radar-jdbc-connector-grafana -lname=radar-jdbc-connector-data-dashboard -lname=radar-jdbc-connector-realtime-dashboard 
 ```
 
 Confirm that all database services initialize successfully.
@@ -424,6 +410,54 @@ psql -d realtime-dashboard -t -c 'SELECT Timescaledb_post_restore();'
 #### 5. Re-enable services that write to the databases
 
 Re-enable all services that were disabled in the _Disable services that write to databases_ section above (see [Disable database changes](#disable-data-ingestion)).
+
+### Redis migration
+
+This migration replaces Redis standalone with an instance of Redis cluster (radar-redis). 
+
+In `production.yaml` set values for the desired PVC size of radar-redis. For instance:
+
+```yaml
+radar_redis:
+  redis-cluster:
+    redisCluster:
+      clusterSize: 3
+      leader:
+        replicas: 1
+      follower:
+        replicas: 1
+    storageSpec:
+      volumeClaimTemplate:
+        spec:
+          resources:
+            requests:
+              storage: 1Gi
+```
+
+#### 2. Installation of Redis cluster
+
+Once the correct values have been set, radar-redis can be installed in parallel together with redis-operator. For this run:
+
+```shell
+helmfile sync -lname=radar-redis name=redis-operator
+```
+
+#### 3. Migration of Redis standalone data to cluster
+
+The migration of the redis data to radar-redis is performed by running the following command in the shell of radar-redis-leader:
+
+```shell
+redis-cli --cluster import radar-redis-leader-headless:6379 --cluster-from redis-master:6379
+```
+
+#### 4. Uninstall standalone Redis
+
+Once you have confirmed a successful migration of the redis data to radar-redis, 
+as well as the functionality of radar-redis you can safely uninstall redis.
+
+```shell
+helm uninstall redis
+```
 
 ### Post-migration cleanup
 

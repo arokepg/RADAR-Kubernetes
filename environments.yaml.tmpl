@@ -5,6 +5,7 @@ environments:
       - ../etc/production.yaml
       - ../etc/production.yaml.gotmpl
       - ../etc/secrets.yaml
+      - ../mods/confluent_kafka.yaml
     {{ if not .Values.enable_tls }}
       - ../mods/disable_tls.yaml
     {{ end }}
@@ -33,6 +34,9 @@ environments:
     {{ if .Values.e2e_test }}
       - ../mods/e2e.yaml
     {{ end }}
+    {{- if .Values.propose_resource_requests_limits }}
+      - ../mods/resources.yaml
+    {{- end }}
 
 
 ---
